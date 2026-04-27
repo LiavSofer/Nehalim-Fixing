@@ -166,22 +166,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
 
             {/* Advanced fields for maintenance manager */}
             {showAdvancedFields && (
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="status">סטטוס</Label>
-                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
-                    <SelectTrigger id="status">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="ממתין">ממתין</SelectItem>
-                      <SelectItem value="בטיפול">בטיפול</SelectItem>
-                      <SelectItem value="ממתין לאישור">ממתין לאישור</SelectItem>
-                      <SelectItem value="סגור">סגור</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="priority">עדיפות</Label>
                   <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
