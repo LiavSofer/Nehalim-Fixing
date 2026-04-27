@@ -10,6 +10,7 @@ import { base44 } from '@/api/base44Client';
 
 import AppLayout from '@/components/layout/AppLayout';
 import Home from '@/pages/Home';
+import Faults from '@/pages/Faults';
 import UserManagement from '@/pages/UserManagement';
 import BlockedScreen from '@/pages/BlockedScreen';
 
@@ -55,6 +56,9 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<AppLayout user={user} />}>
         <Route path="/" element={<Home />} />
+        {['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'].includes(userRole) && (
+          <Route path="/faults" element={<Faults />} />
+        )}
         {userRole === 'מפתח' && (
           <Route path="/users" element={<UserManagement />} />
         )}
