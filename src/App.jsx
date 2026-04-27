@@ -20,11 +20,15 @@ const AuthenticatedApp = () => {
   const [loadingUser, setLoadingUser] = useState(true);
 
   useEffect(() => {
-    if (!isLoadingAuth && !isLoadingPublicSettings && !authError) {
-      base44.auth.me().then(u => {
-        setUser(u);
+    if (!isLoadingAuth && !isLoadingPublicSettings) {
+      if (authError) {
         setLoadingUser(false);
-      }).catch(() => setLoadingUser(false));
+      } else {
+        base44.auth.me().then(u => {
+          setUser(u);
+          setLoadingUser(false);
+        }).catch(() => setLoadingUser(false));
+      }
     }
   }, [isLoadingAuth, isLoadingPublicSettings, authError]);
 
