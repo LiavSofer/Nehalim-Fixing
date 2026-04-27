@@ -9,17 +9,18 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Plus, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function FaultForm({ users, onSuccess }) {
-  const [formData, setFormData] = useState({
+export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
+  const [formData, setFormData] = useState(editingFault || {
     location: '',
     faultType: '',
     description: '',
     image: '',
     priority: 'לא מוגדר',
     assignedTo: '',
+    status: 'ממתין',
   });
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState('');
+  const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
 
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -36,11 +37,15 @@ export default function FaultForm({ users, onSuccess }) {
     e.preventDefault();
     setLoading(true);
     try {
-      const user = await base44.auth.me();
-      await base44.entities.Fault.create({
-        ...formData,
-        reportedBy: user.email,
-      });
+      if (editingFault) {
+        await base44.entities.Fault.update(editingFault.id, formData);
+      } else {
+        const user = await base44.auth.me();
+        await base44.entities.Fault.create({
+          ...formData,
+          reportedBy: user.email,
+        });
+      }
       setFormData({
         location: '',
         faultType: '',
@@ -48,11 +53,12 @@ export default function FaultForm({ users, onSuccess }) {
         image: '',
         priority: 'לא מוגדר',
         assignedTo: '',
+        status: 'ממתין',
       });
       setImagePreview('');
       if (onSuccess) onSuccess();
     } catch (err) {
-      console.error('Create fault failed:', err);
+      console.error('Fault operation failed:', err);
     } finally {
       setLoading(false);
     }
@@ -146,44 +152,61 @@ export default function FaultForm({ users, onSuccess }) {
               </div>
             </div>
 
-            {/* Priority and Assigned To */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="priority">עדיפות</Label>
-                <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
-                  <SelectTrigger id="priority">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="גבוהה">גבוהה</SelectItem>
-                    <SelectItem value="בינונית">בינונית</SelectItem>
-                    <SelectItem value="לא מוגדר">לא מוגדר</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Advanced fields for maintenance manager */}
+            {showAdvancedFields && (
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">סטטוס</Label>
+                  <Select value={formData.status} onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}>
+                    <SelectTrigger id="status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ממתין">ממתין</SelectItem>
+                      <SelectItem value="בטיפול">בטיפול</SelectItem>
+                      <SelectItem value="ממתין לאישור">ממתין לאישור</SelectItem>
+                      <SelectItem value="סגור">סגור</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="assignedTo">משויך ל</Label>
-                <Select value={formData.assignedTo} onValueChange={(value) => setFormData(prev => ({ ...prev, assignedTo: value }))}>
-                  <SelectTrigger id="assignedTo">
-                    <SelectValue placeholder="בחר עובד" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>ללא הקצאה</SelectItem>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="space-y-2">
+                  <Label htmlFor="priority">עדיפות</Label>
+                  <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
+                    <SelectTrigger id="priority">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="גבוהה">גבוהה</SelectItem>
+                      <SelectItem value="בינונית">בינונית</SelectItem>
+                      <SelectItem value="לא מוגדר">לא מוגדר</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="assignedTo">משויך ל</Label>
+                  <Select value={formData.assignedTo} onValueChange={(value) => setFormData(prev => ({ ...prev, assignedTo: value }))}>
+                    <SelectTrigger id="assignedTo">
+                      <SelectValue placeholder="בחר עובד" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>ללא הקצאה</SelectItem>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>
+                          {user.full_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Submit */}
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={loading} className="gap-2">
-                {loading ? 'יוצר...' : 'יצירת תקלה'}
+                {loading ? 'שומר...' : editingFault ? 'עדכון תקלה' : 'יצירת תקלה'}
               </Button>
             </div>
           </form>

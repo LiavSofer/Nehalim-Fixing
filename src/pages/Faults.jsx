@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,6 +16,12 @@ export default function Faults() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingFault, setEditingFault] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(u => setUser(u));
+  }, []);
 
   const { data: faults, isLoading } = useQuery({
     queryKey: ['faults'],
@@ -32,7 +38,15 @@ export default function Faults() {
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['faults'] });
     setDialogOpen(false);
+    setEditingFault(null);
   };
+
+  const handleEdit = (fault) => {
+    setEditingFault(fault);
+    setDialogOpen(true);
+  };
+
+  const isMaintenanceManager = user?.role === 'מנהל אחזקה';
 
   const filteredFaults = faults.filter(fault => {
     const statusMatch = statusFilter === 'all' || fault.status === statusFilter;
@@ -95,14 +109,22 @@ export default function Faults() {
         </Button>
       </div>
 
-      {/* Dialog for new fault */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      {/* Dialog for new/edit fault */}
+      <Dialog open={dialogOpen} onOpenChange={(open) => {
+        setDialogOpen(open);
+        if (!open) setEditingFault(null);
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>תקלה חדשה</DialogTitle>
+            <DialogTitle>{editingFault ? 'עריכת תקלה' : 'תקלה חדשה'}</DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            <FaultForm users={users} onSuccess={handleSuccess} />
+            <FaultForm
+              users={users}
+              onSuccess={handleSuccess}
+              editingFault={editingFault}
+              showAdvancedFields={isMaintenanceManager}
+            />
           </div>
         </DialogContent>
       </Dialog>
@@ -177,6 +199,8 @@ export default function Faults() {
                 fault={fault}
                 assignedUser={assignedUser}
                 reportedUser={reportedUser}
+                isMaintenanceManager={isMaintenanceManager}
+                onEdit={handleEdit}
               />
             );
           })}

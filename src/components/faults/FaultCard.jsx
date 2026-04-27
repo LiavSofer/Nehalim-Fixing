@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, MapPin, Wrench, User, Calendar } from 'lucide-react';
+import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { motion } from 'framer-motion';
@@ -19,7 +19,7 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultCard({ fault, assignedUser, reportedUser }) {
+export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -36,9 +36,20 @@ export default function FaultCard({ fault, assignedUser, reportedUser }) {
                 <p className="text-sm text-muted-foreground truncate">{fault.location}</p>
               </div>
             </div>
-            <Badge className={`${STATUS_COLORS[fault.status]} border text-xs flex-shrink-0`}>
-              {fault.status}
-            </Badge>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Badge className={`${STATUS_COLORS[fault.status]} border text-xs`}>
+                {fault.status}
+              </Badge>
+              {isMaintenanceManager && (
+                <button
+                  onClick={() => onEdit?.(fault)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  title="עריכה"
+                >
+                  <Edit2 className="w-4 h-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
           </div>
         </CardHeader>
 
