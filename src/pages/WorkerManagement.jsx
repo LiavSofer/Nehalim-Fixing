@@ -191,13 +191,16 @@ export default function WorkerManagement() {
 
                     {/* Efficiency Score */}
                     <div className="space-y-2">
-                      <span className="text-xs font-medium text-muted-foreground">ביצועים</span>
+                      <div className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4 text-primary" />
+                        <span className="text-xs font-medium text-muted-foreground">ביצועים</span>
+                      </div>
                       <Badge 
                         variant="outline" 
                         className={
                           worker.avgWeekly >= 5 ? 'text-green-700 border-green-300' :
                           worker.avgWeekly >= 3 ? 'text-yellow-700 border-yellow-300' :
-                          'text-red-700'
+                          'text-red-700 border-red-300'
                         }
                       >
                         {worker.avgWeekly >= 5 ? '⭐ מעולה' :
