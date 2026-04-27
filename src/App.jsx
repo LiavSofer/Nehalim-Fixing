@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
 import AppLayout from '@/components/layout/AppLayout';
+import PushNotificationManager from '@/components/PushNotificationManager';
 import Home from '@/pages/Home';
 import Faults from '@/pages/Faults';
 import UserManagement from '@/pages/UserManagement';
@@ -87,6 +88,7 @@ function App() {
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
         <Router>
+          <PushNotificationManager />
           <AuthenticatedApp />
         </Router>
         <Toaster />
