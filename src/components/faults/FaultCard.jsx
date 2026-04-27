@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { base44 } from '@/api/base44Client';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -19,7 +21,25 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit }) {
+export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange }) {
+  const [assigningUser, setAssigningUser] = useState(false);
+
+  const handleAssignUser = async (userId) => {
+    setAssigningUser(true);
+    try {
+      // Auto-set status to "בטיפול" when assigning
+      await base44.entities.Fault.update(fault.id, {
+        assignedTo: userId || '',
+        status: userId && fault.status === 'ממתין' ? 'בטיפול' : fault.status,
+      });
+      onAssignmentChange?.();
+    } catch (err) {
+      console.error('Failed to assign user:', err);
+    } finally {
+      setAssigningUser(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -65,29 +85,47 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           <p className="text-sm text-muted-foreground line-clamp-2">{fault.description}</p>
 
           {/* Meta info */}
-          <div className="grid grid-cols-2 gap-3 pt-2 text-xs">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-              <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
-                {fault.priority}
-              </Badge>
-            </div>
-
-            {assignedUser && (
+          <div className="space-y-3 pt-2">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <User className="w-3.5 h-3.5 flex-shrink-0" />
-                <span className="truncate">{assignedUser.full_name}</span>
+                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
+                  {fault.priority}
+                </Badge>
               </div>
-            )}
 
-            <div className="flex items-center gap-2 text-muted-foreground col-span-2">
-              <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-              <span>{format(new Date(fault.created_date), 'dd.MM.yyyy HH:mm', { locale: he })}</span>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>{format(new Date(fault.created_date), 'dd.MM.yyyy', { locale: he })}</span>
+              </div>
+
+              {reportedUser && (
+                <div className="col-span-2 text-xs text-muted-foreground">
+                  דיווח על ידי: <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
+                </div>
+              )}
             </div>
 
-            {reportedUser && (
-              <div className="col-span-2 text-xs text-muted-foreground">
-                דיווח על ידי: <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
+            {/* Quick assign section for maintenance manager */}
+            {isMaintenanceManager && (
+              <div className="border-t pt-3">
+                <Select 
+                  value={fault.assignedTo || ''} 
+                  onValueChange={handleAssignUser}
+                  disabled={assigningUser}
+                >
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="שיוך לעובד..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>ללא הקצאה</SelectItem>
+                    {users.map(user => (
+                      <SelectItem key={user.id} value={user.id}>
+                        {user.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             )}
           </div>

@@ -201,6 +201,8 @@ export default function Faults() {
                 reportedUser={reportedUser}
                 isMaintenanceManager={isMaintenanceManager}
                 onEdit={handleEdit}
+                users={users}
+                onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
               />
             );
           })}
