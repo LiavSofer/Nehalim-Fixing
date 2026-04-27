@@ -59,69 +59,73 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          {/* Image */}
-          {fault.image && (
-            <div className="w-full h-40 rounded-lg overflow-hidden bg-muted">
-              <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
+        <CardContent className="space-y-3">
+          <div className="flex gap-4">
+            {/* Image */}
+            {fault.image && (
+              <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+                <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
+              </div>
+            )}
+
+            {/* Description and meta */}
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-muted-foreground line-clamp-2">{fault.description}</p>
+
+              {/* Meta info */}
+              <div className="space-y-2 pt-2">
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                    <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
+                      {fault.priority}
+                    </Badge>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span>{format(new Date(fault.created_date), 'dd.MM.yyyy', { locale: he })}</span>
+                  </div>
+
+                  {reportedUser && (
+                    <div className="col-span-2 text-xs text-muted-foreground">
+                      דיווח על ידי: <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick assign section for maintenance manager */}
+          {isMaintenanceManager && (
+            <div className="border-t pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDialogOpen(true)}
+                className="w-full text-xs"
+              >
+                <Wrench className="w-3 h-3 ml-1" />
+                שיוך עובד
+              </Button>
             </div>
           )}
 
-          {/* Description */}
-          <p className="text-sm text-muted-foreground line-clamp-2">{fault.description}</p>
-
-          {/* Meta info */}
-          <div className="space-y-3 pt-2">
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
-                  {fault.priority}
-                </Badge>
-              </div>
-
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>{format(new Date(fault.created_date), 'dd.MM.yyyy', { locale: he })}</span>
-              </div>
-
-              {reportedUser && (
-                <div className="col-span-2 text-xs text-muted-foreground">
-                  דיווח על ידי: <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
-                </div>
-              )}
+          {/* Mark as repaired button for worker */}
+          {isWorkerView && fault.status === 'בטיפול' && (
+            <div className="border-t pt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setRepairDialogOpen(true)}
+                className="w-full text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+              >
+                <CheckCircle2 className="w-3 h-3 ml-1" />
+                סימון כטופל
+              </Button>
             </div>
-
-            {/* Quick assign section for maintenance manager */}
-            {isMaintenanceManager && (
-              <div className="border-t pt-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDialogOpen(true)}
-                  className="w-full text-xs"
-                >
-                  <Wrench className="w-3 h-3 ml-1" />
-                  שיוך עובד
-                </Button>
-              </div>
-            )}
-
-            {/* Mark as repaired button for worker */}
-            {isWorkerView && fault.status === 'בטיפול' && (
-              <div className="border-t pt-3">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setRepairDialogOpen(true)}
-                  className="w-full text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
-                >
-                  <CheckCircle2 className="w-3 h-3 ml-1" />
-                  סימון כטופל
-                </Button>
-              </div>
-            )}
-          </div>
+          )}
         </CardContent>
 
         {/* Assign Worker Dialog */}
