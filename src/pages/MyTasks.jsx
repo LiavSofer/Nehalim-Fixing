@@ -71,12 +71,11 @@ export default function MyTasks() {
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
         {[
-          { label: 'סה"כ משימות', value: stats.total },
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600' },
+          { label: 'משויכות אליי', value: stats.inProgress, color: 'text-blue-600' },
           { label: 'ממתינות לאישור', value: stats.waitingApproval, color: 'text-orange-600' },
-          { label: 'הושלמו', value: stats.closed, color: 'text-green-600' },
+          { label: 'השלמתי בהצלחה', value: stats.closed, color: 'text-green-600' },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
