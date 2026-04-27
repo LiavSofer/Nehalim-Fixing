@@ -35,27 +35,27 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         className="flex flex-col md:flex-row md:items-center gap-3 p-2 md:p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
         {/* Image */}
         {fault.image && (
-          <div className="w-full md:w-20 h-24 md:h-20 flex-shrink-0 overflow-hidden bg-muted rounded">
+          <div className="w-full md:w-20 h-16 md:h-20 flex-shrink-0 overflow-hidden bg-muted rounded">
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
 
         {/* Main content */}
-        <div className="flex-1 min-w-0 flex flex-col gap-2 md:gap-4">
+        <div className="flex-1 min-w-0 flex flex-col gap-3 md:gap-4">
           {/* Type and Location */}
           <div className="min-w-0">
-            <h3 className="font-semibold text-foreground text-xs md:text-sm">{fault.faultType}</h3>
-            <div className="flex items-center gap-1 mt-0.5">
+            <h3 className="font-bold text-foreground text-base md:text-lg">{fault.faultType}</h3>
+            <div className="flex items-center gap-1 mt-1">
               <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
+              <p className="text-xs text-foreground/70 font-medium truncate">{fault.location}</p>
             </div>
           </div>
 
-          {/* Priority and Status side by side */}
-          <div className="flex gap-4 md:gap-8">
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-muted-foreground mb-0.5">דחיפות</span>
-              <p className={`text-xs md:text-sm font-semibold ${
+          {/* Priority and Status in grid */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground mb-1">דחיפות</span>
+              <p className={`text-sm font-semibold ${
                 fault.priority === 'גבוהה' ? 'text-red-600' :
                 fault.priority === 'בינונית' ? 'text-amber-600' :
                 'text-gray-600'
@@ -64,9 +64,9 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               </p>
             </div>
 
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-muted-foreground mb-0.5">סטטוס</span>
-              <p className={`text-xs md:text-sm font-semibold ${
+            <div className="flex flex-col">
+              <span className="text-xs text-muted-foreground mb-1">סטטוס</span>
+              <p className={`text-sm font-semibold ${
                 fault.status === 'ממתין' ? 'text-yellow-600' :
                 fault.status === 'בטיפול' ? 'text-blue-600' :
                 fault.status === 'ממתין לאישור' ? 'text-orange-600' :
