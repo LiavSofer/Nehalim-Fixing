@@ -32,62 +32,63 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
+        className="flex flex-col md:flex-row md:items-center gap-3 p-2 md:p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
         {/* Image */}
         {fault.image && (
-          <div className="w-full md:w-20 h-40 md:h-20 flex-shrink-0 overflow-hidden bg-muted rounded">
+          <div className="w-full md:w-20 h-24 md:h-20 flex-shrink-0 overflow-hidden bg-muted rounded">
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
 
         {/* Main content */}
-        <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
+        <div className="flex-1 min-w-0 flex flex-col gap-2 md:gap-4">
           {/* Type and Location */}
-          <div className="min-w-0 flex-shrink-0">
-            <h3 className="font-semibold text-foreground text-sm">{fault.faultType}</h3>
+          <div className="min-w-0">
+            <h3 className="font-semibold text-foreground text-xs md:text-sm">{fault.faultType}</h3>
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs text-muted-foreground">{fault.location}</p>
+              <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
             </div>
           </div>
 
-          {/* Priority */}
-          <div className="flex flex-col items-start md:items-center">
-            <span className="text-xs text-muted-foreground mb-1">דחיפות</span>
-            <p className={`text-sm font-semibold ${
-              fault.priority === 'גבוהה' ? 'text-red-600' :
-              fault.priority === 'בינונית' ? 'text-amber-600' :
-              'text-gray-600'
-            }`}>
-              {fault.priority}
-            </p>
-          </div>
+          {/* Priority and Status side by side */}
+          <div className="flex gap-4 md:gap-8">
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-muted-foreground mb-0.5">דחיפות</span>
+              <p className={`text-xs md:text-sm font-semibold ${
+                fault.priority === 'גבוהה' ? 'text-red-600' :
+                fault.priority === 'בינונית' ? 'text-amber-600' :
+                'text-gray-600'
+              }`}>
+                {fault.priority}
+              </p>
+            </div>
 
-          {/* Status */}
-          <div className="flex flex-col items-start md:items-center">
-            <span className="text-xs text-muted-foreground mb-1">סטטוס</span>
-            <p className={`text-sm font-semibold ${
-              fault.status === 'ממתין' ? 'text-yellow-600' :
-              fault.status === 'בטיפול' ? 'text-blue-600' :
-              fault.status === 'ממתין לאישור' ? 'text-orange-600' :
-              'text-green-600'
-            }`}>
-              {fault.status}
-            </p>
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-muted-foreground mb-0.5">סטטוס</span>
+              <p className={`text-xs md:text-sm font-semibold ${
+                fault.status === 'ממתין' ? 'text-yellow-600' :
+                fault.status === 'בטיפול' ? 'text-blue-600' :
+                fault.status === 'ממתין לאישור' ? 'text-orange-600' :
+                'text-green-600'
+              }`}>
+                {fault.status}
+              </p>
+            </div>
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-2 flex-shrink-0 self-start md:self-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-1 md:gap-2 flex-shrink-0 self-start md:self-auto" onClick={(e) => e.stopPropagation()}>
           {isMaintenanceManager && !assignedUser && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => setDialogOpen(true)}
-              className="text-xs"
+              className="text-xs px-2 md:px-3"
             >
-              <Wrench className="w-3 h-3 ml-1" />
-              שיוך
+              <Wrench className="w-3 h-3 md:ml-1" />
+              <span className="hidden md:inline">שיוך</span>
             </Button>
           )}
 
@@ -109,10 +110,10 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               variant="outline"
               size="sm"
               onClick={() => setRepairDialogOpen(true)}
-              className="text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+              className="text-xs px-2 md:px-3 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
             >
-              <CheckCircle2 className="w-3 h-3 ml-1" />
-              סימון
+              <CheckCircle2 className="w-3 h-3 md:ml-1" />
+              <span className="hidden md:inline">סימון</span>
             </Button>
           )}
         </div>
