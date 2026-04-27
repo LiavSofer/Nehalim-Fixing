@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { motion } from 'framer-motion';
-import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import AssignWorkerDialog from './AssignWorkerDialog';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -22,23 +22,7 @@ const PRIORITY_COLORS = {
 };
 
 export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange }) {
-  const [assigningUser, setAssigningUser] = useState(false);
-
-  const handleAssignUser = async (userId) => {
-    setAssigningUser(true);
-    try {
-      // Auto-set status to "בטיפול" when assigning
-      await base44.entities.Fault.update(fault.id, {
-        assignedTo: userId || '',
-        status: userId && fault.status === 'ממתין' ? 'בטיפול' : fault.status,
-      });
-      onAssignmentChange?.();
-    } catch (err) {
-      console.error('Failed to assign user:', err);
-    } finally {
-      setAssigningUser(false);
-    }
-  };
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <motion.div
@@ -109,27 +93,28 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             {/* Quick assign section for maintenance manager */}
             {isMaintenanceManager && (
               <div className="border-t pt-3">
-                <Select 
-                  value={fault.assignedTo || ''} 
-                  onValueChange={handleAssignUser}
-                  disabled={assigningUser}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDialogOpen(true)}
+                  className="w-full text-xs"
                 >
-                  <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="שיוך לעובד..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>ללא הקצאה</SelectItem>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.full_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <Wrench className="w-3 h-3 ml-1" />
+                  שיוך עובד
+                </Button>
               </div>
             )}
           </div>
         </CardContent>
+
+        {/* Assign Worker Dialog */}
+        <AssignWorkerDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          fault={fault}
+          users={users}
+          onAssignmentChange={onAssignmentChange}
+        />
       </Card>
     </motion.div>
   );
