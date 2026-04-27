@@ -88,10 +88,10 @@ export default function Faults() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'סה"כ קריאות', value: stats.total, groupValue: 'all', bgColor: 'bg-card border-border', activeBg: 'bg-primary/10 border-primary' },
-          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', bgColor: 'bg-yellow-50 border-yellow-200', activeBg: 'bg-yellow-100 border-yellow-400' },
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', bgColor: 'bg-blue-50 border-blue-200', activeBg: 'bg-blue-100 border-blue-400' },
-          { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', bgColor: 'bg-green-50 border-green-200', activeBg: 'bg-green-100 border-green-400' },
+          { label: 'סה"כ קריאות', value: stats.total, groupValue: 'all', color: 'text-muted-foreground', activeBg: 'bg-primary/10 border-primary' },
+          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', activeBg: 'bg-yellow-100 border-yellow-400' },
+          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', activeBg: 'bg-blue-100 border-blue-400' },
+          { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', activeBg: 'bg-green-100 border-green-400' },
         ].map((stat, i) => {
           const isActive = groupBy === stat.groupValue;
           return (
@@ -104,11 +104,11 @@ export default function Faults() {
               className={`rounded-lg p-4 text-center cursor-pointer hover:shadow-md transition-all border ${
                 isActive
                   ? stat.activeBg
-                  : stat.bgColor
+                  : 'bg-card border-border'
               }`}
             >
               <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className={`text-xs mt-1 ${stat.color || 'text-muted-foreground'}`}>{stat.label}</p>
+              <p className={`text-xs mt-1 ${stat.color}`}>{stat.label}</p>
             </motion.div>
           );
         })}
@@ -156,7 +156,14 @@ export default function Faults() {
 
       {/* Grouped View for Maintenance Manager */}
       {isMaintenanceManager && !isLoading ? (
-        <div className="space-y-8">
+        <>
+          {groupBy !== 'all' && faults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
+            <div className="text-center py-12">
+              <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">הרשימה ריקה</p>
+            </div>
+          ) : (
+            <div className="space-y-8">
           {/* Waiting */}
           {(groupBy === 'all' || groupBy === 'ממתין') && faults.filter(f => f.status === 'ממתין').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -298,7 +305,9 @@ export default function Faults() {
               </motion.div>
             </motion.div>
           )}
-        </div>
+            </div>
+          )}
+        </>
       ) : (
         <>
           {/* Filters */}
