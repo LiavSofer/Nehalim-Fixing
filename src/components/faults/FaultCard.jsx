@@ -85,10 +85,10 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               variant="outline"
               size="sm"
               onClick={() => setDialogOpen(true)}
-              className="text-xs px-2 md:px-3"
+              className="text-xs px-2 md:px-3 gap-1"
             >
-              <Wrench className="w-3 h-3 md:ml-1" />
-              <span className="hidden md:inline">שיוך</span>
+              <Wrench className="w-3 h-3" />
+              <span>שיוך עובד</span>
             </Button>
           )}
 

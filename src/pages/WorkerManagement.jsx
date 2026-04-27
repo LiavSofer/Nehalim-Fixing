@@ -24,8 +24,8 @@ export default function WorkerManagement() {
   });
 
   // Calculate worker stats
-  const getWorkerStats = () => {
-    const workers = users.filter(u => ['מדריך', 'אב בית', 'מנהל אחזקה'].includes(u.role));
+    const getWorkerStats = () => {
+      const workers = users.filter(u => u.role === 'אב בית');
     
     const now = new Date();
     const todayStart = startOfDay(now);
@@ -71,7 +71,6 @@ export default function WorkerManagement() {
         id: worker.id,
         name: worker.full_name,
         email: worker.email,
-        totalAssigned: assignedFaults.length,
         openTasks: openFaults.length,
         closedToday: closedToday.length,
         closedThisWeek: closedThisWeek.length,
@@ -189,79 +188,60 @@ export default function WorkerManagement() {
               transition={{ delay: idx * 0.05 }}
             >
               <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
-                <CardHeader className="pb-4">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{worker.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground mt-1">{worker.email}</p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-primary">{worker.totalAssigned}</div>
-                      <p className="text-xs text-muted-foreground">משימות בסך הכל</p>
-                    </div>
+                <CardHeader className="pb-3">
+                  <div>
+                    <CardTitle className="text-base">{worker.name}</CardTitle>
+                    <p className="text-xs text-muted-foreground mt-1">{worker.email}</p>
                   </div>
                 </CardHeader>
 
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-4">
+                  <div className="flex flex-wrap justify-between gap-y-3 gap-x-2">
                      {/* Open Tasks */}
-                     <button onClick={() => handleOpenTasks(worker)} className="text-left hover:opacity-70 transition-opacity">
-                       <div className="flex items-center gap-2 mb-3">
-                         <Wrench className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                     <button onClick={() => handleOpenTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
+                       <div className="flex items-center justify-center gap-1 mb-2">
+                         <Wrench className="w-3 h-3 text-amber-600 flex-shrink-0" />
                          <span className="text-xs font-medium text-muted-foreground">פתוחות</span>
                        </div>
-                       <p className="text-2xl font-bold text-amber-600">{worker.openTasks}</p>
+                       <p className="text-lg font-bold text-amber-600">{worker.openTasks}</p>
                      </button>
 
                      {/* Closed Today */}
-                     <button onClick={() => handleClosedTodayTasks(worker)} className="text-left hover:opacity-70 transition-opacity">
-                       <div className="flex items-center gap-2 mb-3">
-                         <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">סיימה היום</span>
+                     <button onClick={() => handleClosedTodayTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
+                       <div className="flex items-center justify-center gap-1 mb-2">
+                         <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0" />
+                         <span className="text-xs font-medium text-muted-foreground">נפתרו היום</span>
                        </div>
-                       <p className="text-2xl font-bold text-green-600">{worker.closedToday}</p>
+                       <p className="text-lg font-bold text-green-600">{worker.closedToday}</p>
                      </button>
 
                      {/* This Week */}
-                     <button onClick={() => handleClosedThisWeekTasks(worker)} className="text-left hover:opacity-70 transition-opacity">
-                       <div className="flex items-center gap-2 mb-3">
-                         <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                     <button onClick={() => handleClosedThisWeekTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
+                       <div className="flex items-center justify-center gap-1 mb-2">
+                         <CheckCircle2 className="w-3 h-3 text-blue-600 flex-shrink-0" />
                          <span className="text-xs font-medium text-muted-foreground">השבוע</span>
                        </div>
-                       <p className="text-2xl font-bold text-blue-600">{worker.closedThisWeek}</p>
+                       <p className="text-lg font-bold text-blue-600">{worker.closedThisWeek}</p>
                      </button>
 
-                     {/* Average Weekly */}
-                     <div className="text-left">
-                       <div className="flex items-center gap-2 mb-3">
-                         <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">ממוצע</span>
-                       </div>
-                       <p className="text-2xl font-bold text-primary">{worker.avgWeekly}</p>
-                     </div>
-
                      {/* Average Time to Resolve */}
-                     <div className="text-left">
-                       <div className="flex items-center gap-2 mb-3">
-                         <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
+                     <div className="text-center flex-1 min-w-fit">
+                       <div className="flex items-center justify-center gap-1 mb-2">
+                         <TrendingUp className="w-3 h-3 text-primary flex-shrink-0" />
                          <span className="text-xs font-medium text-muted-foreground">זמן ממוצע</span>
                        </div>
-                       <p className="text-2xl font-bold text-primary">{worker.avgTimeToResolve}h</p>
+                       <p className="text-lg font-bold text-primary">{worker.avgTimeToResolve}h</p>
                      </div>
 
                      {/* Efficiency Score */}
-                     <div className="text-left">
-                       <div className="flex items-center gap-2 mb-3">
-                         <TrendingUp className="w-4 h-4 text-primary flex-shrink-0" />
+                     <div className="text-center flex-1 min-w-fit">
+                       <div className="flex items-center justify-center gap-1 mb-2">
+                         <TrendingUp className="w-3 h-3 text-primary flex-shrink-0" />
                          <span className="text-xs font-medium text-muted-foreground">ביצועים</span>
                        </div>
                        <Badge 
                          variant="outline" 
-                         className={
-                           worker.avgWeekly >= 5 ? 'text-green-700 border-green-300' :
-                           worker.avgWeekly >= 3 ? 'text-yellow-700 border-yellow-300' :
-                           'text-red-700 border-red-300'
-                         }
+                         className="text-xs py-1"
                        >
                          {worker.avgWeekly >= 5 ? '⭐ מעולה' :
                           worker.avgWeekly >= 3 ? '⚠️ טוב' :
