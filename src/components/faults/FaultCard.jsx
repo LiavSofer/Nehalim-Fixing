@@ -32,27 +32,27 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex items-center gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
+        className="flex flex-col md:flex-row md:items-center gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
         {/* Image */}
         {fault.image && (
-          <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-muted">
+          <div className="w-full md:w-20 h-40 md:h-20 flex-shrink-0 overflow-hidden bg-muted rounded">
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
 
         {/* Main content */}
-        <div className="flex-1 min-w-0 flex items-center gap-8">
+        <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-4 md:gap-8">
           {/* Type and Location */}
           <div className="min-w-0 flex-shrink-0">
-            <h3 className="font-semibold text-foreground text-sm truncate">{fault.faultType}</h3>
+            <h3 className="font-semibold text-foreground text-sm">{fault.faultType}</h3>
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-              <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
+              <p className="text-xs text-muted-foreground">{fault.location}</p>
             </div>
           </div>
 
           {/* Priority */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-start md:items-center">
             <span className="text-xs text-muted-foreground mb-1">דחיפות</span>
             <p className={`text-sm font-semibold ${
               fault.priority === 'גבוהה' ? 'text-red-600' :
@@ -64,7 +64,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           </div>
 
           {/* Status */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-start md:items-center">
             <span className="text-xs text-muted-foreground mb-1">סטטוס</span>
             <p className={`text-sm font-semibold ${
               fault.status === 'ממתין' ? 'text-yellow-600' :
@@ -78,7 +78,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div className="flex gap-2 flex-shrink-0 self-start md:self-auto" onClick={(e) => e.stopPropagation()}>
           {isMaintenanceManager && !assignedUser && (
             <Button
               variant="outline"
