@@ -12,6 +12,7 @@ import AppLayout from '@/components/layout/AppLayout';
 import Home from '@/pages/Home';
 import Faults from '@/pages/Faults';
 import UserManagement from '@/pages/UserManagement';
+import WorkerManagement from '@/pages/WorkerManagement';
 import BlockedScreen from '@/pages/BlockedScreen';
 
 const AuthenticatedApp = () => {
@@ -60,6 +61,9 @@ const AuthenticatedApp = () => {
     <Routes>
       <Route element={<AppLayout user={user} />}>
         <Route path="/" element={['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
+        {userRole === 'מנהל אחזקה' && (
+          <Route path="/workers" element={<WorkerManagement />} />
+        )}
         {userRole === 'מפתח' && (
           <Route path="/users" element={<UserManagement />} />
         )}
