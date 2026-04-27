@@ -142,21 +142,20 @@ export default function WorkerManagement() {
       </motion.div>
 
       {/* Overview Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+      <div className="flex justify-around gap-4 mb-8 overflow-x-auto pb-2">
         {[
-          { label: 'סך עובדים', value: workerStats.length },
           { label: 'משימות פתוחות', value: workerStats.reduce((sum, w) => sum + w.openTasks, 0) },
-          { label: 'סגורות היום', value: workerStats.reduce((sum, w) => sum + w.closedToday, 0) },
-          { label: 'סגורות השבוע', value: workerStats.reduce((sum, w) => sum + w.closedThisWeek, 0) },
+          { label: 'נפתרו היום', value: workerStats.reduce((sum, w) => sum + w.closedToday, 0) },
+          { label: 'נפתרו השבוע', value: workerStats.reduce((sum, w) => sum + w.closedThisWeek, 0) },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-lg p-4 text-center"
+            className="bg-card border border-border rounded-lg p-3 text-center min-w-max"
           >
-            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+            <p className="text-xl font-bold text-foreground">{stat.value}</p>
             <p className="text-xs mt-1 text-muted-foreground">{stat.label}</p>
           </motion.div>
         ))}
@@ -189,66 +188,35 @@ export default function WorkerManagement() {
             >
               <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
                 <CardHeader className="pb-3">
-                  <div>
-                    <CardTitle className="text-base">{worker.name}</CardTitle>
-                    <p className="text-xs text-muted-foreground mt-1">{worker.email}</p>
-                  </div>
+                  <CardTitle className="text-base">{worker.name}</CardTitle>
                 </CardHeader>
 
                 <CardContent>
-                  <div className="flex flex-wrap justify-between gap-y-3 gap-x-2">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-center">
                      {/* Open Tasks */}
-                     <button onClick={() => handleOpenTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
-                       <div className="flex items-center justify-center gap-1 mb-2">
-                         <Wrench className="w-3 h-3 text-amber-600 flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">פתוחות</span>
-                       </div>
+                     <button onClick={() => handleOpenTasks(worker)} className="hover:opacity-70 transition-opacity">
                        <p className="text-lg font-bold text-amber-600">{worker.openTasks}</p>
+                       <p className="text-xs text-muted-foreground">פתוחות</p>
                      </button>
 
                      {/* Closed Today */}
-                     <button onClick={() => handleClosedTodayTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
-                       <div className="flex items-center justify-center gap-1 mb-2">
-                         <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">נפתרו היום</span>
-                       </div>
+                     <button onClick={() => handleClosedTodayTasks(worker)} className="hover:opacity-70 transition-opacity">
                        <p className="text-lg font-bold text-green-600">{worker.closedToday}</p>
+                       <p className="text-xs text-muted-foreground">נפתרו היום</p>
                      </button>
 
                      {/* This Week */}
-                     <button onClick={() => handleClosedThisWeekTasks(worker)} className="text-center hover:opacity-70 transition-opacity flex-1 min-w-fit">
-                       <div className="flex items-center justify-center gap-1 mb-2">
-                         <CheckCircle2 className="w-3 h-3 text-blue-600 flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">השבוע</span>
-                       </div>
+                     <button onClick={() => handleClosedThisWeekTasks(worker)} className="hover:opacity-70 transition-opacity">
                        <p className="text-lg font-bold text-blue-600">{worker.closedThisWeek}</p>
+                       <p className="text-xs text-muted-foreground">השבוע</p>
                      </button>
 
                      {/* Average Time to Resolve */}
-                     <div className="text-center flex-1 min-w-fit">
-                       <div className="flex items-center justify-center gap-1 mb-2">
-                         <TrendingUp className="w-3 h-3 text-primary flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">זמן ממוצע</span>
-                       </div>
-                       <p className="text-lg font-bold text-primary">{worker.avgTimeToResolve}h</p>
+                     <div>
+                       <p className="text-lg font-bold text-orange-600">{worker.avgTimeToResolve}h</p>
+                       <p className="text-xs text-muted-foreground">זמן ממוצע</p>
                      </div>
-
-                     {/* Efficiency Score */}
-                     <div className="text-center flex-1 min-w-fit">
-                       <div className="flex items-center justify-center gap-1 mb-2">
-                         <TrendingUp className="w-3 h-3 text-primary flex-shrink-0" />
-                         <span className="text-xs font-medium text-muted-foreground">ביצועים</span>
-                       </div>
-                       <Badge 
-                         variant="outline" 
-                         className="text-xs py-1"
-                       >
-                         {worker.avgWeekly >= 5 ? '⭐ מעולה' :
-                          worker.avgWeekly >= 3 ? '⚠️ טוב' :
-                          '❌ נמוך'}
-                       </Badge>
-                     </div>
-                   </div>
+                    </div>
                 </CardContent>
               </Card>
             </motion.div>
