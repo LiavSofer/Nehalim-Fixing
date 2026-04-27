@@ -37,15 +37,27 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     e.preventDefault();
     setLoading(true);
     try {
+      const user = await base44.auth.me();
+      let dataToSave = { ...formData };
+
       if (editingFault) {
-        await base44.entities.Fault.update(editingFault.id, formData);
+        // When editing, check if assignedTo changed
+        const wasUnassigned = !editingFault.assignedTo;
+        const nowAssigned = formData.assignedTo;
+        
+        // Auto-update status: if assigning to someone for first time, set to "בטיפול"
+        if (wasUnassigned && nowAssigned && formData.status === 'ממתין') {
+          dataToSave.status = 'בטיפול';
+        }
+        
+        await base44.entities.Fault.update(editingFault.id, dataToSave);
       } else {
-        const user = await base44.auth.me();
-        await base44.entities.Fault.create({
-          ...formData,
-          reportedBy: user.email,
-        });
+        // New fault always starts with "ממתין"
+        dataToSave.status = 'ממתין';
+        dataToSave.reportedBy = user.email;
+        await base44.entities.Fault.create(dataToSave);
       }
+
       setFormData({
         location: '',
         faultType: '',
@@ -186,7 +198,17 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
 
                 <div className="space-y-2">
                   <Label htmlFor="assignedTo">משויך ל</Label>
-                  <Select value={formData.assignedTo} onValueChange={(value) => setFormData(prev => ({ ...prev, assignedTo: value }))}>
+                  <Select 
+                    value={formData.assignedTo} 
+                    onValueChange={(value) => {
+                      const newData = { ...formData, assignedTo: value };
+                      // Auto-set status to "בטיפול" when assigning
+                      if (!formData.assignedTo && value && formData.status === 'ממתין') {
+                        newData.status = 'בטיפול';
+                      }
+                      setFormData(newData);
+                    }}
+                  >
                     <SelectTrigger id="assignedTo">
                       <SelectValue placeholder="בחר עובד" />
                     </SelectTrigger>
