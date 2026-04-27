@@ -173,11 +173,7 @@ export default function Faults() {
                 <span className="w-2 h-2 rounded-full bg-yellow-600"></span>
                 ממתינות ({faults.filter(f => f.status === 'ממתין').length})
               </h2>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-              >
+              <div className="border bg-card rounded-lg overflow-hidden">
                 {faults.filter(f => f.status === 'ממתין').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -194,7 +190,7 @@ export default function Faults() {
                     />
                   );
                 })}
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
@@ -205,11 +201,7 @@ export default function Faults() {
                 <span className="w-2 h-2 rounded-full bg-blue-600"></span>
                 בטיפול ({faults.filter(f => f.status === 'בטיפול').length})
               </h2>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-              >
+              <div className="border bg-card rounded-lg overflow-hidden">
                 {faults.filter(f => f.status === 'בטיפול').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -226,32 +218,23 @@ export default function Faults() {
                     />
                   );
                 })}
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
-          {/* Waiting for Approval */}
-          {(groupBy === 'all' || groupBy === 'ממתין לאישור') && faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
+          {/* Waiting for Approval - Only for Maintenance Manager */}
+          {isMaintenanceManager && (groupBy === 'all' || groupBy === 'ממתין לאישור') && faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-orange-600"></span>
                 ממתינות לאישור ({faults.filter(f => f.status === 'ממתין לאישור').length})
               </h2>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-              >
+              <div className="border bg-card rounded-lg overflow-hidden">
                 {faults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
                   return (
-                    <motion.div
-                      key={fault.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="relative"
-                    >
+                    <div key={fault.id} className="space-y-2 p-3 border-b last:border-b-0">
                       <FaultCard
                         fault={fault}
                         assignedUser={assignedUser}
@@ -263,16 +246,16 @@ export default function Faults() {
                       />
                       <Button
                         onClick={() => handleCloseFault(fault)}
-                        className="w-full mt-3 gap-2 bg-green-600 hover:bg-green-700"
+                        className="w-full gap-2 bg-green-600 hover:bg-green-700"
                         size="sm"
                       >
                         <CheckCircle2 className="w-4 h-4" />
                         אישור סגירה
                       </Button>
-                    </motion.div>
+                    </div>
                   );
                 })}
-              </motion.div>
+              </div>
             </motion.div>
           )}
 
@@ -283,11 +266,7 @@ export default function Faults() {
                 <span className="w-2 h-2 rounded-full bg-green-600"></span>
                 סגורות ({faults.filter(f => f.status === 'סגור').length})
               </h2>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
-              >
+              <div className="border bg-card rounded-lg overflow-hidden">
                 {faults.filter(f => f.status === 'סגור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -304,7 +283,7 @@ export default function Faults() {
                     />
                   );
                 })}
-              </motion.div>
+              </div>
             </motion.div>
           )}
             </div>
