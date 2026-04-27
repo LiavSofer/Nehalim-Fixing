@@ -5,9 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Wrench, Filter, Plus } from 'lucide-react';
+import { Wrench, Filter, Plus, CheckCircle2 } from 'lucide-react';
 import FaultForm from '@/components/faults/FaultForm';
 import FaultCard from '@/components/faults/FaultCard';
+import CloseFaultDialog from '@/components/faults/CloseFaultDialog';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -17,6 +18,8 @@ export default function Faults() {
   const [priorityFilter, setPriorityFilter] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFault, setEditingFault] = useState(null);
+  const [closeFaultOpen, setCloseFaultOpen] = useState(false);
+  const [faultToClose, setFaultToClose] = useState(null);
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -44,6 +47,11 @@ export default function Faults() {
   const handleEdit = (fault) => {
     setEditingFault(fault);
     setDialogOpen(true);
+  };
+
+  const handleCloseFault = (fault) => {
+    setFaultToClose(fault);
+    setCloseFaultOpen(true);
   };
 
   const isMaintenanceManager = user?.role === 'מנהל אחזקה';
@@ -129,85 +137,210 @@ export default function Faults() {
         </DialogContent>
       </Dialog>
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">
-        <Filter className="w-4 h-4 text-muted-foreground" />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40 h-9 text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">כל הסטטוסים</SelectItem>
-            <SelectItem value="ממתין">ממתין</SelectItem>
-            <SelectItem value="בטיפול">בטיפול</SelectItem>
-            <SelectItem value="ממתין לאישור">ממתין לאישור</SelectItem>
-            <SelectItem value="סגור">סגור</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Close Fault Dialog */}
+      <CloseFaultDialog 
+        open={closeFaultOpen} 
+        onOpenChange={setCloseFaultOpen}
+        fault={faultToClose}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+      />
 
-        <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-          <SelectTrigger className="w-40 h-9 text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">כל העדיפויות</SelectItem>
-            <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
-            <SelectItem value="בינונית">🟡 בינונית</SelectItem>
-            <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
-            <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {(statusFilter !== 'all' || priorityFilter !== 'all') && (
-          <button
-            onClick={() => {
-              setStatusFilter('all');
-              setPriorityFilter('all');
-            }}
-            className="text-xs text-primary hover:underline ml-auto"
-          >
-            אפס סינונים
-          </button>
-        )}
-      </div>
-
-      {/* Faults Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {Array(6).fill(0).map((_, i) => (
-            <div key={i} className="space-y-3">
-              <Skeleton className="h-32 w-full rounded-lg" />
+      {/* Grouped View for Maintenance Manager */}
+      {isMaintenanceManager && !isLoading ? (
+        <div className="space-y-8">
+          {/* Waiting */}
+          {faults.filter(f => f.status === 'ממתין').length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-yellow-600"></span>
+                ממתינות ({faults.filter(f => f.status === 'ממתין').length})
+              </h2>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              >
+                {faults.filter(f => f.status === 'ממתין').map((fault) => {
+                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                  const reportedUser = users.find(u => u.email === fault.reportedBy);
+                  return (
+                    <FaultCard
+                      key={fault.id}
+                      fault={fault}
+                      assignedUser={assignedUser}
+                      reportedUser={reportedUser}
+                      isMaintenanceManager={isMaintenanceManager}
+                      onEdit={handleEdit}
+                      users={users}
+                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                    />
+                  );
+                })}
+              </motion.div>
             </div>
-          ))}
-        </div>
-      ) : filteredFaults.length === 0 ? (
-        <div className="text-center py-12">
-          <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">אין קריאות תואמות</p>
+          )}
+
+          {/* In Progress */}
+          {faults.filter(f => f.status === 'בטיפול').length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                בטיפול ({faults.filter(f => f.status === 'בטיפול').length})
+              </h2>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              >
+                {faults.filter(f => f.status === 'בטיפול').map((fault) => {
+                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                  const reportedUser = users.find(u => u.email === fault.reportedBy);
+                  return (
+                    <FaultCard
+                      key={fault.id}
+                      fault={fault}
+                      assignedUser={assignedUser}
+                      reportedUser={reportedUser}
+                      isMaintenanceManager={isMaintenanceManager}
+                      onEdit={handleEdit}
+                      users={users}
+                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                    />
+                  );
+                })}
+              </motion.div>
+            </div>
+          )}
+
+          {/* Waiting for Approval */}
+          {faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-orange-600"></span>
+                ממתינות לאישור ({faults.filter(f => f.status === 'ממתין לאישור').length})
+              </h2>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              >
+                {faults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
+                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                  const reportedUser = users.find(u => u.email === fault.reportedBy);
+                  return (
+                    <motion.div
+                      key={fault.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="relative"
+                    >
+                      <FaultCard
+                        fault={fault}
+                        assignedUser={assignedUser}
+                        reportedUser={reportedUser}
+                        isMaintenanceManager={isMaintenanceManager}
+                        onEdit={handleEdit}
+                        users={users}
+                        onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                      />
+                      <Button
+                        onClick={() => handleCloseFault(fault)}
+                        className="w-full mt-3 gap-2 bg-green-600 hover:bg-green-700"
+                        size="sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        אישור סגירה
+                      </Button>
+                    </motion.div>
+                  );
+                })}
+              </motion.div>
+            </div>
+          )}
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-        >
-          {filteredFaults.map((fault) => {
-            const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-            const reportedUser = users.find(u => u.email === fault.reportedBy);
-            return (
-              <FaultCard
-                key={fault.id}
-                fault={fault}
-                assignedUser={assignedUser}
-                reportedUser={reportedUser}
-                isMaintenanceManager={isMaintenanceManager}
-                onEdit={handleEdit}
-                users={users}
-                onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-              />
-            );
-          })}
-        </motion.div>
+        <>
+          {/* Filters */}
+          <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">
+            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40 h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל הסטטוסים</SelectItem>
+                <SelectItem value="ממתין">ממתין</SelectItem>
+                <SelectItem value="בטיפול">בטיפול</SelectItem>
+                <SelectItem value="ממתין לאישור">ממתין לאישור</SelectItem>
+                <SelectItem value="סגור">סגור</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="w-40 h-9 text-sm">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">כל העדיפויות</SelectItem>
+                <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
+                <SelectItem value="בינונית">🟡 בינונית</SelectItem>
+                <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
+                <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {(statusFilter !== 'all' || priorityFilter !== 'all') && (
+              <button
+                onClick={() => {
+                  setStatusFilter('all');
+                  setPriorityFilter('all');
+                }}
+                className="text-xs text-primary hover:underline ml-auto"
+              >
+                אפס סינונים
+              </button>
+            )}
+          </div>
+
+          {/* Faults Grid */}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {Array(6).fill(0).map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-32 w-full rounded-lg" />
+                </div>
+              ))}
+            </div>
+          ) : filteredFaults.length === 0 ? (
+            <div className="text-center py-12">
+              <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground">אין קריאות תואמות</p>
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+            >
+              {filteredFaults.map((fault) => {
+                const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                const reportedUser = users.find(u => u.email === fault.reportedBy);
+                return (
+                  <FaultCard
+                    key={fault.id}
+                    fault={fault}
+                    assignedUser={assignedUser}
+                    reportedUser={reportedUser}
+                    isMaintenanceManager={isMaintenanceManager}
+                    onEdit={handleEdit}
+                    users={users}
+                    onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                  />
+                );
+              })}
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );
