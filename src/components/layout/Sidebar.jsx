@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, LogOut, Shield, Wrench, CheckCircle2 } from 'lucide-react';
+import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מפתח'] },
 ];
 
-export default function Sidebar({ user }) {
+export default function Sidebar({ user, open = false, onOpenChange }) {
   const location = useLocation();
   const userRole = user?.role || 'ללא הרשאה';
 
@@ -22,7 +22,31 @@ export default function Sidebar({ user }) {
   };
 
   return (
-    <aside className="fixed top-0 right-0 h-screen w-64 bg-sidebar text-sidebar-foreground flex flex-col z-50 border-l border-sidebar-border">
+    <>
+      {/* Mobile menu button */}
+      <button
+        onClick={() => onOpenChange?.(!open)}
+        className="md:hidden fixed top-4 left-4 z-40 p-2 rounded-lg bg-primary text-primary-foreground"
+        aria-label="Toggle menu"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Overlay for mobile */}
+      {open && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() => onOpenChange?.(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={cn(
+        "fixed top-0 right-0 h-screen w-64 bg-sidebar text-sidebar-foreground flex flex-col z-40 border-l border-sidebar-border transition-transform duration-300",
+        open ? "translate-x-0" : "translate-x-full md:translate-x-0"
+      )}>
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
@@ -44,6 +68,7 @@ export default function Sidebar({ user }) {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => onOpenChange?.(false)}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
@@ -83,5 +108,6 @@ export default function Sidebar({ user }) {
         </button>
       </div>
     </aside>
+    </>
   );
 }
