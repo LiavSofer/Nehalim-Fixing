@@ -103,20 +103,66 @@ export default function MyTasks() {
           <p className="text-muted-foreground">אין לך משימות כרגע</p>
         </div>
       ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-4"
-        >
+        <div className="border bg-card rounded-lg overflow-hidden">
           {sortedTasks.map((fault, index) => {
             const reportedUser = users.find(u => u.email === fault.reportedBy);
             return (
               <motion.div
                 key={fault.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 transition={{ delay: index * 0.05 }}
               >
+                <div className="flex items-center gap-3 p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
+                  {/* Image */}
+                  {fault.image && (
+                    <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-muted">
+                      <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+
+                  {/* Main Info */}
+                  <div className="flex-1 min-w-0 grid grid-cols-4 gap-4 items-center text-center">
+                    {/* סוג התקלה */}
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground mb-1">סוג</p>
+                      <p className="font-semibold text-foreground text-sm truncate">{fault.faultType}</p>
+                    </div>
+
+                    {/* מיקום */}
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground mb-1">מיקום</p>
+                      <p className="text-sm text-foreground truncate">{fault.location}</p>
+                    </div>
+
+                    {/* דחיפות */}
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">דחיפות</p>
+                      <p className="text-sm text-foreground font-medium">{fault.priority}</p>
+                    </div>
+
+                    {/* סטטוס */}
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">סטטוס</p>
+                      <p className="text-sm text-foreground font-medium">{fault.status}</p>
+                    </div>
+                  </div>
+
+                  {/* Action button */}
+                  {fault.status === 'בטיפול' && (
+                    <button
+                      onClick={() => {
+                        const dialog = document.querySelector('[data-fault-id="' + fault.id + '"]');
+                        dialog?.click();
+                      }}
+                      className="flex-shrink-0 px-4 py-2 text-sm bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded transition-colors"
+                    >
+                      סימון כטופל
+                    </button>
+                  )}
+                </div>
+
+                {/* Dialogs */}
                 <FaultCard
                   fault={fault}
                   reportedUser={reportedUser}
@@ -128,7 +174,7 @@ export default function MyTasks() {
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       )}
     </div>
   );
