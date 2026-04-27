@@ -51,9 +51,9 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             </div>
           </div>
 
-          {/* Priority and Status in grid */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-            <div className="flex flex-col">
+          {/* Priority and Status */}
+          <div className="flex gap-6 flex-wrap">
+            <div className="flex flex-col min-w-fit">
               <span className="text-xs text-muted-foreground mb-1">דחיפות</span>
               <p className={`text-sm font-semibold ${
                 fault.priority === 'גבוהה' ? 'text-red-600' :
@@ -64,7 +64,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               </p>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col min-w-fit">
               <span className="text-xs text-muted-foreground mb-1">סטטוס</span>
               <p className={`text-sm font-semibold ${
                 fault.status === 'ממתין' ? 'text-yellow-600' :
