@@ -197,7 +197,7 @@ export default function WorkerManagement() {
                         className={
                           worker.avgWeekly >= 5 ? 'text-green-700 border-green-300' :
                           worker.avgWeekly >= 3 ? 'text-yellow-700 border-yellow-300' :
-                          'text-red-700 border-red-300'
+                          'text-red-700'
                         }
                       >
                         {worker.avgWeekly >= 5 ? '⭐ מעולה' :
