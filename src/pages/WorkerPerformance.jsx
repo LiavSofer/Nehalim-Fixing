@@ -33,7 +33,19 @@ export default function WorkerPerformance({ user }) {
       low: faults.filter(f => f.priority === 'לא מוגדר').length,
     };
 
-    return { completed, inProgress, pending, total, completionRate, statusData, priorityData };
+    // Calculate average time to resolve
+    const closedFaults = faults.filter(f => f.status === 'סגור');
+    const avgTimeToResolve = closedFaults.length > 0
+      ? Math.round(
+          closedFaults.reduce((sum, f) => {
+            const created = new Date(f.created_date);
+            const closed = new Date(f.updated_date);
+            return sum + (closed - created) / (1000 * 60 * 60); // Convert to hours
+          }, 0) / closedFaults.length
+        )
+      : 0;
+
+    return { completed, inProgress, pending, total, completionRate, statusData, priorityData, avgTimeToResolve };
   }, [faults]);
 
   return (
@@ -83,10 +95,10 @@ export default function WorkerPerformance({ user }) {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">שיעור סיום</p>
-                  <p className="text-2xl font-bold text-primary">{stats.completionRate}%</p>
+                  <p className="text-sm text-muted-foreground">זמן ממוצע פתרון</p>
+                  <p className="text-2xl font-bold text-primary">{stats.avgTimeToResolve}h</p>
                 </div>
-                <Badge className="h-fit">{stats.completionRate}%</Badge>
+                <Badge className="h-fit">{stats.avgTimeToResolve} שעות</Badge>
               </div>
             </CardContent>
           </Card>
