@@ -86,13 +86,14 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
           <div className="space-y-2">
             <Label htmlFor="priority">דחיפות</Label>
             <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger id="priority">
+              <SelectTrigger id="priority" className="text-center">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="גבוהה">גבוהה</SelectItem>
-                <SelectItem value="בינונית">בינונית</SelectItem>
-                <SelectItem value="לא מוגדר">לא מוגדר</SelectItem>
+              <SelectContent className="text-center">
+                <SelectItem value="גבוהה" className="text-red-600 font-medium">🔴 גבוהה</SelectItem>
+                <SelectItem value="בינונית" className="text-amber-600 font-medium">🟡 בינונית</SelectItem>
+                <SelectItem value="נמוכה" className="text-blue-600 font-medium">🔵 נמוכה</SelectItem>
+                <SelectItem value="לא מוגדר" className="text-gray-600 font-medium">⚪ לא מוגדר</SelectItem>
               </SelectContent>
             </Select>
           </div>
