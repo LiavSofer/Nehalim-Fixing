@@ -87,12 +87,12 @@ export default function Faults() {
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+      <div className={`grid ${isMaintenanceManager ? 'grid-cols-2 sm:grid-cols-5' : 'grid-cols-2 sm:grid-cols-4'} gap-4 mb-8`}>
         {[
           { label: 'סה"כ קריאות', value: stats.total, groupValue: 'all', color: 'text-muted-foreground', activeBg: 'bg-primary/10 border-primary' },
           { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', activeBg: 'bg-yellow-100 border-yellow-400' },
           { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', activeBg: 'bg-blue-100 border-blue-400' },
-          { label: 'טופלו', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' },
+          ...(isMaintenanceManager ? [{ label: 'ממתינות לאישור', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' }] : []),
           { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', activeBg: 'bg-green-100 border-green-400' },
         ].map((stat, i) => {
           const isActive = groupBy === stat.groupValue;
@@ -164,7 +164,7 @@ export default function Faults() {
               <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground">הרשימה ריקה</p>
             </div>
-          ) : groupBy === 'all' ? (
+          ) : (
             <div className="space-y-8">
           {/* Waiting */}
           {(groupBy === 'all' || groupBy === 'ממתין') && faults.filter(f => f.status === 'ממתין').length > 0 && (
@@ -308,28 +308,9 @@ export default function Faults() {
             </motion.div>
           )}
             </div>
-          ) : (
-           <div className="space-y-4">
-             {faults.map((fault) => {
-               const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-               const reportedUser = users.find(u => u.email === fault.reportedBy);
-               return (
-                 <FaultCard
-                   key={fault.id}
-                   fault={fault}
-                   assignedUser={assignedUser}
-                   reportedUser={reportedUser}
-                   isMaintenanceManager={isMaintenanceManager}
-                   onEdit={handleEdit}
-                   users={users}
-                   onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                 />
-               );
-             })}
-           </div>
           )}
-          </>
-          ) : (
+        </>
+      ) : (
         <>
           {/* Filters */}
           <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">
@@ -391,7 +372,7 @@ export default function Faults() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 gap-3"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
             >
               {filteredFaults.map((fault) => {
                 const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
