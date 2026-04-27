@@ -151,9 +151,10 @@ export default function Faults() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">כל העדיפויות</SelectItem>
-            <SelectItem value="גבוהה">גבוהה</SelectItem>
-            <SelectItem value="בינונית">בינונית</SelectItem>
-            <SelectItem value="לא מוגדר">לא מוגדר</SelectItem>
+            <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
+            <SelectItem value="בינונית">🟡 בינונית</SelectItem>
+            <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
+            <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
           </SelectContent>
         </Select>
 
