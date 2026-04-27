@@ -195,9 +195,9 @@ export default function WorkerManagement() {
                       <Badge 
                         variant="outline" 
                         className={
-                          worker.avgWeekly >= 5 ? 'bg-green-50 text-green-700 border-green-200' :
-                          worker.avgWeekly >= 3 ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                          'bg-red-50 text-red-700 border-red-200'
+                          worker.avgWeekly >= 5 ? 'text-green-700 border-green-300' :
+                          worker.avgWeekly >= 3 ? 'text-yellow-700 border-yellow-300' :
+                          'text-red-700 border-red-300'
                         }
                       >
                         {worker.avgWeekly >= 5 ? '⭐ מעולה' :
