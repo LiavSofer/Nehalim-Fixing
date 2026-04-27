@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2 } from 'lucide-react';
+import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import AssignWorkerDialog from './AssignWorkerDialog';
+import MarkRepairedDialog from './MarkRepairedDialog';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -21,8 +22,9 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange }) {
+export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange, isWorkerView = false }) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [repairDialogOpen, setRepairDialogOpen] = useState(false);
 
   return (
     <motion.div
@@ -104,6 +106,21 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
                 </Button>
               </div>
             )}
+
+            {/* Mark as repaired button for worker */}
+            {isWorkerView && fault.status === 'בטיפול' && (
+              <div className="border-t pt-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setRepairDialogOpen(true)}
+                  className="w-full text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+                >
+                  <CheckCircle2 className="w-3 h-3 ml-1" />
+                  סימון כטופל
+                </Button>
+              </div>
+            )}
           </div>
         </CardContent>
 
@@ -114,6 +131,14 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           fault={fault}
           users={users}
           onAssignmentChange={onAssignmentChange}
+        />
+
+        {/* Mark Repaired Dialog */}
+        <MarkRepairedDialog
+          open={repairDialogOpen}
+          onOpenChange={setRepairDialogOpen}
+          fault={fault}
+          onSuccess={onAssignmentChange}
         />
       </Card>
     </motion.div>

@@ -122,6 +122,7 @@ export default function MyTasks() {
                   fault={fault}
                   reportedUser={reportedUser}
                   isMaintenanceManager={false}
+                  isWorkerView={true}
                   users={users}
                   onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
                 />
