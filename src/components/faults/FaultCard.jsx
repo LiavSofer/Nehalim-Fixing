@@ -33,37 +33,18 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
       <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
-        <CardHeader className="pb-2 pt-4 px-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm text-foreground truncate">{fault.faultType}</h3>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-                <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              <Badge className={`${STATUS_COLORS[fault.status]} border text-xs`}>
-                {fault.status}
-              </Badge>
-              {isMaintenanceManager && (
-                <button
-                  onClick={() => onEdit?.(fault)}
-                  className="p-1 rounded-lg hover:bg-muted transition-colors"
-                  title="עריכה"
-                >
-                  <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
-                </button>
-              )}
+        <CardContent className="flex items-center gap-3 p-3">
+          {/* Left section - Title and location */}
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-sm text-foreground truncate">{fault.faultType}</h3>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+              <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
             </div>
           </div>
-        </CardHeader>
 
-        <CardContent className="space-y-2 pt-2 pb-3 px-4">
-          <p className="text-xs text-muted-foreground line-clamp-1">{fault.description}</p>
-
-          {/* Meta info */}
-          <div className="flex items-center gap-3 text-xs">
+          {/* Middle section - Priority and date */}
+          <div className="flex items-center gap-3 text-xs flex-shrink-0">
             <div className="flex items-center gap-1 text-muted-foreground">
               <AlertCircle className="w-3 h-3 flex-shrink-0" />
               <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1 py-0`}>
@@ -75,11 +56,21 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               <Calendar className="w-3 h-3 flex-shrink-0" />
               <span>{format(new Date(fault.created_date), 'dd.MM', { locale: he })}</span>
             </div>
+          </div>
 
-            {reportedUser && (
-              <span className="text-xs text-muted-foreground truncate">
-                <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
-              </span>
+          {/* Right section - Status and actions */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <Badge className={`${STATUS_COLORS[fault.status]} border text-xs`}>
+              {fault.status}
+            </Badge>
+            {isMaintenanceManager && (
+              <button
+                onClick={() => onEdit?.(fault)}
+                className="p-1 rounded-lg hover:bg-muted transition-colors"
+                title="עריכה"
+              >
+                <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
             )}
           </div>
 
@@ -89,10 +80,10 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               variant="outline"
               size="sm"
               onClick={() => setDialogOpen(true)}
-              className="w-full text-xs h-7"
+              className="text-xs h-7 px-2"
             >
               <Wrench className="w-3 h-3 ml-1" />
-              שיוך עובד
+              שיוך
             </Button>
           )}
 
@@ -102,10 +93,10 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               variant="outline"
               size="sm"
               onClick={() => setRepairDialogOpen(true)}
-              className="w-full text-xs h-7 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+              className="text-xs h-7 px-2 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
             >
               <CheckCircle2 className="w-3 h-3 ml-1" />
-              סימון כטופל
+              טופל
             </Button>
           )}
         </CardContent>
