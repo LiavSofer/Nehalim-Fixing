@@ -98,7 +98,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           </div>
 
           {/* Quick assign section for maintenance manager */}
-          {isMaintenanceManager && (
+          {isMaintenanceManager && !assignedUser && (
             <div className="border-t pt-3">
               <Button
                 variant="outline"
