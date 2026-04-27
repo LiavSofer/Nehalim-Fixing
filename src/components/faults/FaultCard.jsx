@@ -33,98 +33,80 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
       whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
       <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between gap-4">
+        <CardHeader className="pb-2 pt-4 px-4">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground truncate">{fault.faultType}</h3>
-              <div className="flex items-center gap-2 mt-1">
-                <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-                <p className="text-sm text-muted-foreground truncate">{fault.location}</p>
+              <h3 className="font-semibold text-sm text-foreground truncate">{fault.faultType}</h3>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+                <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               <Badge className={`${STATUS_COLORS[fault.status]} border text-xs`}>
                 {fault.status}
               </Badge>
               {isMaintenanceManager && (
                 <button
                   onClick={() => onEdit?.(fault)}
-                  className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                  className="p-1 rounded-lg hover:bg-muted transition-colors"
                   title="עריכה"
                 >
-                  <Edit2 className="w-4 h-4 text-muted-foreground" />
+                  <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />
                 </button>
               )}
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-3">
-          <div className="flex gap-4">
-            {/* Image */}
-            {fault.image && (
-              <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
-                <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
-              </div>
-            )}
+        <CardContent className="space-y-2 pt-2 pb-3 px-4">
+          <p className="text-xs text-muted-foreground line-clamp-1">{fault.description}</p>
 
-            {/* Description and meta */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-muted-foreground line-clamp-2">{fault.description}</p>
-
-              {/* Meta info */}
-              <div className="space-y-2 pt-2">
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                    <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
-                      {fault.priority}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-muted-foreground">
-                    <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>{format(new Date(fault.created_date), 'dd.MM.yyyy', { locale: he })}</span>
-                  </div>
-
-                  {reportedUser && (
-                    <div className="col-span-2 text-xs text-muted-foreground">
-                      דיווח על ידי: <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
+          {/* Meta info */}
+          <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <AlertCircle className="w-3 h-3 flex-shrink-0" />
+              <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1 py-0`}>
+                {fault.priority}
+              </Badge>
             </div>
+
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Calendar className="w-3 h-3 flex-shrink-0" />
+              <span>{format(new Date(fault.created_date), 'dd.MM', { locale: he })}</span>
+            </div>
+
+            {reportedUser && (
+              <span className="text-xs text-muted-foreground truncate">
+                <span className="font-medium">{reportedUser.full_name || fault.reportedBy}</span>
+              </span>
+            )}
           </div>
 
           {/* Quick assign section for maintenance manager */}
           {isMaintenanceManager && !assignedUser && (
-            <div className="border-t pt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDialogOpen(true)}
-                className="w-full text-xs"
-              >
-                <Wrench className="w-3 h-3 ml-1" />
-                שיוך עובד
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setDialogOpen(true)}
+              className="w-full text-xs h-7"
+            >
+              <Wrench className="w-3 h-3 ml-1" />
+              שיוך עובד
+            </Button>
           )}
 
           {/* Mark as repaired button for worker */}
           {isWorkerView && fault.status === 'בטיפול' && (
-            <div className="border-t pt-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setRepairDialogOpen(true)}
-                className="w-full text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
-              >
-                <CheckCircle2 className="w-3 h-3 ml-1" />
-                סימון כטופל
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setRepairDialogOpen(true)}
+              className="w-full text-xs h-7 bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
+            >
+              <CheckCircle2 className="w-3 h-3 ml-1" />
+              סימון כטופל
+            </Button>
           )}
         </CardContent>
 
