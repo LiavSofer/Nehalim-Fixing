@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { AlertCircle, MapPin, Wrench, User, Calendar, Edit2, CheckCircle2 } from 'lucide-react';
-import { format } from 'date-fns';
-import { he } from 'date-fns/locale';
+import { MapPin, Wrench, Edit2, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import AssignWorkerDialog from './AssignWorkerDialog';
 import MarkRepairedDialog from './MarkRepairedDialog';
+import FaultDetailDialog from './FaultDetailDialog.jsx';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -24,13 +23,16 @@ const PRIORITY_COLORS = {
 export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange, isWorkerView = false }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [repairDialogOpen, setRepairDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="flex items-center gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors">
+      <div 
+        onClick={() => setDetailDialogOpen(true)}
+        className="flex items-center gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
         {/* Image */}
         {fault.image && (
           <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-muted">
@@ -39,9 +41,9 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         )}
 
         {/* Main content */}
-        <div className="flex-1 min-w-0 grid grid-cols-3 gap-4 items-center">
+        <div className="flex-1 min-w-0 flex items-center gap-8">
           {/* Type and Location */}
-          <div className="min-w-0">
+          <div className="min-w-0 flex-shrink-0">
             <h3 className="font-semibold text-foreground text-sm truncate">{fault.faultType}</h3>
             <div className="flex items-center gap-1 mt-0.5">
               <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
@@ -49,33 +51,34 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             </div>
           </div>
 
-          {/* Description */}
-          <p className="text-xs text-muted-foreground line-clamp-2">{fault.description}</p>
+          {/* Priority */}
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-muted-foreground mb-1">דחיפות</span>
+            <p className={`text-sm font-semibold ${
+              fault.priority === 'גבוהה' ? 'text-red-600' :
+              fault.priority === 'בינונית' ? 'text-amber-600' :
+              'text-gray-600'
+            }`}>
+              {fault.priority}
+            </p>
+          </div>
 
-          {/* Meta info */}
-          <div className="flex items-center gap-2 justify-between">
-            <div className="flex items-center gap-1">
-              <Badge variant="outline" className={`${PRIORITY_COLORS[fault.priority]} border text-xs px-1.5`}>
-                {fault.priority}
-              </Badge>
-              <Badge className={`${STATUS_COLORS[fault.status]} border text-xs`}>
-                {fault.status}
-              </Badge>
-            </div>
-            {isMaintenanceManager && (
-              <button
-                onClick={() => onEdit?.(fault)}
-                className="p-1 hover:bg-background rounded transition-colors"
-                title="עריכה"
-              >
-                <Edit2 className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
+          {/* Status */}
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-muted-foreground mb-1">סטטוס</span>
+            <p className={`text-sm font-semibold ${
+              fault.status === 'ממתין' ? 'text-yellow-600' :
+              fault.status === 'בטיפול' ? 'text-blue-600' :
+              fault.status === 'ממתין לאישור' ? 'text-orange-600' :
+              'text-green-600'
+            }`}>
+              {fault.status}
+            </p>
           </div>
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-2 flex-shrink-0">
+        <div className="flex gap-2 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
           {isMaintenanceManager && !assignedUser && (
             <Button
               variant="outline"
@@ -86,6 +89,19 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               <Wrench className="w-3 h-3 ml-1" />
               שיוך
             </Button>
+          )}
+
+          {isMaintenanceManager && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.(fault);
+              }}
+              className="p-1 hover:bg-background rounded transition-colors"
+              title="עריכה"
+            >
+              <Edit2 className="w-4 h-4 text-muted-foreground" />
+            </button>
           )}
 
           {isWorkerView && fault.status === 'בטיפול' && (
@@ -101,6 +117,13 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           )}
         </div>
       </div>
+
+      {/* Fault Detail Dialog */}
+      <FaultDetailDialog
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
+        fault={fault}
+      />
 
       {/* Assign Worker Dialog */}
       <AssignWorkerDialog
