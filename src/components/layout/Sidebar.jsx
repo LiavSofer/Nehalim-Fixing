@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, LogOut, Shield, Wrench } from 'lucide-react';
+import { Home, Users, LogOut, Shield, Wrench, CheckCircle2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { label: 'דף הבית', path: '/', icon: Home, roles: ['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'] },
+  { label: 'המשימות שלי', path: '/my-tasks', icon: CheckCircle2, roles: ['אב בית'] },
   { label: 'ניהול עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
   { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מפתח'] },
 ];
