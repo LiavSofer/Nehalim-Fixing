@@ -7,6 +7,7 @@ const STATS = [
   { label: 'קריאות פתוחות', value: '—', icon: ClipboardList, color: 'bg-primary/10 text-primary' },
   { label: 'תחזוקות החודש', value: '—', icon: Wrench, color: 'bg-chart-4/10 text-chart-4' },
   { label: 'אחוז ביצוע', value: '—', icon: BarChart3, color: 'bg-chart-5/10 text-chart-5' },
+  { label: 'זמן ממוצע', value: '—', icon: BarChart3, color: 'bg-chart-2/10 text-chart-2' },
 ];
 
 export default function Home() {
@@ -21,7 +22,7 @@ export default function Home() {
         <p className="text-muted-foreground mt-1">סקירה כללית של מערכת ניהול האחזקה</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {STATS.map((stat, i) => (
           <motion.div
             key={stat.label}
