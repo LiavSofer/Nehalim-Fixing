@@ -174,7 +174,7 @@ export default function Faults() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
               >
                 {faults.filter(f => f.status === 'ממתין').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
@@ -206,7 +206,7 @@ export default function Faults() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
               >
                 {faults.filter(f => f.status === 'בטיפול').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
@@ -238,7 +238,7 @@ export default function Faults() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
               >
                 {faults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
@@ -284,7 +284,7 @@ export default function Faults() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4"
               >
                 {faults.filter(f => f.status === 'סגור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
