@@ -164,7 +164,7 @@ export default function Faults() {
               <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground">הרשימה ריקה</p>
             </div>
-          ) : (
+          ) : groupBy === 'all' ? (
             <div className="space-y-8">
           {/* Waiting */}
           {(groupBy === 'all' || groupBy === 'ממתין') && faults.filter(f => f.status === 'ממתין').length > 0 && (
@@ -308,9 +308,28 @@ export default function Faults() {
             </motion.div>
           )}
             </div>
+          ) : (
+           <div className="space-y-4">
+             {faults.map((fault) => {
+               const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+               const reportedUser = users.find(u => u.email === fault.reportedBy);
+               return (
+                 <FaultCard
+                   key={fault.id}
+                   fault={fault}
+                   assignedUser={assignedUser}
+                   reportedUser={reportedUser}
+                   isMaintenanceManager={isMaintenanceManager}
+                   onEdit={handleEdit}
+                   users={users}
+                   onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                 />
+               );
+             })}
+           </div>
           )}
-        </>
-      ) : (
+          </>
+          ) : (
         <>
           {/* Filters */}
           <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">
@@ -372,7 +391,7 @@ export default function Faults() {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              className="grid grid-cols-1 gap-3"
             >
               {filteredFaults.map((fault) => {
                 const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
