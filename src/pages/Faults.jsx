@@ -16,6 +16,7 @@ export default function Faults() {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [groupBy, setGroupBy] = useState('all');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFault, setEditingFault] = useState(null);
   const [closeFaultOpen, setCloseFaultOpen] = useState(false);
@@ -87,23 +88,23 @@ export default function Faults() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'סה"כ קריאות', value: stats.total, filterValue: 'all' },
-          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', filterValue: 'ממתין' },
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', filterValue: 'בטיפול' },
-          { label: 'סגורות', value: stats.closed, color: 'text-green-600', filterValue: 'סגור' },
+          { label: 'סה"כ קריאות', value: stats.total, groupValue: 'all', bgColor: 'bg-card border-border', activeBg: 'bg-primary/10 border-primary' },
+          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', bgColor: 'bg-yellow-50 border-yellow-200', activeBg: 'bg-yellow-100 border-yellow-400' },
+          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', bgColor: 'bg-blue-50 border-blue-200', activeBg: 'bg-blue-100 border-blue-400' },
+          { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', bgColor: 'bg-green-50 border-green-200', activeBg: 'bg-green-100 border-green-400' },
         ].map((stat, i) => {
-          const isActive = statusFilter === stat.filterValue;
+          const isActive = groupBy === stat.groupValue;
           return (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.1 }}
-              onClick={() => setStatusFilter(stat.filterValue)}
+              onClick={() => setGroupBy(stat.groupValue)}
               className={`rounded-lg p-4 text-center cursor-pointer hover:shadow-md transition-all border ${
                 isActive
-                  ? 'bg-primary/10 border-primary'
-                  : 'bg-card border-border hover:border-primary'
+                  ? stat.activeBg
+                  : stat.bgColor
               }`}
             >
               <p className="text-2xl font-bold text-foreground">{stat.value}</p>
@@ -157,8 +158,8 @@ export default function Faults() {
       {isMaintenanceManager && !isLoading ? (
         <div className="space-y-8">
           {/* Waiting */}
-          {faults.filter(f => f.status === 'ממתין').length > 0 && (
-            <div>
+          {(groupBy === 'all' || groupBy === 'ממתין') && faults.filter(f => f.status === 'ממתין').length > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-yellow-600"></span>
                 ממתינות ({faults.filter(f => f.status === 'ממתין').length})
@@ -185,12 +186,12 @@ export default function Faults() {
                   );
                 })}
               </motion.div>
-            </div>
+            </motion.div>
           )}
 
           {/* In Progress */}
-          {faults.filter(f => f.status === 'בטיפול').length > 0 && (
-            <div>
+          {(groupBy === 'all' || groupBy === 'בטיפול') && faults.filter(f => f.status === 'בטיפול').length > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-600"></span>
                 בטיפול ({faults.filter(f => f.status === 'בטיפול').length})
@@ -217,12 +218,12 @@ export default function Faults() {
                   );
                 })}
               </motion.div>
-            </div>
+            </motion.div>
           )}
 
           {/* Waiting for Approval */}
-          {faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
-            <div>
+          {(groupBy === 'all' || groupBy === 'ממתין לאישור') && faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-orange-600"></span>
                 ממתינות לאישור ({faults.filter(f => f.status === 'ממתין לאישור').length})
@@ -263,12 +264,12 @@ export default function Faults() {
                   );
                 })}
               </motion.div>
-            </div>
+            </motion.div>
           )}
 
           {/* Closed */}
-          {faults.filter(f => f.status === 'סגור').length > 0 && (
-            <div>
+          {(groupBy === 'all' || groupBy === 'סגור') && faults.filter(f => f.status === 'סגור').length > 0 && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-600"></span>
                 סגורות ({faults.filter(f => f.status === 'סגור').length})
@@ -295,7 +296,7 @@ export default function Faults() {
                   );
                 })}
               </motion.div>
-            </div>
+            </motion.div>
           )}
         </div>
       ) : (
