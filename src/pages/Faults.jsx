@@ -265,6 +265,38 @@ export default function Faults() {
               </motion.div>
             </div>
           )}
+
+          {/* Closed */}
+          {faults.filter(f => f.status === 'סגור').length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                סגורות ({faults.filter(f => f.status === 'סגור').length})
+              </h2>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+              >
+                {faults.filter(f => f.status === 'סגור').map((fault) => {
+                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                  const reportedUser = users.find(u => u.email === fault.reportedBy);
+                  return (
+                    <FaultCard
+                      key={fault.id}
+                      fault={fault}
+                      assignedUser={assignedUser}
+                      reportedUser={reportedUser}
+                      isMaintenanceManager={isMaintenanceManager}
+                      onEdit={handleEdit}
+                      users={users}
+                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                    />
+                  );
+                })}
+              </motion.div>
+            </div>
+          )}
         </div>
       ) : (
         <>
