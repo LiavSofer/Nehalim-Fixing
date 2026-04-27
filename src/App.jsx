@@ -15,6 +15,7 @@ import UserManagement from '@/pages/UserManagement';
 import WorkerManagement from '@/pages/WorkerManagement';
 import MyTasks from '@/pages/MyTasks';
 import BlockedScreen from '@/pages/BlockedScreen';
+import WorkerPerformance from '@/pages/WorkerPerformance';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -61,9 +62,13 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<AppLayout user={user} />}>
-        <Route path="/" element={['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
+        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : ['מדריך', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
         {userRole === 'אב בית' && (
-          <Route path="/my-tasks" element={<MyTasks />} />
+          <>
+            <Route path="/my-tasks" element={<MyTasks />} />
+            <Route path="/all-faults" element={<Faults />} />
+            <Route path="/performance" element={<WorkerPerformance user={user} />} />
+          </>
         )}
         {userRole === 'מנהל אחזקה' && (
           <Route path="/workers" element={<WorkerManagement />} />
