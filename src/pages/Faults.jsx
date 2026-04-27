@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Wrench, Filter } from 'lucide-react';
+import { Wrench, Filter, Plus } from 'lucide-react';
 import FaultForm from '@/components/faults/FaultForm';
 import FaultCard from '@/components/faults/FaultCard';
 import { motion } from 'framer-motion';
@@ -13,6 +15,7 @@ export default function Faults() {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data: faults, isLoading } = useQuery({
     queryKey: ['faults'],
@@ -28,6 +31,7 @@ export default function Faults() {
 
   const handleSuccess = () => {
     queryClient.invalidateQueries({ queryKey: ['faults'] });
+    setDialogOpen(false);
   };
 
   const filteredFaults = faults.filter(fault => {
@@ -79,8 +83,29 @@ export default function Faults() {
         ))}
       </div>
 
-      {/* Add new fault form */}
-      <FaultForm users={users} onSuccess={handleSuccess} />
+      {/* Add new fault button */}
+      <div className="mb-8">
+        <Button
+          onClick={() => setDialogOpen(true)}
+          className="gap-2"
+          size="lg"
+        >
+          <Plus className="w-5 h-5" />
+          תקלה חדשה
+        </Button>
+      </div>
+
+      {/* Dialog for new fault */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>תקלה חדשה</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <FaultForm users={users} onSuccess={handleSuccess} />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Filters */}
       <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">

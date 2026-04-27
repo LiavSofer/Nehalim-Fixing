@@ -55,10 +55,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<AppLayout user={user} />}>
-        <Route path="/" element={<Home />} />
-        {['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'].includes(userRole) && (
-          <Route path="/faults" element={<Faults />} />
-        )}
+        <Route path="/" element={['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
         {userRole === 'מפתח' && (
           <Route path="/users" element={<UserManagement />} />
         )}

@@ -6,7 +6,6 @@ import { cn } from '@/lib/utils';
 
 const NAV_ITEMS = [
   { label: 'דף הבית', path: '/', icon: Home, roles: ['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'] },
-  { label: 'קריאות טכניות', path: '/faults', icon: Wrench, roles: ['מדריך', 'אב בית', 'מנהל אחזקה', 'מפתח'] },
   { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מפתח'] },
 ];
 
