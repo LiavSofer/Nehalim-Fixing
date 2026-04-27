@@ -91,19 +91,26 @@ export default function Faults() {
           { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', filterValue: 'ממתין' },
           { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', filterValue: 'בטיפול' },
           { label: 'סגורות', value: stats.closed, color: 'text-green-600', filterValue: 'סגור' },
-        ].map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1 }}
-            onClick={() => setStatusFilter(stat.filterValue)}
-            className="bg-card border border-border rounded-lg p-4 text-center cursor-pointer hover:shadow-md hover:border-primary transition-all"
-          >
-            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-            <p className={`text-xs mt-1 ${stat.color || 'text-muted-foreground'}`}>{stat.label}</p>
-          </motion.div>
-        ))}
+        ].map((stat, i) => {
+          const isActive = statusFilter === stat.filterValue;
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: i * 0.1 }}
+              onClick={() => setStatusFilter(stat.filterValue)}
+              className={`rounded-lg p-4 text-center cursor-pointer hover:shadow-md transition-all border ${
+                isActive
+                  ? 'bg-primary/10 border-primary'
+                  : 'bg-card border-border hover:border-primary'
+              }`}
+            >
+              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className={`text-xs mt-1 ${stat.color || 'text-muted-foreground'}`}>{stat.label}</p>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Add new fault button */}
