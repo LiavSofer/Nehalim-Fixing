@@ -5,43 +5,66 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+
+import AppLayout from '@/components/layout/AppLayout';
+import Home from '@/pages/Home';
+import UserManagement from '@/pages/UserManagement';
+import BlockedScreen from '@/pages/BlockedScreen';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
-  // Show loading spinner while checking app public settings or auth
-  if (isLoadingPublicSettings || isLoadingAuth) {
+  useEffect(() => {
+    if (!isLoadingAuth && !isLoadingPublicSettings && !authError) {
+      base44.auth.me().then(u => {
+        setUser(u);
+        setLoadingUser(false);
+      }).catch(() => setLoadingUser(false));
+    }
+  }, [isLoadingAuth, isLoadingPublicSettings, authError]);
+
+  if (isLoadingPublicSettings || isLoadingAuth || loadingUser) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  // Handle authentication errors
   if (authError) {
     if (authError.type === 'user_not_registered') {
       return <UserNotRegisteredError />;
     } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
+  const userRole = user?.role || 'ללא הרשאה';
+
+  // Blocked users see the blocked screen
+  if (userRole === 'ללא הרשאה') {
+    return <BlockedScreen user={user} />;
+  }
+
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route element={<AppLayout user={user} />}>
+        <Route path="/" element={<Home />} />
+        {userRole === 'מפתח' && (
+          <Route path="/users" element={<UserManagement />} />
+        )}
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
 };
 
-
 function App() {
-
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
