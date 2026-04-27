@@ -189,9 +189,10 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="גבוהה">גבוהה</SelectItem>
-                      <SelectItem value="בינונית">בינונית</SelectItem>
-                      <SelectItem value="לא מוגדר">לא מוגדר</SelectItem>
+                      <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
+                      <SelectItem value="בינונית">🟡 בינונית</SelectItem>
+                      <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
+                      <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
