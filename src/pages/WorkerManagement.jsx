@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wrench, CheckCircle2, TrendingUp } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Users, Wrench, CheckCircle2, TrendingUp, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { format, startOfWeek, endOfWeek, startOfDay, endOfDay, subDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -70,11 +71,48 @@ export default function WorkerManagement() {
   const workerStats = getWorkerStats();
   const isLoading = faultsLoading || usersLoading;
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedWorkerTasks, setSelectedWorkerTasks] = useState({ worker: null, type: null, tasks: [] });
+
   const PRIORITY_COLORS = {
     'גבוהה': 'text-red-600',
     'בינונית': 'text-amber-600',
     'נמוכה': 'text-blue-600',
     'לא מוגדר': 'text-gray-600',
+  };
+
+  const handleOpenTasks = (worker) => {
+    const assignedFaults = faults.filter(f => f.assignedTo === worker.id && f.status !== 'סגור');
+    setSelectedWorkerTasks({ worker, type: 'open', tasks: assignedFaults });
+    setDialogOpen(true);
+  };
+
+  const handleClosedTodayTasks = (worker) => {
+    const now = new Date();
+    const todayStart = startOfDay(now);
+    const todayEnd = endOfDay(now);
+    const assignedFaults = faults.filter(f => 
+      f.assignedTo === worker.id && 
+      f.status === 'סגור' && 
+      new Date(f.updated_date) >= todayStart && 
+      new Date(f.updated_date) <= todayEnd
+    );
+    setSelectedWorkerTasks({ worker, type: 'closedToday', tasks: assignedFaults });
+    setDialogOpen(true);
+  };
+
+  const handleClosedThisWeekTasks = (worker) => {
+    const now = new Date();
+    const weekStart = startOfWeek(now);
+    const weekEnd = endOfWeek(now);
+    const assignedFaults = faults.filter(f => 
+      f.assignedTo === worker.id && 
+      f.status === 'סגור' && 
+      new Date(f.updated_date) >= weekStart && 
+      new Date(f.updated_date) <= weekEnd
+    );
+    setSelectedWorkerTasks({ worker, type: 'closedThisWeek', tasks: assignedFaults });
+    setDialogOpen(true);
   };
 
   return (
@@ -154,31 +192,31 @@ export default function WorkerManagement() {
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
                     {/* Open Tasks */}
-                    <div className="space-y-2">
+                    <button onClick={() => handleOpenTasks(worker)} className="space-y-2 text-left hover:opacity-70 transition-opacity">
                       <div className="flex items-center gap-2">
                         <Wrench className="w-4 h-4 text-amber-600" />
                         <span className="text-xs font-medium text-muted-foreground">פתוחות</span>
                       </div>
                       <p className="text-xl font-bold text-amber-600">{worker.openTasks}</p>
-                    </div>
+                    </button>
 
                     {/* Closed Today */}
-                    <div className="space-y-2">
+                    <button onClick={() => handleClosedTodayTasks(worker)} className="space-y-2 text-left hover:opacity-70 transition-opacity">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
                         <span className="text-xs font-medium text-muted-foreground">סיימה היום</span>
                       </div>
                       <p className="text-xl font-bold text-green-600">{worker.closedToday}</p>
-                    </div>
+                    </button>
 
                     {/* This Week */}
-                    <div className="space-y-2">
+                    <button onClick={() => handleClosedThisWeekTasks(worker)} className="space-y-2 text-left hover:opacity-70 transition-opacity">
                       <div className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-blue-600" />
                         <span className="text-xs font-medium text-muted-foreground">השבוע</span>
                       </div>
                       <p className="text-xl font-bold text-blue-600">{worker.closedThisWeek}</p>
-                    </div>
+                    </button>
 
                     {/* Average Weekly */}
                     <div className="space-y-2">
@@ -215,6 +253,43 @@ export default function WorkerManagement() {
           ))}
         </motion.div>
       )}
+
+      {/* Dialog for viewing tasks */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              משימות {selectedWorkerTasks.worker?.name}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedWorkerTasks.tasks.length === 0 ? (
+            <div className="text-center py-8">
+              <Wrench className="w-10 h-10 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-muted-foreground">אין משימות בקטגוריה זו</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {selectedWorkerTasks.tasks.map(task => (
+                <div key={task.id} className="border rounded-lg p-4 bg-card">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground">{task.faultType}</h4>
+                      <p className="text-sm text-muted-foreground mt-1">{task.location}</p>
+                      <p className="text-xs text-muted-foreground mt-2 line-clamp-2">{task.description}</p>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <Badge variant="outline" className={PRIORITY_COLORS[task.priority] || 'text-gray-600'}>
+                        {task.priority}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
