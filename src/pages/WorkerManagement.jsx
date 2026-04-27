@@ -152,10 +152,10 @@ export default function WorkerManagement() {
                 </CardHeader>
 
                 <CardContent>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                  <div className="flex flex-col items-center justify-center gap-6">
                     {/* Open Tasks */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                    <div className="text-center space-y-2">
+                      <div className="flex items-center justify-center gap-2">
                         <Wrench className="w-4 h-4 text-amber-600" />
                         <span className="text-xs font-medium text-muted-foreground">פתוחות</span>
                       </div>
@@ -163,8 +163,8 @@ export default function WorkerManagement() {
                     </div>
 
                     {/* Closed Today */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                    <div className="text-center space-y-2">
+                      <div className="flex items-center justify-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-green-600" />
                         <span className="text-xs font-medium text-muted-foreground">סיימה היום</span>
                       </div>
@@ -172,8 +172,8 @@ export default function WorkerManagement() {
                     </div>
 
                     {/* This Week */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                    <div className="text-center space-y-2">
+                      <div className="flex items-center justify-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-blue-600" />
                         <span className="text-xs font-medium text-muted-foreground">השבוע</span>
                       </div>
@@ -181,8 +181,8 @@ export default function WorkerManagement() {
                     </div>
 
                     {/* Average Weekly */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                    <div className="text-center space-y-2">
+                      <div className="flex items-center justify-center gap-2">
                         <TrendingUp className="w-4 h-4 text-primary" />
                         <span className="text-xs font-medium text-muted-foreground">ממוצע</span>
                       </div>
@@ -190,8 +190,8 @@ export default function WorkerManagement() {
                     </div>
 
                     {/* Efficiency Score */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
+                    <div className="text-center space-y-2">
+                      <div className="flex items-center justify-center gap-2">
                         <TrendingUp className="w-4 h-4 text-primary" />
                         <span className="text-xs font-medium text-muted-foreground">ביצועים</span>
                       </div>
