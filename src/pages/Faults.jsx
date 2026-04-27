@@ -156,10 +156,10 @@ export default function Faults() {
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
       />
 
-      {/* Grouped View for Maintenance Manager */}
-      {isMaintenanceManager && !isLoading ? (
+      {/* Grouped View */}
+      {!isLoading ? (
         <>
-          {groupBy !== 'all' && faults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
+           {groupBy !== 'all' && faults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
             <div className="text-center py-12">
               <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground">הרשימה ריקה</p>
@@ -311,88 +311,13 @@ export default function Faults() {
           )}
         </>
       ) : (
-        <>
-          {/* Filters */}
-          <div className="flex items-center gap-3 mb-6 p-4 bg-card border border-border rounded-lg">
-            <Filter className="w-4 h-4 text-muted-foreground" />
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-40 h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
-                <SelectItem value="ממתין">ממתין</SelectItem>
-                <SelectItem value="בטיפול">בטיפול</SelectItem>
-                <SelectItem value="ממתין לאישור">ממתין לאישור</SelectItem>
-                <SelectItem value="סגור">סגור</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="w-40 h-9 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל העדיפויות</SelectItem>
-                <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
-                <SelectItem value="בינונית">🟡 בינונית</SelectItem>
-                <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
-                <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {(statusFilter !== 'all' || priorityFilter !== 'all') && (
-              <button
-                onClick={() => {
-                  setStatusFilter('all');
-                  setPriorityFilter('all');
-                }}
-                className="text-xs text-primary hover:underline ml-auto"
-              >
-                אפס סינונים
-              </button>
-            )}
-          </div>
-
-          {/* Faults Grid */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {Array(6).fill(0).map((_, i) => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="h-32 w-full rounded-lg" />
-                </div>
-              ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {Array(6).fill(0).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-32 w-full rounded-lg" />
             </div>
-          ) : filteredFaults.length === 0 ? (
-            <div className="text-center py-12">
-              <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">אין קריאות תואמות</p>
-            </div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
-            >
-              {filteredFaults.map((fault) => {
-                const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                const reportedUser = users.find(u => u.email === fault.reportedBy);
-                return (
-                  <FaultCard
-                    key={fault.id}
-                    fault={fault}
-                    assignedUser={assignedUser}
-                    reportedUser={reportedUser}
-                    isMaintenanceManager={isMaintenanceManager}
-                    onEdit={handleEdit}
-                    users={users}
-                    onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                  />
-                );
-              })}
-            </motion.div>
-          )}
-        </>
+          ))}
+        </div>
       )}
     </div>
   );
