@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Wrench, Edit2, CheckCircle2, Share2 } from 'lucide-react';
+import { MapPin, Wrench, Edit2, CheckCircle2, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import AssignWorkerDialog from './AssignWorkerDialog';
@@ -50,12 +50,18 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         {/* Main content */}
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground text-sm leading-snug">{fault.title || fault.faultType}</h3>
+          <div className="flex items-center gap-1 mt-0.5">
+            <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+            <p className="text-xs text-muted-foreground truncate">
+              {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
+            </p>
+          </div>
           {fault.description && (
             <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fault.description}</p>
           )}
           <div className="flex gap-1.5 mt-1.5 flex-wrap items-center">
             {fault.faultType && (
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">{fault.faultType}</span>
+              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">{fault.faultType}</span>
             )}
             {!isMadrich && fault.priority && fault.priority !== 'לא מוגדר' && (
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
