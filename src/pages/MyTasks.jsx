@@ -70,25 +70,7 @@ export default function MyTasks() {
         <p className="text-muted-foreground">התקלות המושויכות אליך</p>
       </motion.div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        {[
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600' },
-          { label: 'ממתינות לאישור', value: stats.waitingApproval, color: 'text-orange-600' },
-          { label: 'הושלמו', value: stats.closed, color: 'text-green-600' },
-        ].map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-card border border-border rounded-lg p-4 text-center"
-          >
-            <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-            <p className={`text-xs mt-1 ${stat.color || 'text-muted-foreground'}`}>{stat.label}</p>
-          </motion.div>
-        ))}
-      </div>
+
 
       {/* Tasks List */}
       {isLoading ? (
