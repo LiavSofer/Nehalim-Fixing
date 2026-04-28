@@ -41,8 +41,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
               <span className="text-sm text-muted-foreground">מיקום</span>
             </div>
             <p className="text-base text-foreground">
-              {fault.location}
-              {fault.roomNumber && <span className="text-muted-foreground"> · חדר/כיתה <strong className="text-foreground">{fault.roomNumber}</strong></span>}
+              {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
           </div>
 
