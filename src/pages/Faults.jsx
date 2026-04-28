@@ -81,26 +81,37 @@ export default function Faults() {
   };
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto">
+      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6"
       >
-        <div className="flex items-center gap-3 mb-1">
-          <Wrench className="w-7 h-7 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">קריאות טכניות</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <Wrench className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground leading-tight">קריאות טכניות</h1>
+              <p className="text-xs text-muted-foreground">ניהול ודיווח על תקלות</p>
+            </div>
+          </div>
+          <Button onClick={() => setDialogOpen(true)} className="gap-2 rounded-xl shadow-sm" size="default">
+            <Plus className="w-4 h-4" />
+            תקלה חדשה
+          </Button>
         </div>
-        <p className="text-muted-foreground">ניהול ודיווח על תקלות וקריאות טכניות</p>
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
         {[
-          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', activeBg: 'bg-yellow-100 border-yellow-400' },
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', activeBg: 'bg-blue-100 border-blue-400' },
-          ...(!isMadrich ? [{ label: 'ממתינות לאישור', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' }] : []),
-          { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', activeBg: 'bg-green-100 border-green-400' },
+          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', bg: 'bg-yellow-50', dot: 'bg-yellow-400', groupValue: 'ממתין', activeBorder: 'border-yellow-400' },
+          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', bg: 'bg-blue-50', dot: 'bg-blue-400', groupValue: 'בטיפול', activeBorder: 'border-blue-400' },
+          ...(!isMadrich ? [{ label: 'לאישור', value: stats.awaitingApproval, color: 'text-orange-600', bg: 'bg-orange-50', dot: 'bg-orange-400', groupValue: 'ממתין לאישור', activeBorder: 'border-orange-400' }] : []),
+          { label: 'סגורות', value: stats.closed, color: 'text-green-600', bg: 'bg-green-50', dot: 'bg-green-400', groupValue: 'סגור', activeBorder: 'border-green-400' },
         ].map((stat, i) => {
           const isActive = groupBy === stat.groupValue;
           return (
@@ -108,31 +119,22 @@ export default function Faults() {
               key={stat.label}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.07 }}
               onClick={() => setGroupBy(stat.groupValue)}
-              className={`rounded-lg p-4 text-center cursor-pointer hover:shadow-md transition-all border ${
+              className={`rounded-2xl p-4 cursor-pointer transition-all border-2 ${
                 isActive
-                  ? stat.activeBg
-                  : 'bg-card border-border'
+                  ? `${stat.bg} ${stat.activeBorder} shadow-sm`
+                  : 'bg-card border-transparent hover:border-border hover:shadow-sm'
               }`}
             >
-              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className={`text-xs mt-1 ${stat.color}`}>{stat.label}</p>
+              <div className="flex items-center justify-between mb-1">
+                <span className={`text-3xl font-extrabold ${stat.color}`}>{stat.value}</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${stat.dot}`}></span>
+              </div>
+              <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
             </motion.div>
           );
         })}
-      </div>
-
-      {/* Add new fault button */}
-      <div className="mb-8">
-        <Button
-          onClick={() => setDialogOpen(true)}
-          className="gap-2"
-          size="lg"
-        >
-          <Plus className="w-5 h-5" />
-          תקלה חדשה
-        </Button>
       </div>
 
       {/* Dialog for new/edit fault */}
@@ -179,11 +181,11 @@ export default function Faults() {
           {/* Waiting */}
           {(groupBy === 'all' || groupBy === 'ממתין') && visibleFaults.filter(f => f.status === 'ממתין').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-yellow-600"></span>
-                ממתינות ({visibleFaults.filter(f => f.status === 'ממתין').length})
+              <h2 className="text-sm font-semibold text-yellow-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                ממתינות · {visibleFaults.filter(f => f.status === 'ממתין').length}
               </h2>
-              <div className="border bg-card rounded-lg overflow-hidden">
+              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
                 {visibleFaults.filter(f => f.status === 'ממתין').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -208,11 +210,11 @@ export default function Faults() {
           {/* In Progress */}
           {(groupBy === 'all' || groupBy === 'בטיפול') && visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                בטיפול ({visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length})
+              <h2 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                בטיפול · {visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length}
               </h2>
-              <div className="border bg-card rounded-lg overflow-hidden">
+              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
                 {visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -237,11 +239,11 @@ export default function Faults() {
           {/* Waiting for Approval - Only for Maintenance Manager */}
           {isMaintenanceManager && (groupBy === 'all' || groupBy === 'ממתין לאישור') && visibleFaults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-600"></span>
-                ממתינות לאישור ({visibleFaults.filter(f => f.status === 'ממתין לאישור').length})
+              <h2 className="text-sm font-semibold text-orange-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                ממתינות לאישור · {visibleFaults.filter(f => f.status === 'ממתין לאישור').length}
               </h2>
-              <div className="border bg-card rounded-lg overflow-hidden">
+              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
                 {visibleFaults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
@@ -275,11 +277,11 @@ export default function Faults() {
           {/* Closed */}
           {(groupBy === 'all' || groupBy === 'סגור') && visibleFaults.filter(f => f.status === 'סגור').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                סגורות ({visibleFaults.filter(f => f.status === 'סגור').length})
+              <h2 className="text-sm font-semibold text-green-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                סגורות · {visibleFaults.filter(f => f.status === 'סגור').length}
               </h2>
-              <div className="border bg-card rounded-lg overflow-hidden">
+              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
                 {visibleFaults.filter(f => f.status === 'סגור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);

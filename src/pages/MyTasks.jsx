@@ -57,17 +57,21 @@ export default function MyTasks() {
   if (!user) return null;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8 max-w-3xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
+        className="mb-6"
       >
-        <div className="flex items-center gap-3 mb-1">
-          <CheckCircle2 className="w-7 h-7 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">המשימות שלי</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <CheckCircle2 className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground leading-tight">המשימות שלי</h1>
+            <p className="text-xs text-muted-foreground">התקלות המשויכות אליך</p>
+          </div>
         </div>
-        <p className="text-muted-foreground">התקלות המושויכות אליך</p>
       </motion.div>
 
 

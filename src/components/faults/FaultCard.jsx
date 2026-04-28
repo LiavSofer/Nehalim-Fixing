@@ -38,45 +38,43 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-row items-start gap-3 p-3 bg-card border-b last:border-b-0 hover:bg-muted/50 transition-colors cursor-pointer">
+        className="flex flex-row items-center gap-3 px-4 py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
 
         {/* Image - right side */}
         {fault.image && (
-          <div className="w-16 h-16 flex-shrink-0 overflow-hidden bg-muted rounded order-last">
+          <div className="w-14 h-14 flex-shrink-0 overflow-hidden bg-muted rounded-xl order-last">
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
 
-        {/* Main content - middle */}
-        <div className="flex-1 min-w-0 flex flex-col gap-1">
-          <h3 className="font-bold text-foreground text-sm leading-tight">{fault.faultType}</h3>
-          <div className="flex items-center gap-1">
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-foreground text-sm leading-snug">{fault.faultType}</h3>
+          <div className="flex items-center gap-1 mt-0.5">
             <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-            <p className="text-xs text-foreground/70 font-medium truncate">{fault.location}</p>
+            <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
           </div>
-          <div className="flex gap-3 mt-1 flex-wrap">
-            {!isMadrich && (
-              <p className={`text-xs font-semibold ${
-                fault.priority === 'גבוהה' ? 'text-red-600' :
-                fault.priority === 'בינונית' ? 'text-amber-600' :
-                'text-gray-500'
-              }`}>{fault.priority}</p>
+          <div className="flex gap-2 mt-1.5 flex-wrap items-center">
+            {!isMadrich && fault.priority && fault.priority !== 'לא מוגדר' && (
+              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                fault.priority === 'גבוהה' ? 'bg-red-50 text-red-600' :
+                'bg-amber-50 text-amber-600'
+              }`}>{fault.priority}</span>
             )}
-            <p className={`text-xs font-semibold ${
-              fault.status === 'ממתין' ? 'text-yellow-600' :
-              fault.status === 'בטיפול' ? 'text-blue-600' :
-              fault.status === 'ממתין לאישור' ? 'text-green-600' :
-              'text-green-600'
-            }`}>{fault.status}</p>
+            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+              fault.status === 'ממתין' ? 'bg-yellow-50 text-yellow-700' :
+              fault.status === 'בטיפול' ? 'bg-blue-50 text-blue-700' :
+              fault.status === 'ממתין לאישור' ? 'bg-green-50 text-green-700' :
+              'bg-green-50 text-green-700'
+            }`}>{fault.status}</span>
           </div>
         </div>
 
-        {/* Action buttons - left side */}
-        <div className="flex flex-col gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-          {/* WhatsApp share */}
+        {/* Action buttons */}
+        <div className="flex flex-col gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={(e) => { e.stopPropagation(); shareToWhatsApp(fault); }}
-            className="p-1.5 hover:bg-green-50 rounded transition-colors"
+            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
             title="שיתוף בוואטסאפ"
           >
             <Share2 className="w-4 h-4 text-green-600" />
@@ -85,7 +83,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           {isMaintenanceManager && !assignedUser && (
             <button
               onClick={(e) => { e.stopPropagation(); setDialogOpen(true); }}
-              className="p-1.5 hover:bg-background rounded transition-colors"
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
               title="שיוך עובד"
             >
               <Wrench className="w-4 h-4 text-muted-foreground" />
@@ -95,7 +93,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           {isMaintenanceManager && (
             <button
               onClick={(e) => { e.stopPropagation(); onEdit?.(fault); }}
-              className="p-1.5 hover:bg-background rounded transition-colors"
+              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
               title="עריכה"
             >
               <Edit2 className="w-4 h-4 text-muted-foreground" />
@@ -105,7 +103,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           {isWorkerView && fault.status === 'בטיפול' && (
             <button
               onClick={(e) => { e.stopPropagation(); setRepairDialogOpen(true); }}
-              className="p-1.5 hover:bg-green-50 rounded transition-colors"
+              className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
               title="סימון כטופל"
             >
               <CheckCircle2 className="w-4 h-4 text-green-600" />
