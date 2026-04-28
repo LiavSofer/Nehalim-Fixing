@@ -98,10 +98,7 @@ export default function Faults() {
               <p className="text-xs text-muted-foreground">ניהול ודיווח על תקלות</p>
             </div>
           </div>
-          <Button onClick={() => setDialogOpen(true)} className="gap-2 rounded-xl shadow-sm" size="default">
-            <Plus className="w-4 h-4" />
-            תקלה חדשה
-          </Button>
+          <div></div>
         </div>
       </motion.div>
 
@@ -127,11 +124,8 @@ export default function Faults() {
                   : 'bg-card border-transparent hover:border-border hover:shadow-sm'
               }`}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className={`text-3xl font-extrabold ${stat.color}`}>{stat.value}</span>
-                <span className={`w-2.5 h-2.5 rounded-full ${stat.dot}`}></span>
-              </div>
-              <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+              <span className={`text-3xl font-extrabold ${stat.color}`}>{stat.value}</span>
+              <p className="text-xs font-medium text-muted-foreground mt-1">{stat.label}</p>
             </motion.div>
           );
         })}
@@ -156,6 +150,15 @@ export default function Faults() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Add Button */}
+      <button
+        onClick={() => setDialogOpen(true)}
+        className="fixed bottom-24 left-6 md:bottom-8 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 active:scale-95 transition-all flex items-center justify-center"
+        title="תקלה חדשה"
+      >
+        <Plus className="w-7 h-7" />
+      </button>
 
       {/* Close Fault Dialog */}
       <CloseFaultDialog 
