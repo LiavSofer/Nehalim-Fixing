@@ -23,7 +23,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{fault.faultType}</DialogTitle>
+          <DialogTitle>{fault.title || fault.faultType}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
@@ -44,6 +44,16 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
           </div>
+
+          {/* Fault Type tag */}
+          {fault.faultType && (
+            <div>
+              <span className="text-sm text-muted-foreground">סוג תקלה</span>
+              <div className="mt-1">
+                <span className="text-sm font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{fault.faultType}</span>
+              </div>
+            </div>
+          )}
 
           {/* Status and Priority */}
           <div className="grid grid-cols-2 gap-4">

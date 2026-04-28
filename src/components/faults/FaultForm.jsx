@@ -46,6 +46,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
       location: result.normalizedLocation || locationText,
       roomNumber: result.roomNumber || '',
       faultType: result.faultCategory || prev.faultType,
+      title: result.faultTitle || prev.title || '',
     }));
     setAnalyzing(false);
   };

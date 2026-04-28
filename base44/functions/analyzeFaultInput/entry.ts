@@ -36,12 +36,14 @@ ${finalCategories.map((n, i) => `${i + 1}. ${n}`).join('\n')}
 1. בחר את המיקום המתאים ביותר מהרשימה המאושרת לפי הקלט החופשי. אם אין התאמה ברורה, החזר את הקלט המקורי.
 2. חלץ מספר חדר / כיתה מהקלט אם קיים (למשל: "101", "ז5", "קומה 2 חדר 14"). אם אין — החזר מחרוזת ריקה.
 3. בחר קטגוריית תקלה מהרשימה לפי תיאור התקלה. בחר תמיד אחת מהרשימה.
+4. צור כותרת קצרה של 2-3 מילים בעברית שמתארת את התקלה הספציפית (למשל: "נזילת מים", "חלון שבור", "תאורה לא עובדת", "דלת תקועה").
 
 **החזר JSON בפורמט הבא בלבד (ללא טקסט נוסף):**
 {
   "normalizedLocation": "שם המיקום מהרשימה",
   "roomNumber": "מספר חדר / כיתה אם קיים",
-  "faultCategory": "שם הקטגוריה מהרשימה"
+  "faultCategory": "שם הקטגוריה מהרשימה",
+  "faultTitle": "כותרת קצרה 2-3 מילים"
 }
 `;
 
@@ -50,9 +52,10 @@ ${finalCategories.map((n, i) => `${i + 1}. ${n}`).join('\n')}
     response_json_schema: {
       type: 'object',
       properties: {
-        normalizedLocation: { type: 'string' },
-        roomNumber: { type: 'string' },
-        faultCategory: { type: 'string' },
+      normalizedLocation: { type: 'string' },
+      roomNumber: { type: 'string' },
+      faultCategory: { type: 'string' },
+      faultTitle: { type: 'string' },
       },
     },
   });
