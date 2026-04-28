@@ -16,7 +16,7 @@ export default function Faults() {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
-  const [groupBy, setGroupBy] = useState('all');
+  const [groupBy, setGroupBy] = useState('ממתין');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFault, setEditingFault] = useState(null);
   const [closeFaultOpen, setCloseFaultOpen] = useState(false);
@@ -166,7 +166,10 @@ export default function Faults() {
       {/* Grouped View */}
       {!isLoading ? (
         <>
-           {groupBy !== 'all' && visibleFaults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
+           {groupBy !== 'all' && visibleFaults.filter(f => {
+              if (isMadrich && groupBy === 'בטיפול') return f.status === 'בטיפול' || f.status === 'ממתין לאישור';
+              return f.status === groupBy;
+            }).length === 0 ? (
             <div className="text-center py-12">
               <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground">הרשימה ריקה</p>
