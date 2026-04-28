@@ -83,10 +83,11 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           {isMaintenanceManager && !assignedUser && (
             <button
               onClick={(e) => { e.stopPropagation(); setDialogOpen(true); }}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+              className="px-2.5 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1"
               title="שיוך עובד"
             >
-              <Wrench className="w-4 h-4 text-muted-foreground" />
+              <Wrench className="w-3.5 h-3.5" />
+              שיוך
             </button>
           )}
 

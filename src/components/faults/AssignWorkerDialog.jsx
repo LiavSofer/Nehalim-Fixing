@@ -40,7 +40,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle>שיוך עובד וקביעת דחיפות</DialogTitle>
         </DialogHeader>
@@ -81,7 +81,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute top-1.5 left-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                        <div className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
                           <Check className="w-2.5 h-2.5 text-white" />
                         </div>
                       )}
