@@ -194,6 +194,7 @@ export default function Faults() {
                       assignedUser={assignedUser}
                       reportedUser={reportedUser}
                       isMaintenanceManager={isMaintenanceManager}
+                      isMadrich={isMadrich}
                       onEdit={handleEdit}
                       users={users}
                       onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
@@ -222,6 +223,7 @@ export default function Faults() {
                       assignedUser={assignedUser}
                       reportedUser={reportedUser}
                       isMaintenanceManager={isMaintenanceManager}
+                      isMadrich={isMadrich}
                       onEdit={handleEdit}
                       users={users}
                       onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
@@ -250,6 +252,7 @@ export default function Faults() {
                         assignedUser={assignedUser}
                         reportedUser={reportedUser}
                         isMaintenanceManager={isMaintenanceManager}
+                        isMadrich={isMadrich}
                         onEdit={handleEdit}
                         users={users}
                         onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
@@ -287,6 +290,7 @@ export default function Faults() {
                       assignedUser={assignedUser}
                       reportedUser={reportedUser}
                       isMaintenanceManager={isMaintenanceManager}
+                      isMadrich={isMadrich}
                       onEdit={handleEdit}
                       users={users}
                       onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}

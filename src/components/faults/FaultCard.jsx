@@ -26,7 +26,7 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, onEdit, users = [], onAssignmentChange, isWorkerView = false }) {
+export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, isMadrich, onEdit, users = [], onAssignmentChange, isWorkerView = false }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [repairDialogOpen, setRepairDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
@@ -55,15 +55,17 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             <p className="text-xs text-foreground/70 font-medium truncate">{fault.location}</p>
           </div>
           <div className="flex gap-3 mt-1 flex-wrap">
-            <p className={`text-xs font-semibold ${
-              fault.priority === 'גבוהה' ? 'text-red-600' :
-              fault.priority === 'בינונית' ? 'text-amber-600' :
-              'text-gray-500'
-            }`}>{fault.priority}</p>
+            {!isMadrich && (
+              <p className={`text-xs font-semibold ${
+                fault.priority === 'גבוהה' ? 'text-red-600' :
+                fault.priority === 'בינונית' ? 'text-amber-600' :
+                'text-gray-500'
+              }`}>{fault.priority}</p>
+            )}
             <p className={`text-xs font-semibold ${
               fault.status === 'ממתין' ? 'text-yellow-600' :
               fault.status === 'בטיפול' ? 'text-blue-600' :
-              fault.status === 'ממתין לאישור' ? 'text-orange-600' :
+              fault.status === 'ממתין לאישור' ? 'text-green-600' :
               'text-green-600'
             }`}>{fault.status}</p>
           </div>
