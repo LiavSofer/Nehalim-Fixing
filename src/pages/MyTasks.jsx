@@ -71,11 +71,11 @@ export default function MyTasks() {
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-4 mb-8">
         {[
-          { label: 'משויכות אליי', value: stats.inProgress, color: 'text-blue-600' },
+          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600' },
           { label: 'ממתינות לאישור', value: stats.waitingApproval, color: 'text-orange-600' },
-          { label: 'השלמתי בהצלחה', value: stats.closed, color: 'text-green-600' },
+          { label: 'הושלמו', value: stats.closed, color: 'text-green-600' },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
@@ -107,71 +107,15 @@ export default function MyTasks() {
           {sortedTasks.map((fault, index) => {
             const reportedUser = users.find(u => u.email === fault.reportedBy);
             return (
-              <motion.div
+              <FaultCard
                 key={fault.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <div className="flex items-center gap-3 p-4 border-b last:border-b-0 hover:bg-muted/50 transition-colors">
-                  {/* Image */}
-                  {fault.image && (
-                    <div className="w-20 h-20 flex-shrink-0 overflow-hidden bg-muted">
-                      <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
-                    </div>
-                  )}
-
-                  {/* Main Info */}
-                  <div className="flex-1 min-w-0 grid grid-cols-4 gap-4 items-center text-center">
-                    {/* סוג התקלה */}
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground mb-1">סוג</p>
-                      <p className="font-semibold text-foreground text-sm truncate">{fault.faultType}</p>
-                    </div>
-
-                    {/* מיקום */}
-                    <div className="min-w-0">
-                      <p className="text-xs text-muted-foreground mb-1">מיקום</p>
-                      <p className="text-sm text-foreground truncate">{fault.location}</p>
-                    </div>
-
-                    {/* דחיפות */}
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">דחיפות</p>
-                      <p className="text-sm text-foreground font-medium">{fault.priority}</p>
-                    </div>
-
-                    {/* סטטוס */}
-                    <div>
-                      <p className="text-xs text-muted-foreground mb-1">סטטוס</p>
-                      <p className="text-sm text-foreground font-medium">{fault.status}</p>
-                    </div>
-                  </div>
-
-                  {/* Action button */}
-                  {fault.status === 'בטיפול' && (
-                    <button
-                      onClick={() => {
-                        const dialog = document.querySelector('[data-fault-id="' + fault.id + '"]');
-                        dialog?.click();
-                      }}
-                      className="flex-shrink-0 px-4 py-2 text-sm bg-green-50 hover:bg-green-100 text-green-700 border border-green-200 rounded transition-colors"
-                    >
-                      סימון כטופל
-                    </button>
-                  )}
-                </div>
-
-                {/* Dialogs */}
-                <FaultCard
-                  fault={fault}
-                  reportedUser={reportedUser}
-                  isMaintenanceManager={false}
-                  isWorkerView={true}
-                  users={users}
-                  onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                />
-              </motion.div>
+                fault={fault}
+                reportedUser={reportedUser}
+                isMaintenanceManager={false}
+                isWorkerView={true}
+                users={users}
+                onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+              />
             );
           })}
         </div>
