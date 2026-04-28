@@ -56,20 +56,28 @@ export default function Faults() {
   };
 
   const isMaintenanceManager = user?.role === 'מנהל אחזקה';
+  const isMadrich = user?.role === 'מדריך';
 
-  const filteredFaults = faults.filter(fault => {
+  // For מדריך - show only faults they reported
+  const visibleFaults = isMadrich
+    ? faults.filter(f => f.reportedBy === user?.email)
+    : faults;
+
+  const filteredFaults = visibleFaults.filter(fault => {
     const statusMatch = statusFilter === 'all' || fault.status === statusFilter;
     const priorityMatch = priorityFilter === 'all' || fault.priority === priorityFilter;
     return statusMatch && priorityMatch;
   });
 
-  // Stats
+  // Stats - for מדריך: merge 'בטיפול' and 'ממתין לאישור' into one 'בטיפול' count
   const stats = {
-    total: faults.length,
-    pending: faults.filter(f => f.status === 'ממתין').length,
-    inProgress: faults.filter(f => f.status === 'בטיפול').length,
-    awaitingApproval: faults.filter(f => f.status === 'ממתין לאישור').length,
-    closed: faults.filter(f => f.status === 'סגור').length,
+    total: visibleFaults.length,
+    pending: visibleFaults.filter(f => f.status === 'ממתין').length,
+    inProgress: isMadrich
+      ? visibleFaults.filter(f => f.status === 'בטיפול' || f.status === 'ממתין לאישור').length
+      : visibleFaults.filter(f => f.status === 'בטיפול').length,
+    awaitingApproval: visibleFaults.filter(f => f.status === 'ממתין לאישור').length,
+    closed: visibleFaults.filter(f => f.status === 'סגור').length,
   };
 
   return (
@@ -91,7 +99,7 @@ export default function Faults() {
         {[
           { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', activeBg: 'bg-yellow-100 border-yellow-400' },
           { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', activeBg: 'bg-blue-100 border-blue-400' },
-          { label: 'ממתינות לאישור', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' },
+          ...(!isMadrich ? [{ label: 'ממתינות לאישור', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' }] : []),
           { label: 'סגורות', value: stats.closed, color: 'text-green-600', groupValue: 'סגור', activeBg: 'bg-green-100 border-green-400' },
         ].map((stat, i) => {
           const isActive = groupBy === stat.groupValue;
@@ -158,7 +166,7 @@ export default function Faults() {
       {/* Grouped View */}
       {!isLoading ? (
         <>
-           {groupBy !== 'all' && faults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
+           {groupBy !== 'all' && visibleFaults.filter(f => groupBy === 'all' || f.status === groupBy).length === 0 ? (
             <div className="text-center py-12">
               <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
               <p className="text-muted-foreground">הרשימה ריקה</p>
@@ -166,14 +174,14 @@ export default function Faults() {
           ) : (
             <div className="space-y-8">
           {/* Waiting */}
-          {(groupBy === 'all' || groupBy === 'ממתין') && faults.filter(f => f.status === 'ממתין').length > 0 && (
+          {(groupBy === 'all' || groupBy === 'ממתין') && visibleFaults.filter(f => f.status === 'ממתין').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-yellow-600"></span>
-                ממתינות ({faults.filter(f => f.status === 'ממתין').length})
+                ממתינות ({visibleFaults.filter(f => f.status === 'ממתין').length})
               </h2>
               <div className="border bg-card rounded-lg overflow-hidden">
-                {faults.filter(f => f.status === 'ממתין').map((fault) => {
+                {visibleFaults.filter(f => f.status === 'ממתין').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
                   return (
@@ -194,14 +202,14 @@ export default function Faults() {
           )}
 
           {/* In Progress */}
-          {(groupBy === 'all' || groupBy === 'בטיפול') && faults.filter(f => f.status === 'בטיפול').length > 0 && (
+          {(groupBy === 'all' || groupBy === 'בטיפול') && visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-blue-600"></span>
-                בטיפול ({faults.filter(f => f.status === 'בטיפול').length})
+                בטיפול ({visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length})
               </h2>
               <div className="border bg-card rounded-lg overflow-hidden">
-                {faults.filter(f => f.status === 'בטיפול').map((fault) => {
+                {visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
                   return (
@@ -222,14 +230,14 @@ export default function Faults() {
           )}
 
           {/* Waiting for Approval - Only for Maintenance Manager */}
-          {isMaintenanceManager && (groupBy === 'all' || groupBy === 'ממתין לאישור') && faults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
+          {isMaintenanceManager && (groupBy === 'all' || groupBy === 'ממתין לאישור') && visibleFaults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-orange-600"></span>
-                ממתינות לאישור ({faults.filter(f => f.status === 'ממתין לאישור').length})
+                ממתינות לאישור ({visibleFaults.filter(f => f.status === 'ממתין לאישור').length})
               </h2>
               <div className="border bg-card rounded-lg overflow-hidden">
-                {faults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
+                {visibleFaults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
                   return (
@@ -259,14 +267,14 @@ export default function Faults() {
           )}
 
           {/* Closed */}
-          {(groupBy === 'all' || groupBy === 'סגור') && faults.filter(f => f.status === 'סגור').length > 0 && (
+          {(groupBy === 'all' || groupBy === 'סגור') && visibleFaults.filter(f => f.status === 'סגור').length > 0 && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                סגורות ({faults.filter(f => f.status === 'סגור').length})
+                סגורות ({visibleFaults.filter(f => f.status === 'סגור').length})
               </h2>
               <div className="border bg-card rounded-lg overflow-hidden">
-                {faults.filter(f => f.status === 'סגור').map((fault) => {
+                {visibleFaults.filter(f => f.status === 'סגור').map((fault) => {
                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
                   const reportedUser = users.find(u => u.email === fault.reportedBy);
                   return (

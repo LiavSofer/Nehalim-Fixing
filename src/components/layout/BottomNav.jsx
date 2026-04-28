@@ -22,9 +22,15 @@ export default function BottomNav({ user }) {
     },
     {
       path: '/',
+      label: 'הקריאות שלי',
+      icon: ClipboardList,
+      show: userRole === 'מדריך'
+    },
+    {
+      path: '/',
       label: 'בית',
       icon: Home,
-      show: userRole !== 'אב בית'
+      show: userRole !== 'אב בית' && userRole !== 'מדריך'
     },
     {
       path: '/workers',
