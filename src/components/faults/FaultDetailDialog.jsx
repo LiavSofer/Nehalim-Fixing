@@ -40,7 +40,10 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
               <MapPin className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">מיקום</span>
             </div>
-            <p className="text-base text-foreground">{fault.location}</p>
+            <p className="text-base text-foreground">
+              {fault.location}
+              {fault.roomNumber && <span className="text-muted-foreground"> · חדר/כיתה <strong className="text-foreground">{fault.roomNumber}</strong></span>}
+            </p>
           </div>
 
           {/* Status and Priority */}

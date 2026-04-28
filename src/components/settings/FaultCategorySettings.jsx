@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, Edit2, Wrench } from 'lucide-react';
+import { Plus, Wrench } from 'lucide-react';
+import SortableList from './SortableList';
 
 const DEFAULT_CATEGORIES = ['חשמל', 'אינסטלציה', 'צבע ושפכטל', 'ניקיון', 'אחר'];
 
@@ -38,8 +39,15 @@ export default function FaultCategorySettings() {
     setDialogOpen(false);
   };
 
-  const handleDelete = async (id) => {
-    await base44.entities.FaultCategory.delete(id);
+  const handleDelete = async (cat) => {
+    await base44.entities.FaultCategory.delete(cat.id);
+    queryClient.invalidateQueries({ queryKey: ['faultCategories'] });
+  };
+
+  const handleReorder = async (newItems) => {
+    // Optimistic update
+    queryClient.setQueryData(['faultCategories'], newItems);
+    await Promise.all(newItems.map((cat, i) => base44.entities.FaultCategory.update(cat.id, { order: i })));
     queryClient.invalidateQueries({ queryKey: ['faultCategories'] });
   };
 
@@ -51,6 +59,10 @@ export default function FaultCategorySettings() {
     queryClient.invalidateQueries({ queryKey: ['faultCategories'] });
     setSeeding(false);
   };
+
+  // "אחר" should always be last — find it
+  const otherIndex = categories.findIndex(c => c.name === 'אחר');
+  const lockLast = otherIndex === categories.length - 1 && otherIndex !== -1;
 
   return (
     <div>
@@ -70,17 +82,13 @@ export default function FaultCategorySettings() {
           </Button>
         </div>
       ) : (
-        <div className="border border-border bg-card rounded-xl overflow-hidden">
-          {categories.map(cat => (
-            <div key={cat.id} className="flex items-center justify-between px-4 py-2.5 border-b last:border-b-0 hover:bg-muted/30">
-              <span className="text-sm">{cat.name}</span>
-              <div className="flex gap-1">
-                <button onClick={() => openEdit(cat)} className="p-1.5 hover:bg-muted rounded-lg"><Edit2 className="w-3.5 h-3.5 text-muted-foreground" /></button>
-                <button onClick={() => handleDelete(cat.id)} className="p-1.5 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <SortableList
+          items={categories}
+          onReorder={handleReorder}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+          lockLast={lockLast}
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

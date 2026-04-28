@@ -52,7 +52,9 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           <h3 className="font-semibold text-foreground text-sm leading-snug">{fault.faultType}</h3>
           <div className="flex items-center gap-1 mt-0.5">
             <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-            <p className="text-xs text-muted-foreground truncate">{fault.location}</p>
+            <p className="text-xs text-muted-foreground truncate">
+              {fault.location}{fault.roomNumber ? ` · חדר/כיתה ${fault.roomNumber}` : ''}
+            </p>
           </div>
           <div className="flex gap-2 mt-1.5 flex-wrap items-center">
             {!isMadrich && fault.priority && fault.priority !== 'לא מוגדר' && (

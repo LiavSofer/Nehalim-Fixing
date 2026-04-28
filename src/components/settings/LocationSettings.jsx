@@ -6,13 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, Edit2, Building, Home, MoreHorizontal } from 'lucide-react';
+import { Plus, Building, Home, MoreHorizontal } from 'lucide-react';
+import SortableList from './SortableList';
 
 const TYPE_LABELS = { dormitory: 'פנימייה', classBuilding: 'בניין כיתות', other: 'אחר' };
 const TYPE_ICONS = {
-  dormitory: <Home className="w-4 h-4" />,
-  classBuilding: <Building className="w-4 h-4" />,
-  other: <MoreHorizontal className="w-4 h-4" />,
+  dormitory: <Home className="w-3 h-3" />,
+  classBuilding: <Building className="w-3 h-3" />,
+  other: <MoreHorizontal className="w-3 h-3" />,
 };
 const TYPE_COLORS = {
   dormitory: 'bg-purple-50 text-purple-700 border-purple-200',
@@ -49,8 +50,16 @@ export default function LocationSettings() {
     setDialogOpen(false);
   };
 
-  const handleDelete = async (id) => {
-    await base44.entities.Location.delete(id);
+  const handleDelete = async (loc) => {
+    await base44.entities.Location.delete(loc.id);
+    queryClient.invalidateQueries({ queryKey: ['locations'] });
+  };
+
+  const handleReorder = async (newItems) => {
+    // Optimistic update
+    queryClient.setQueryData(['locations'], newItems);
+    // Persist new order
+    await Promise.all(newItems.map((loc, i) => base44.entities.Location.update(loc.id, { order: i })));
     queryClient.invalidateQueries({ queryKey: ['locations'] });
   };
 
@@ -63,31 +72,20 @@ export default function LocationSettings() {
         </Button>
       </div>
 
-      {['dormitory', 'classBuilding', 'other'].map(type => {
-        const group = locations.filter(l => l.type === type);
-        if (!group.length) return null;
-        return (
-          <div key={type} className="mb-4">
-            <span className={`text-xs font-semibold px-2 py-1 rounded-full inline-flex items-center gap-1.5 border mb-2 ${TYPE_COLORS[type]}`}>
-              {TYPE_ICONS[type]} {TYPE_LABELS[type]}
-            </span>
-            <div className="border border-border bg-card rounded-xl overflow-hidden">
-              {group.map(loc => (
-                <div key={loc.id} className="flex items-center justify-between px-4 py-2.5 border-b last:border-b-0 hover:bg-muted/30">
-                  <span className="text-sm">{loc.name}</span>
-                  <div className="flex gap-1">
-                    <button onClick={() => openEdit(loc)} className="p-1.5 hover:bg-muted rounded-lg"><Edit2 className="w-3.5 h-3.5 text-muted-foreground" /></button>
-                    <button onClick={() => handleDelete(loc.id)} className="p-1.5 hover:bg-red-50 rounded-lg"><Trash2 className="w-3.5 h-3.5 text-destructive" /></button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-
-      {locations.length === 0 && (
+      {locations.length === 0 ? (
         <p className="text-sm text-muted-foreground py-4 text-center">אין מיקומים מוגדרים עדיין</p>
+      ) : (
+        <SortableList
+          items={locations}
+          onReorder={handleReorder}
+          onEdit={openEdit}
+          onDelete={handleDelete}
+          renderBadge={(loc) => (
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full inline-flex items-center gap-1 border ${TYPE_COLORS[loc.type]}`}>
+              {TYPE_ICONS[loc.type]} {TYPE_LABELS[loc.type]}
+            </span>
+          )}
+        />
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
