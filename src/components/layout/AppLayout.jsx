@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
+import ProfileSetupModal from '@/components/ProfileSetupModal';
+import { base44 } from '@/api/base44Client';
 
 function getGreeting(firstName) {
   const hour = new Date().getHours();
@@ -13,11 +15,22 @@ function getGreeting(firstName) {
 
 export default function AppLayout({ user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const firstName = user?.full_name?.split(' ')[0] || '';
+  const [currentUser, setCurrentUser] = useState(user);
+
+  const needsProfile = currentUser && !currentUser.profileCompleted;
+
+  const handleProfileComplete = async () => {
+    const updated = await base44.auth.me();
+    setCurrentUser(updated);
+  };
+
+  const displayName = currentUser?.displayName || currentUser?.full_name || '';
+  const firstName = displayName.split(' ')[0];
 
   return (
     <div dir="rtl" className="min-h-screen bg-background font-heebo">
-      <Sidebar user={user} open={sidebarOpen} onOpenChange={setSidebarOpen} />
+      {needsProfile && <ProfileSetupModal onComplete={handleProfileComplete} />}
+      <Sidebar user={currentUser} open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="md:mr-64 min-h-screen pb-20 md:pb-0">
         {firstName && (
           <div className="px-6 pt-5 pb-1">
@@ -26,7 +39,7 @@ export default function AppLayout({ user }) {
         )}
         <Outlet context={{ sidebarOpen, setSidebarOpen }} />
       </main>
-      <BottomNav user={user} />
+      <BottomNav user={currentUser} />
     </div>
   );
 }
