@@ -28,7 +28,7 @@ export default function BottomNav({ user }) {
     },
     {
       path: '/workers',
-      label: 'עובדים',
+      label: 'ביצועי עובדים',
       icon: Users,
       show: userRole === 'מנהל אחזקה'
     },

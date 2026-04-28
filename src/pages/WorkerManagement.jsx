@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Wrench, CheckCircle2, TrendingUp, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Users, Wrench, BarChart2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { format, startOfWeek, endOfWeek, startOfDay, endOfDay, subDays } from 'date-fns';
-import { he } from 'date-fns/locale';
+import { startOfWeek, endOfWeek, startOfDay, endOfDay, subDays } from 'date-fns';
+import WorkerPerformanceDialog from '@/components/workers/WorkerPerformanceDialog';
 
 export default function WorkerManagement() {
   const { data: faults, isLoading: faultsLoading } = useQuery({
@@ -85,6 +85,8 @@ export default function WorkerManagement() {
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedWorkerTasks, setSelectedWorkerTasks] = useState({ worker: null, type: null, tasks: [] });
+  const [perfDialogOpen, setPerfDialogOpen] = useState(false);
+  const [selectedPerfWorker, setSelectedPerfWorker] = useState(null);
 
   const PRIORITY_COLORS = {
     'גבוהה': 'text-red-600',
@@ -135,8 +137,8 @@ export default function WorkerManagement() {
         className="mb-8"
       >
         <div className="flex items-center gap-3 mb-1">
-          <Users className="w-7 h-7 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">ניהול עובדים</h1>
+        <Users className="w-7 h-7 text-primary" />
+        <h1 className="text-3xl font-bold text-foreground">ביצועי עובדים</h1>
         </div>
         <p className="text-muted-foreground">בקרה על ביצועי עובדי התחזוקה ותוכנית עבודתם</p>
       </motion.div>
@@ -187,8 +189,15 @@ export default function WorkerManagement() {
               transition={{ delay: idx * 0.05 }}
             >
               <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
-                <CardHeader className="pb-3">
+                <CardHeader className="pb-3 flex flex-row items-center justify-between">
                   <CardTitle className="text-base">{worker.name}</CardTitle>
+                  <button
+                    onClick={() => { setSelectedPerfWorker(users.find(u => u.id === worker.id)); setPerfDialogOpen(true); }}
+                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <BarChart2 className="w-3.5 h-3.5" />
+                    ביצועים
+                  </button>
                 </CardHeader>
 
                 <CardContent>
@@ -223,6 +232,14 @@ export default function WorkerManagement() {
           ))}
         </motion.div>
       )}
+
+      {/* Worker Performance Dialog */}
+      <WorkerPerformanceDialog
+        open={perfDialogOpen}
+        onOpenChange={setPerfDialogOpen}
+        worker={selectedPerfWorker}
+        faults={faults}
+      />
 
       {/* Dialog for viewing tasks */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { label: 'כל התקלות', path: '/all-faults', icon: Home, roles: ['אב בית'] },
   { label: 'הביצועים שלי', path: '/performance', icon: Wrench, roles: ['אב בית'] },
   { label: 'דף הבית', path: '/', icon: Home, roles: ['מדריך', 'מנהל אחזקה', 'מפתח'] },
-  { label: 'ניהול עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
+  { label: 'ביצועי עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
   { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מפתח'] },
 ];
 
