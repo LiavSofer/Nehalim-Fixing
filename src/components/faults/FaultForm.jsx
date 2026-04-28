@@ -6,13 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload, Plus, X } from 'lucide-react';
-import LocationPicker from './LocationPicker';
+import { Upload, Plus, X, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
   const [formData, setFormData] = useState(editingFault || {
     location: '',
+    roomNumber: '',
     faultType: '',
     description: '',
     image: '',
@@ -20,106 +20,120 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     assignedTo: '',
     status: 'ממתין',
   });
+  const [locationText, setLocationText] = useState(editingFault?.location || '');
   const [loading, setLoading] = useState(false);
+  const [analyzing, setAnalyzing] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
 
   const handleImageUpload = async (file) => {
     if (!file) return;
-    try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({ ...prev, image: file_url }));
-      setImagePreview(file_url);
-    } catch (err) {
-      console.error('Upload failed:', err);
-    }
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setFormData(prev => ({ ...prev, image: file_url }));
+    setImagePreview(file_url);
+  };
+
+  // Run AI analysis when description loses focus (or location text changes after description is filled)
+  const runAnalysis = async () => {
+    if (!locationText && !formData.description) return;
+    setAnalyzing(true);
+    const response = await base44.functions.invoke('analyzeFaultInput', {
+      locationText,
+      descriptionText: formData.description,
+    });
+    const result = response.data;
+    setFormData(prev => ({
+      ...prev,
+      location: result.normalizedLocation || locationText,
+      roomNumber: result.roomNumber || '',
+      faultType: result.faultCategory || prev.faultType,
+    }));
+    setAnalyzing(false);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const user = await base44.auth.me();
-      let dataToSave = { ...formData };
+    const user = await base44.auth.me();
+    let dataToSave = { ...formData };
 
-      if (editingFault) {
-        // When editing, check if assignedTo changed
-        const wasUnassigned = !editingFault.assignedTo;
-        const nowAssigned = formData.assignedTo;
-        
-        // Auto-update status: if assigning to someone for first time, set to "בטיפול"
-        if (wasUnassigned && nowAssigned && formData.status === 'ממתין') {
-          dataToSave.status = 'בטיפול';
-        }
-        
-        await base44.entities.Fault.update(editingFault.id, dataToSave);
-      } else {
-        // New fault always starts with "ממתין"
-        dataToSave.status = 'ממתין';
-        dataToSave.reportedBy = user.email;
-        await base44.entities.Fault.create(dataToSave);
+    if (editingFault) {
+      const wasUnassigned = !editingFault.assignedTo;
+      const nowAssigned = formData.assignedTo;
+      if (wasUnassigned && nowAssigned && formData.status === 'ממתין') {
+        dataToSave.status = 'בטיפול';
       }
-
-      setFormData({
-        location: '',
-        faultType: '',
-        description: '',
-        image: '',
-        priority: 'לא מוגדר',
-        assignedTo: '',
-        status: 'ממתין',
-      });
-      setImagePreview('');
-      if (onSuccess) onSuccess();
-    } catch (err) {
-      console.error('Fault operation failed:', err);
-    } finally {
-      setLoading(false);
+      await base44.entities.Fault.update(editingFault.id, dataToSave);
+    } else {
+      dataToSave.status = 'ממתין';
+      dataToSave.reportedBy = user.email;
+      await base44.entities.Fault.create(dataToSave);
     }
+
+    setFormData({ location: '', roomNumber: '', faultType: '', description: '', image: '', priority: 'לא מוגדר', assignedTo: '', status: 'ממתין' });
+    setLocationText('');
+    setImagePreview('');
+    if (onSuccess) onSuccess();
+    setLoading(false);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-8"
-    >
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
       <Card className="border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5 text-primary" />
-            תקלה חדשה
+            {editingFault ? 'עריכת תקלה' : 'תקלה חדשה'}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Location */}
-            <LocationPicker
-              value={formData.location}
-              onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
-            />
 
-            {/* Fault Type */}
+            {/* Location - free text */}
             <div className="space-y-2">
-              <Label htmlFor="faultType">סוג תקלה *</Label>
+              <Label htmlFor="locationText">מיקום *</Label>
               <Input
-                id="faultType"
-                placeholder="לדוגמה: דזימה, רעש חריג"
-                value={formData.faultType}
-                onChange={(e) => setFormData(prev => ({ ...prev, faultType: e.target.value }))}
+                id="locationText"
+                placeholder="לדוגמה: פנימייה א׳ חדר 112, בניין מדעים כיתה ז5"
+                value={locationText}
+                onChange={(e) => setLocationText(e.target.value)}
+                onBlur={runAnalysis}
                 required
               />
+              {formData.location && formData.location !== locationText && (
+                <p className="text-xs text-primary flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" />
+                  זוהה: <strong>{formData.location}</strong>
+                  {formData.roomNumber && <span> · חדר/כיתה: <strong>{formData.roomNumber}</strong></span>}
+                </p>
+              )}
             </div>
 
             {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="description">תיאור מפורט *</Label>
+              <Label htmlFor="description">תיאור התקלה *</Label>
               <Textarea
                 id="description"
-                placeholder="תאר בפירוט את התקלה, המצב הנוכחי והשפעתה"
+                placeholder="תאר בפירוט את התקלה"
                 value={formData.description}
                 onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onBlur={runAnalysis}
                 required
                 rows={4}
+              />
+            </div>
+
+            {/* Fault Type - auto-filled by AI, editable */}
+            <div className="space-y-2">
+              <Label htmlFor="faultType" className="flex items-center gap-1">
+                סוג תקלה *
+                {analyzing && <span className="text-xs text-muted-foreground flex items-center gap-1"><Sparkles className="w-3 h-3 animate-pulse" /> מנתח...</span>}
+              </Label>
+              <Input
+                id="faultType"
+                placeholder="יסווג אוטומטית לפי התיאור"
+                value={formData.faultType}
+                onChange={(e) => setFormData(prev => ({ ...prev, faultType: e.target.value }))}
+                required
               />
             </div>
 
@@ -133,25 +147,14 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                       <Upload className="w-4 h-4" />
                       <span className="text-sm">בחר תמונה</span>
                     </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageUpload(e.target.files?.[0])}
-                      className="hidden"
-                    />
+                    <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
                   </label>
                 </div>
                 {imagePreview && (
                   <div className="relative w-24 h-24 rounded-lg overflow-hidden border">
                     <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFormData(prev => ({ ...prev, image: '' }));
-                        setImagePreview('');
-                      }}
-                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity"
-                    >
+                    <button type="button" onClick={() => { setFormData(prev => ({ ...prev, image: '' })); setImagePreview(''); }}
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity">
                       <X className="w-5 h-5 text-white" />
                     </button>
                   </div>
@@ -165,40 +168,26 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 <div className="space-y-2">
                   <Label htmlFor="priority">עדיפות</Label>
                   <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
-                    <SelectTrigger id="priority">
-                      <SelectValue />
-                    </SelectTrigger>
+                    <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
                       <SelectItem value="בינונית">🟡 בינונית</SelectItem>
-                      <SelectItem value="נמוכה">🔵 נמוכה</SelectItem>
                       <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="assignedTo">משויך ל</Label>
-                  <Select 
-                    value={formData.assignedTo} 
-                    onValueChange={(value) => {
-                      const newData = { ...formData, assignedTo: value };
-                      // Auto-set status to "בטיפול" when assigning
-                      if (!formData.assignedTo && value && formData.status === 'ממתין') {
-                        newData.status = 'בטיפול';
-                      }
-                      setFormData(newData);
-                    }}
-                  >
-                    <SelectTrigger id="assignedTo">
-                      <SelectValue placeholder="בחר עובד" />
-                    </SelectTrigger>
+                  <Select value={formData.assignedTo} onValueChange={(value) => {
+                    const newData = { ...formData, assignedTo: value };
+                    if (!formData.assignedTo && value && formData.status === 'ממתין') newData.status = 'בטיפול';
+                    setFormData(newData);
+                  }}>
+                    <SelectTrigger id="assignedTo"><SelectValue placeholder="בחר עובד" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value={null}>ללא הקצאה</SelectItem>
                       {users.map(user => (
-                        <SelectItem key={user.id} value={user.id}>
-                          {user.full_name}
-                        </SelectItem>
+                        <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -206,9 +195,8 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
               </div>
             )}
 
-            {/* Submit */}
             <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={loading} className="gap-2">
+              <Button type="submit" disabled={loading || analyzing} className="gap-2">
                 {loading ? 'שומר...' : editingFault ? 'עדכון תקלה' : 'יצירת תקלה'}
               </Button>
             </div>

@@ -18,6 +18,7 @@ import MyTasks from '@/pages/MyTasks';
 import BlockedScreen from '@/pages/BlockedScreen';
 import WorkerPerformance from '@/pages/WorkerPerformance';
 import LocationManagement from '@/pages/LocationManagement';
+import Settings from '@/pages/Settings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -75,7 +76,7 @@ const AuthenticatedApp = () => {
         {userRole === 'מנהל אחזקה' && (
           <>
             <Route path="/workers" element={<WorkerManagement />} />
-            <Route path="/locations" element={<LocationManagement />} />
+            <Route path="/settings" element={<Settings />} />
           </>
         )}
         {userRole === 'מפתח' && (
