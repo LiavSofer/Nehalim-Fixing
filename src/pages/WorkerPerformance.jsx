@@ -2,164 +2,184 @@ import React, { useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CheckCircle2, AlertCircle, Clock } from 'lucide-react';
-
-const COLORS = ['#22c55e', '#eab308', '#f97316', '#ef4444'];
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line
+} from 'recharts';
+import { CheckCircle2, Clock, TrendingUp, Zap } from 'lucide-react';
+import { format, subMonths, startOfMonth, endOfMonth, differenceInHours } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 export default function WorkerPerformance({ user }) {
   const { data: faults = [] } = useQuery({
-    queryKey: ['worker-faults', user?.email],
-    queryFn: () => base44.entities.Fault.filter({ assignedTo: user?.email || '' }),
+    queryKey: ['worker-faults', user?.id],
+    queryFn: () => base44.entities.Fault.filter({ assignedTo: user?.id || '' }),
   });
 
   const stats = useMemo(() => {
-    const completed = faults.filter(f => f.status === 'סגור').length;
-    const inProgress = faults.filter(f => f.status === 'בטיפול').length;
-    const pending = faults.filter(f => f.status === 'ממתין' || f.status === 'ממתין לאישור').length;
-    const total = faults.length;
-    const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
+    const closed = faults.filter(f => f.status === 'סגור');
+    const now = new Date();
 
-    const statusData = [
-      { name: 'בוצע', value: completed, color: COLORS[0] },
-      { name: 'בטיפול', value: inProgress, color: COLORS[1] },
-      { name: 'ממתין', value: pending, color: COLORS[2] },
-    ].filter(d => d.value > 0);
-
-    const priorityData = {
-      high: faults.filter(f => f.priority === 'גבוהה').length,
-      medium: faults.filter(f => f.priority === 'בינונית').length,
-      low: faults.filter(f => f.priority === 'לא מוגדר').length,
-    };
-
-    // Calculate average time to resolve
-    const closedFaults = faults.filter(f => f.status === 'סגור');
-    const avgTimeToResolve = closedFaults.length > 0
+    // Average time to resolve (in hours)
+    const avgHours = closed.length > 0
       ? Math.round(
-          closedFaults.reduce((sum, f) => {
-            const created = new Date(f.created_date);
-            const closed = new Date(f.updated_date);
-            return sum + (closed - created) / (1000 * 60 * 60); // Convert to hours
-          }, 0) / closedFaults.length
+          closed.reduce((sum, f) => {
+            return sum + differenceInHours(new Date(f.updated_date), new Date(f.created_date));
+          }, 0) / closed.length
         )
       : 0;
 
-    return { completed, inProgress, pending, total, completionRate, statusData, priorityData, avgTimeToResolve };
+    const avgDisplay = avgHours >= 24
+      ? `${Math.round(avgHours / 24)} ימים`
+      : `${avgHours} שעות`;
+
+    // Monthly data for the last 6 months
+    const monthlyData = Array.from({ length: 6 }, (_, i) => {
+      const monthDate = subMonths(now, 5 - i);
+      const start = startOfMonth(monthDate);
+      const end = endOfMonth(monthDate);
+      const monthClosed = closed.filter(f => {
+        const d = new Date(f.updated_date);
+        return d >= start && d <= end;
+      });
+      const monthAvgHours = monthClosed.length > 0
+        ? Math.round(
+            monthClosed.reduce((sum, f) =>
+              sum + differenceInHours(new Date(f.updated_date), new Date(f.created_date)), 0
+            ) / monthClosed.length
+          )
+        : 0;
+      return {
+        month: format(monthDate, 'MMM', { locale: he }),
+        תקלות: monthClosed.length,
+        'זמן ממוצע (שעות)': monthAvgHours,
+      };
+    });
+
+    // Completion rate (closed / total assigned)
+    const completionRate = faults.length > 0
+      ? Math.round((closed.length / faults.length) * 100)
+      : 0;
+
+    // Average per month (last 6)
+    const totalClosedLast6 = monthlyData.reduce((sum, m) => sum + m['תקלות'], 0);
+    const avgPerMonth = Math.round(totalClosedLast6 / 6);
+
+    // Best month
+    const bestMonth = [...monthlyData].sort((a, b) => b['תקלות'] - a['תקלות'])[0];
+
+    return { closed: closed.length, total: faults.length, avgHours, avgDisplay, completionRate, monthlyData, avgPerMonth, bestMonth };
   }, [faults]);
 
+  const summaryCards = [
+    {
+      label: 'תקלות שנפתרו',
+      value: stats.closed,
+      sub: `מתוך ${stats.total} שהוקצו`,
+      icon: CheckCircle2,
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+    },
+    {
+      label: 'זמן פתרון ממוצע',
+      value: stats.avgDisplay,
+      sub: 'לתקלה סגורה',
+      icon: Clock,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+    },
+    {
+      label: 'ממוצע חודשי',
+      value: stats.avgPerMonth,
+      sub: 'תקלות ב-6 חודשים אחרונים',
+      icon: TrendingUp,
+      color: 'text-primary',
+      bg: 'bg-primary/10',
+    },
+    {
+      label: 'אחוז ביצוע',
+      value: `${stats.completionRate}%`,
+      sub: 'מסך כל הקצאות',
+      icon: Zap,
+      color: 'text-amber-600',
+      bg: 'bg-amber-50',
+    },
+  ];
+
   return (
-    <div dir="rtl" className="min-h-screen bg-background p-4 md:p-6">
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-foreground mb-8">הביצועים שלי</h1>
+    <div dir="rtl" className="p-4 md:p-8 space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">הביצועים שלי</h1>
+        <p className="text-muted-foreground text-sm mt-1">סקירת ביצועים אישית לפי נתוני תקלות</p>
+      </div>
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">סה"כ משימות</p>
-                  <p className="text-2xl font-bold">{stats.total}</p>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        {summaryCards.map(card => {
+          const Icon = card.icon;
+          return (
+            <Card key={card.label} className="border">
+              <CardContent className="p-4">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-3 ${card.bg}`}>
+                  <Icon className={`w-5 h-5 ${card.color}`} />
                 </div>
-                <Clock className="w-8 h-8 text-blue-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">בוצעו</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.completed}</p>
-                </div>
-                <CheckCircle2 className="w-8 h-8 text-green-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">בטיפול</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.inProgress}</p>
-                </div>
-                <AlertCircle className="w-8 h-8 text-yellow-500" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">זמן ממוצע פתרון</p>
-                  <p className="text-2xl font-bold text-primary">{stats.avgTimeToResolve}h</p>
-                </div>
-                <Badge className="h-fit">{stats.avgTimeToResolve} שעות</Badge>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Status Distribution */}
-          {stats.statusData.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">התפלגות סטטוס</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={stats.statusData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {stats.statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+                <p className={`text-2xl font-bold ${card.color}`}>{card.value}</p>
+                <p className="text-xs font-medium text-foreground mt-0.5">{card.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{card.sub}</p>
               </CardContent>
             </Card>
-          )}
-
-          {/* Priority Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">משימות לפי דחיפות</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">דחיפות גבוהה</span>
-                  <Badge className="bg-red-100 text-red-800 border-red-200">{stats.priorityData.high}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">דחיפות בינונית</span>
-                  <Badge className="bg-amber-100 text-amber-800 border-amber-200">{stats.priorityData.medium}</Badge>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">ללא דחיפות</span>
-                  <Badge className="bg-gray-100 text-gray-800 border-gray-200">{stats.priorityData.low}</Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+          );
+        })}
       </div>
+
+      {/* Monthly Resolved Bar Chart */}
+      <Card className="border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">תקלות שנפתרו לפי חודש</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={200}>
+            <BarChart data={stats.monthlyData} barSize={28}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                formatter={(v) => [v, 'תקלות שנפתרו']}
+              />
+              <Bar dataKey="תקלות" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+
+      {/* Avg Resolution Time Line Chart */}
+      <Card className="border">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base">זמן פתרון ממוצע לפי חודש (שעות)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={200}>
+            <LineChart data={stats.monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, fontSize: 13 }}
+                formatter={(v) => [`${v} שעות`, 'זמן ממוצע לפתרון']}
+              />
+              <Line
+                type="monotone"
+                dataKey="זמן ממוצע (שעות)"
+                stroke="#f97316"
+                strokeWidth={2.5}
+                dot={{ r: 4, fill: '#f97316' }}
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
     </div>
   );
 }
