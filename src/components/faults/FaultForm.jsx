@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Plus, X } from 'lucide-react';
+import LocationPicker from './LocationPicker';
 import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
@@ -92,16 +93,10 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Location */}
-            <div className="space-y-2">
-              <Label htmlFor="location">מיקום *</Label>
-              <Input
-                id="location"
-                placeholder="לדוגמה: חדר מכונות, קומה 3"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                required
-              />
-            </div>
+            <LocationPicker
+              value={formData.location}
+              onChange={(val) => setFormData(prev => ({ ...prev, location: val }))}
+            />
 
             {/* Fault Type */}
             <div className="space-y-2">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ClipboardList, Users, BarChart2 } from 'lucide-react';
+import { Home, ClipboardList, Users, BarChart2, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ user }) {
@@ -36,6 +36,12 @@ export default function BottomNav({ user }) {
       path: '/workers',
       label: 'ביצועי עובדים',
       icon: Users,
+      show: userRole === 'מנהל אחזקה'
+    },
+    {
+      path: '/locations',
+      label: 'מיקומים',
+      icon: MapPin,
       show: userRole === 'מנהל אחזקה'
     },
     {
