@@ -89,7 +89,6 @@ export default function Faults() {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
         {[
-          { label: 'סה"כ קריאות', value: stats.total, groupValue: 'all', color: 'text-muted-foreground', activeBg: 'bg-primary/10 border-primary' },
           { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', groupValue: 'ממתין', activeBg: 'bg-yellow-100 border-yellow-400' },
           { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', groupValue: 'בטיפול', activeBg: 'bg-blue-100 border-blue-400' },
           { label: 'ממתינות לאישור', value: stats.awaitingApproval, color: 'text-orange-600', groupValue: 'ממתין לאישור', activeBg: 'bg-orange-100 border-orange-400' },
