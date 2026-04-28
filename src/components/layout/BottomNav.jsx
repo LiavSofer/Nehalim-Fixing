@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, ClipboardList, Users, Settings } from 'lucide-react';
+import { Home, ClipboardList, Users, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ user }) {
@@ -10,15 +10,21 @@ export default function BottomNav({ user }) {
   const navItems = [
     {
       path: '/',
-      label: 'בית',
-      icon: Home,
-      show: true
-    },
-    {
-      path: '/my-tasks',
-      label: 'משימות',
+      label: 'המשימות שלי',
       icon: ClipboardList,
       show: userRole === 'אב בית'
+    },
+    {
+      path: '/performance',
+      label: 'הביצועים שלי',
+      icon: BarChart2,
+      show: userRole === 'אב בית'
+    },
+    {
+      path: '/',
+      label: 'בית',
+      icon: Home,
+      show: userRole !== 'אב בית'
     },
     {
       path: '/workers',
