@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Wrench, Edit2, CheckCircle2, Share2 } from 'lucide-react';
+import { MapPin, Wrench, Edit2, CheckCircle2, Share2, Flag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AssignWorkerDialog from './AssignWorkerDialog';
 import MarkRepairedDialog from './MarkRepairedDialog';
 import FaultDetailDialog from './FaultDetailDialog.jsx';
+import PriorityDialog from './PriorityDialog.jsx';
 
 const shareToWhatsApp = (fault) => {
   const text = `*תקלה: ${fault.faultType}*\n📍 מיקום: ${fault.location}\n📝 תיאור: ${fault.description || ''}\n🔴 דחיפות: ${fault.priority}\n📌 סטטוס: ${fault.status}${fault.image ? `\n🖼️ תמונה: ${fault.image}` : ''}`;
@@ -30,6 +32,9 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
   const [dialogOpen, setDialogOpen] = useState(false);
   const [repairDialogOpen, setRepairDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
+
+  const assignedInitials = assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
 
   return (
     <motion.div
@@ -66,6 +71,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             {!isMadrich && fault.priority && fault.priority !== 'לא מוגדר' && (
               <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                 fault.priority === 'גבוהה' ? 'bg-red-50 text-red-600' :
+                fault.priority === 'נמוכה' ? 'bg-blue-50 text-blue-600' :
                 'bg-amber-50 text-amber-600'
               }`}>{fault.priority}</span>
             )}
@@ -75,6 +81,16 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               fault.status === 'ממתין לאישור' ? 'bg-green-50 text-green-700' :
               'bg-green-50 text-green-700'
             }`}>{fault.status}</span>
+            {/* Assigned worker chip */}
+            {assignedUser && (
+              <span className="flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <Avatar className="h-3.5 w-3.5">
+                  {assignedUser.profileImage && <AvatarImage src={assignedUser.profileImage} />}
+                  <AvatarFallback className="text-[8px] bg-primary/20 text-primary">{assignedInitials}</AvatarFallback>
+                </Avatar>
+                {assignedUser.full_name?.split(' ')[0]}
+              </span>
+            )}
           </div>
         </div>
 
@@ -87,6 +103,21 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           >
             <Share2 className="w-4 h-4 text-green-600" />
           </button>
+
+          {isMaintenanceManager && (
+            <button
+              onClick={(e) => { e.stopPropagation(); setPriorityDialogOpen(true); }}
+              className="p-1.5 hover:bg-amber-50 rounded-lg transition-colors"
+              title="קביעת דחיפות"
+            >
+              <Flag className={`w-4 h-4 ${
+                fault.priority === 'גבוהה' ? 'text-red-500' :
+                fault.priority === 'בינונית' ? 'text-amber-500' :
+                fault.priority === 'נמוכה' ? 'text-blue-500' :
+                'text-muted-foreground'
+              }`} />
+            </button>
+          )}
 
           {isMaintenanceManager && !assignedUser && (
             <button
@@ -141,6 +172,14 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
       <MarkRepairedDialog
         open={repairDialogOpen}
         onOpenChange={setRepairDialogOpen}
+        fault={fault}
+        onSuccess={onAssignmentChange}
+      />
+
+      {/* Priority Dialog */}
+      <PriorityDialog
+        open={priorityDialogOpen}
+        onOpenChange={setPriorityDialogOpen}
         fault={fault}
         onSuccess={onAssignmentChange}
       />

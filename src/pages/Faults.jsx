@@ -1,22 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Wrench, Filter, Plus, CheckCircle2 } from 'lucide-react';
+import { Wrench, Plus, CheckCircle2, ChevronDown } from 'lucide-react';
 import FaultForm from '@/components/faults/FaultForm';
 import FaultCard from '@/components/faults/FaultCard';
 import CloseFaultDialog from '@/components/faults/CloseFaultDialog';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
+
+const STATUS_TABS = [
+  { label: 'ממתינות', value: 'ממתין', color: 'text-yellow-600', dot: 'bg-yellow-400', activeBorder: 'border-yellow-400', bg: 'bg-yellow-50' },
+  { label: 'בטיפול', value: 'בטיפול', color: 'text-blue-600', dot: 'bg-blue-400', activeBorder: 'border-blue-400', bg: 'bg-blue-50' },
+  { label: 'לאישור', value: 'ממתין לאישור', color: 'text-orange-600', dot: 'bg-orange-400', activeBorder: 'border-orange-400', bg: 'bg-orange-50' },
+  { label: 'סגורות', value: 'סגור', color: 'text-green-600', dot: 'bg-green-400', activeBorder: 'border-green-400', bg: 'bg-green-50' },
+];
+
+const SORT_OPTIONS = [
+  { value: 'worker', label: 'לפי עובד' },
+  { value: 'priority', label: 'לפי דחיפות' },
+  { value: 'category', label: 'לפי קטגוריה' },
+  { value: 'date_desc', label: 'תאריך: חדש לישן' },
+  { value: 'date_asc', label: 'תאריך: ישן לחדש' },
+];
+
+const PRIORITY_ORDER = { 'גבוהה': 0, 'בינונית': 1, 'נמוכה': 2, 'לא מוגדר': 3 };
 
 export default function Faults() {
   const queryClient = useQueryClient();
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
-  const [groupBy, setGroupBy] = useState('ממתין');
+  const [activeStatus, setActiveStatus] = useState('ממתין');
+  const [sortBy, setSortBy] = useState('date_desc');
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingFault, setEditingFault] = useState(null);
   const [closeFaultOpen, setCloseFaultOpen] = useState(false);
@@ -39,39 +57,84 @@ export default function Faults() {
     initialData: [],
   });
 
-  const handleSuccess = () => {
-    queryClient.invalidateQueries({ queryKey: ['faults'] });
-    setDialogOpen(false);
-    setEditingFault(null);
-  };
-
-  const handleEdit = (fault) => {
-    setEditingFault(fault);
-    setDialogOpen(true);
-  };
-
-  const handleCloseFault = (fault) => {
-    setFaultToClose(fault);
-    setCloseFaultOpen(true);
-  };
+  const { data: categories } = useQuery({
+    queryKey: ['faultCategories'],
+    queryFn: () => base44.entities.FaultCategory.list('order'),
+    initialData: [],
+  });
 
   const isMaintenanceManager = user?.role === 'מנהל אחזקה';
   const isMadrich = user?.role === 'מדריך';
 
-  // For מדריך - show only faults they reported
-  const visibleFaults = isMadrich
-    ? faults.filter(f => f.reportedBy === user?.email)
-    : faults;
+  const visibleFaults = isMadrich ? faults.filter(f => f.reportedBy === user?.email) : faults;
 
-  const filteredFaults = visibleFaults.filter(fault => {
-    const statusMatch = statusFilter === 'all' || fault.status === statusFilter;
-    const priorityMatch = priorityFilter === 'all' || fault.priority === priorityFilter;
-    return statusMatch && priorityMatch;
-  });
+  const statusFaults = useMemo(() => {
+    if (isMadrich && activeStatus === 'בטיפול') {
+      return visibleFaults.filter(f => f.status === 'בטיפול' || f.status === 'ממתין לאישור');
+    }
+    return visibleFaults.filter(f => f.status === activeStatus);
+  }, [visibleFaults, activeStatus, isMadrich]);
 
-  // Stats - for מדריך: merge 'בטיפול' and 'ממתין לאישור' into one 'בטיפול' count
+  // Group and sort logic
+  const groupedFaults = useMemo(() => {
+    const sorted = [...statusFaults];
+
+    if (sortBy === 'priority') {
+      sorted.sort((a, b) => (PRIORITY_ORDER[a.priority] ?? 3) - (PRIORITY_ORDER[b.priority] ?? 3));
+      const groups = {};
+      sorted.forEach(f => {
+        const key = f.priority || 'לא מוגדר';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(f);
+      });
+      return Object.entries(groups).map(([key, items]) => ({ key, label: key, items }));
+    }
+
+    if (sortBy === 'worker') {
+      const groups = {};
+      sorted.sort((a, b) => {
+        const aUser = users.find(u => u.id === a.assignedTo);
+        const bUser = users.find(u => u.id === b.assignedTo);
+        return (aUser?.full_name || 'תתת').localeCompare(bUser?.full_name || 'תתת', 'he');
+      });
+      sorted.forEach(f => {
+        const worker = users.find(u => u.id === f.assignedTo);
+        const key = f.assignedTo || '__unassigned__';
+        if (!groups[key]) groups[key] = { label: worker?.full_name || 'לא משויך', worker, items: [] };
+        groups[key].items.push(f);
+      });
+      return Object.values(groups).map(g => ({ key: g.label, label: g.label, worker: g.worker, items: g.items }));
+    }
+
+    if (sortBy === 'category') {
+      sorted.sort((a, b) => (a.faultType || '').localeCompare(b.faultType || '', 'he'));
+      const groups = {};
+      sorted.forEach(f => {
+        const key = f.faultType || 'ללא קטגוריה';
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(f);
+      });
+      return Object.entries(groups).map(([key, items]) => ({ key, label: key, items }));
+    }
+
+    if (sortBy === 'date_desc' || sortBy === 'date_asc') {
+      sorted.sort((a, b) => {
+        const diff = new Date(b.created_date) - new Date(a.created_date);
+        return sortBy === 'date_asc' ? -diff : diff;
+      });
+      const groups = {};
+      sorted.forEach(f => {
+        const key = format(new Date(f.created_date), 'MMMM yyyy', { locale: he });
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(f);
+      });
+      return Object.entries(groups).map(([key, items]) => ({ key, label: key, items }));
+    }
+
+    return [{ key: 'all', label: null, items: sorted }];
+  }, [statusFaults, sortBy, users]);
+
   const stats = {
-    total: visibleFaults.length,
     pending: visibleFaults.filter(f => f.status === 'ממתין').length,
     inProgress: isMadrich
       ? visibleFaults.filter(f => f.status === 'בטיפול' || f.status === 'ממתין לאישור').length
@@ -80,14 +143,27 @@ export default function Faults() {
     closed: visibleFaults.filter(f => f.status === 'סגור').length,
   };
 
+  const statsByTab = { 'ממתין': stats.pending, 'בטיפול': stats.inProgress, 'ממתין לאישור': stats.awaitingApproval, 'סגור': stats.closed };
+
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: ['faults'] });
+    setDialogOpen(false);
+    setEditingFault(null);
+  };
+
+  const handleEdit = (fault) => { setEditingFault(fault); setDialogOpen(true); };
+  const handleCloseFault = (fault) => { setFaultToClose(fault); setCloseFaultOpen(true); };
+
+  const visibleTabs = isMadrich
+    ? STATUS_TABS.filter(t => t.value !== 'ממתין לאישור')
+    : STATUS_TABS;
+
+  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label || '';
+
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
@@ -98,44 +174,64 @@ export default function Faults() {
               <p className="text-xs text-muted-foreground">ניהול ודיווח על תקלות</p>
             </div>
           </div>
-          <div></div>
         </div>
       </motion.div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: 'ממתינות', value: stats.pending, color: 'text-yellow-600', bg: 'bg-yellow-50', dot: 'bg-yellow-400', groupValue: 'ממתין', activeBorder: 'border-yellow-400' },
-          { label: 'בטיפול', value: stats.inProgress, color: 'text-blue-600', bg: 'bg-blue-50', dot: 'bg-blue-400', groupValue: 'בטיפול', activeBorder: 'border-blue-400' },
-          ...(!isMadrich ? [{ label: 'לאישור', value: stats.awaitingApproval, color: 'text-orange-600', bg: 'bg-orange-50', dot: 'bg-orange-400', groupValue: 'ממתין לאישור', activeBorder: 'border-orange-400' }] : []),
-          { label: 'סגורות', value: stats.closed, color: 'text-green-600', bg: 'bg-green-50', dot: 'bg-green-400', groupValue: 'סגור', activeBorder: 'border-green-400' },
-        ].map((stat, i) => {
-          const isActive = groupBy === stat.groupValue;
+      {/* Status Tabs */}
+      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+        {visibleTabs.map((tab, i) => {
+          const count = statsByTab[tab.value] ?? 0;
+          const isActive = activeStatus === tab.value;
           return (
-            <motion.div
-              key={stat.label}
+            <motion.button
+              key={tab.value}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.07 }}
-              onClick={() => setGroupBy(stat.groupValue)}
-              className={`rounded-2xl p-4 cursor-pointer transition-all border-2 ${
-                isActive
-                  ? `${stat.bg} ${stat.activeBorder} shadow-sm`
-                  : 'bg-card border-transparent hover:border-border hover:shadow-sm'
+              transition={{ delay: i * 0.06 }}
+              onClick={() => setActiveStatus(tab.value)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all whitespace-nowrap ${
+                isActive ? `${tab.bg} ${tab.activeBorder} ${tab.color}` : 'bg-card border-transparent text-muted-foreground hover:border-border'
               }`}
             >
-              <span className={`text-3xl font-extrabold ${stat.color}`}>{stat.value}</span>
-              <p className="text-xs font-medium text-muted-foreground mt-1">{stat.label}</p>
-            </motion.div>
+              <span className={`w-2 h-2 rounded-full ${tab.dot}`} />
+              {tab.label}
+              <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/60' : 'bg-muted'}`}>{count}</span>
+            </motion.button>
           );
         })}
       </div>
 
+      {/* Sort control */}
+      <div className="flex justify-end mb-4 relative">
+        <button
+          onClick={() => setSortMenuOpen(v => !v)}
+          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border bg-card hover:bg-muted transition-colors"
+        >
+          {currentSortLabel}
+          <ChevronDown className="w-3.5 h-3.5" />
+        </button>
+        <AnimatePresence>
+          {sortMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+              className="absolute top-9 left-0 z-50 bg-card border rounded-xl shadow-lg py-1 min-w-[160px]"
+            >
+              {SORT_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => { setSortBy(opt.value); setSortMenuOpen(false); }}
+                  className={`w-full text-right px-4 py-2 text-sm hover:bg-muted transition-colors ${sortBy === opt.value ? 'font-semibold text-primary' : 'text-foreground'}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Dialog for new/edit fault */}
-      <Dialog open={dialogOpen} onOpenChange={(open) => {
-        setDialogOpen(open);
-        if (!open) setEditingFault(null);
-      }}>
+      <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditingFault(null); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingFault ? 'עריכת תקלה' : 'תקלה חדשה'}</DialogTitle>
@@ -161,153 +257,76 @@ export default function Faults() {
       </button>
 
       {/* Close Fault Dialog */}
-      <CloseFaultDialog 
-        open={closeFaultOpen} 
+      <CloseFaultDialog
+        open={closeFaultOpen}
         onOpenChange={setCloseFaultOpen}
         fault={faultToClose}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
       />
 
-      {/* Grouped View */}
+      {/* Fault List */}
       {!isLoading ? (
-        <>
-           {groupBy !== 'all' && visibleFaults.filter(f => {
-              if (isMadrich && groupBy === 'בטיפול') return f.status === 'בטיפול' || f.status === 'ממתין לאישור';
-              return f.status === groupBy;
-            }).length === 0 ? (
-            <div className="text-center py-12">
-              <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">הרשימה ריקה</p>
-            </div>
-          ) : (
-            <div className="space-y-8">
-          {/* Waiting */}
-          {(groupBy === 'all' || groupBy === 'ממתין') && visibleFaults.filter(f => f.status === 'ממתין').length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-sm font-semibold text-yellow-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                ממתינות · {visibleFaults.filter(f => f.status === 'ממתין').length}
-              </h2>
-              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
-                {visibleFaults.filter(f => f.status === 'ממתין').map((fault) => {
-                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                  const reportedUser = users.find(u => u.email === fault.reportedBy);
-                  return (
-                    <FaultCard
-                      key={fault.id}
-                      fault={fault}
-                      assignedUser={assignedUser}
-                      reportedUser={reportedUser}
-                      isMaintenanceManager={isMaintenanceManager}
-                      isMadrich={isMadrich}
-                      onEdit={handleEdit}
-                      users={users}
-                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                    />
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-
-          {/* In Progress */}
-          {(groupBy === 'all' || groupBy === 'בטיפול') && visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-sm font-semibold text-blue-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                בטיפול · {visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').length}
-              </h2>
-              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
-                {visibleFaults.filter(f => isMadrich ? (f.status === 'בטיפול' || f.status === 'ממתין לאישור') : f.status === 'בטיפול').map((fault) => {
-                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                  const reportedUser = users.find(u => u.email === fault.reportedBy);
-                  return (
-                    <FaultCard
-                      key={fault.id}
-                      fault={fault}
-                      assignedUser={assignedUser}
-                      reportedUser={reportedUser}
-                      isMaintenanceManager={isMaintenanceManager}
-                      isMadrich={isMadrich}
-                      onEdit={handleEdit}
-                      users={users}
-                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                    />
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Waiting for Approval - Only for Maintenance Manager */}
-          {isMaintenanceManager && (groupBy === 'all' || groupBy === 'ממתין לאישור') && visibleFaults.filter(f => f.status === 'ממתין לאישור').length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-sm font-semibold text-orange-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                ממתינות לאישור · {visibleFaults.filter(f => f.status === 'ממתין לאישור').length}
-              </h2>
-              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
-                {visibleFaults.filter(f => f.status === 'ממתין לאישור').map((fault) => {
-                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                  const reportedUser = users.find(u => u.email === fault.reportedBy);
-                  return (
-                    <div key={fault.id} className="space-y-2 p-3 border-b last:border-b-0">
-                      <FaultCard
-                        fault={fault}
-                        assignedUser={assignedUser}
-                        reportedUser={reportedUser}
-                        isMaintenanceManager={isMaintenanceManager}
-                        isMadrich={isMadrich}
-                        onEdit={handleEdit}
-                        users={users}
-                        onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                      />
-                      <Button
-                        onClick={() => handleCloseFault(fault)}
-                        className="w-full gap-2 bg-green-600 hover:bg-green-700"
-                        size="sm"
-                      >
-                        <CheckCircle2 className="w-4 h-4" />
-                        אישור סגירה
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-
-          {/* Closed */}
-          {(groupBy === 'all' || groupBy === 'סגור') && visibleFaults.filter(f => f.status === 'סגור').length > 0 && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-sm font-semibold text-green-700 mb-3 flex items-center gap-2 uppercase tracking-wide">
-                <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                סגורות · {visibleFaults.filter(f => f.status === 'סגור').length}
-              </h2>
-              <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
-                {visibleFaults.filter(f => f.status === 'סגור').map((fault) => {
-                  const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                  const reportedUser = users.find(u => u.email === fault.reportedBy);
-                  return (
-                    <FaultCard
-                      key={fault.id}
-                      fault={fault}
-                      assignedUser={assignedUser}
-                      reportedUser={reportedUser}
-                      isMaintenanceManager={isMaintenanceManager}
-                      isMadrich={isMadrich}
-                      onEdit={handleEdit}
-                      users={users}
-                      onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
-                    />
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-            </div>
-          )}
-        </>
+        statusFaults.length === 0 ? (
+          <div className="text-center py-16">
+            <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+            <p className="text-muted-foreground">הרשימה ריקה</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {groupedFaults.map((group) => (
+              <motion.div key={group.key} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                {group.label && (
+                  <div className="flex items-center gap-2 mb-2">
+                    {sortBy === 'worker' && (
+                      <Avatar className="h-6 w-6">
+                        {group.worker?.profileImage && <AvatarImage src={group.worker.profileImage} />}
+                        <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
+                          {group.label === 'לא משויך' ? '—' : group.label.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                    )}
+                    <h2 className="text-sm font-semibold text-foreground">
+                      {group.label}
+                      <span className="mr-1.5 text-xs font-normal text-muted-foreground">· {group.items.length}</span>
+                    </h2>
+                  </div>
+                )}
+                <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
+                  {group.items.map((fault) => {
+                    const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                    const reportedUser = users.find(u => u.email === fault.reportedBy);
+                    return (
+                      <React.Fragment key={fault.id}>
+                        <FaultCard
+                          fault={fault}
+                          assignedUser={assignedUser}
+                          reportedUser={reportedUser}
+                          isMaintenanceManager={isMaintenanceManager}
+                          isMadrich={isMadrich}
+                          onEdit={handleEdit}
+                          users={users}
+                          onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                        />
+                        {activeStatus === 'ממתין לאישור' && isMaintenanceManager && (
+                          <div className="px-4 pb-3">
+                            <Button
+                              onClick={() => handleCloseFault(fault)}
+                              className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                              size="sm"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                              אישור סגירה
+                            </Button>
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {Array(6).fill(0).map((_, i) => (

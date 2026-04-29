@@ -9,7 +9,6 @@ import { Check } from 'lucide-react';
 
 export default function AssignWorkerDialog({ open, onOpenChange, fault, users, onAssignmentChange }) {
   const [selectedWorker, setSelectedWorker] = useState(fault?.assignedTo || '');
-  const [priority, setPriority] = useState(fault?.priority || 'לא מוגדר');
   const [saving, setSaving] = useState(false);
 
   // Filter maintenance workers only
@@ -20,12 +19,16 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
   const handleAssign = async () => {
     setSaving(true);
     try {
-      const updateData = { priority };
+      const updateData = {};
       if (selectedWorker) {
         updateData.assignedTo = selectedWorker;
-        // Auto-set status to "בטיפול" when assigning
         if (fault.status === 'ממתין') {
           updateData.status = 'בטיפול';
+        }
+      } else {
+        updateData.assignedTo = null;
+        if (fault.status === 'בטיפול') {
+          updateData.status = 'ממתין';
         }
       }
       await base44.entities.Fault.update(fault.id, updateData);
@@ -42,7 +45,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
-          <DialogTitle>שיוך עובד וקביעת דחיפות</DialogTitle>
+          <DialogTitle>שיוך עובד</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
@@ -99,28 +102,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
             )}
           </div>
 
-          {/* Priority Selection */}
-          <div className="space-y-2">
-            <Label htmlFor="priority" className="text-sm font-medium text-muted-foreground">דחיפות</Label>
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { value: 'גבוהה', label: 'גבוהה', color: 'bg-red-50 border-red-200 text-red-700', activeColor: 'bg-red-500 border-red-500 text-white' },
-                { value: 'בינונית', label: 'בינונית', color: 'bg-amber-50 border-amber-200 text-amber-700', activeColor: 'bg-amber-500 border-amber-500 text-white' },
-                { value: 'נמוכה', label: 'נמוכה', color: 'bg-blue-50 border-blue-200 text-blue-700', activeColor: 'bg-blue-500 border-blue-500 text-white' },
-                { value: 'לא מוגדר', label: 'ללא', color: 'bg-muted border-border text-muted-foreground', activeColor: 'bg-gray-500 border-gray-500 text-white' },
-              ].map(p => (
-                <button
-                  key={p.value}
-                  onClick={() => setPriority(p.value)}
-                  className={`py-2 px-1 rounded-lg border-2 text-xs font-semibold transition-all ${
-                    priority === p.value ? p.activeColor : p.color + ' hover:opacity-80'
-                  }`}
-                >
-                  {p.label}
-                </button>
-              ))}
-            </div>
-          </div>
+
         </div>
 
         <DialogFooter>
