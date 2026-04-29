@@ -43,11 +43,11 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-row items-center gap-3 px-4 py-4 md:py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
+        className="flex flex-row items-center gap-3 px-3 py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
 
-        {/* Image - right side */}
+        {/* Image - left side */}
         {fault.image && (
-          <div className="w-16 h-16 md:w-14 md:h-14 flex-shrink-0 overflow-hidden bg-muted rounded-xl order-last">
+          <div className="w-18 h-18 flex-shrink-0 overflow-hidden bg-muted rounded-xl" style={{width:'72px',height:'72px'}}>
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
