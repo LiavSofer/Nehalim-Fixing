@@ -5,7 +5,10 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { locationText, descriptionText } = await req.json();
+  const { rawText, locationText, descriptionText } = await req.json();
+
+  // Support both unified rawText and legacy separate fields
+  const inputText = rawText || `מיקום: ${locationText || ''}\nתיאור: ${descriptionText || ''}`;
 
   // Fetch locations and categories in parallel
   const [locations, categories] = await Promise.all([
@@ -20,28 +23,31 @@ Deno.serve(async (req) => {
   const finalCategories = categoryNames.length > 0 ? categoryNames : defaultCategories;
 
   const prompt = `
-אתה עוזר לניהול תקלות במוסד. קיבלת קלט חופשי ממשתמש ועליך להחזיר JSON מובנה.
+אתה עוזר לניהול תקלות במוסד חינוכי. קיבלת קלט חופשי ממשתמש (עשוי להגיע מדיבור קולי) ועליך להחזיר JSON מובנה.
 
 **קלט מהמשתמש:**
-- מיקום (חופשי): "${locationText || ''}"
-- תיאור תקלה: "${descriptionText || ''}"
+"${inputText}"
 
-**רשימת מיקומים מאושרים:**
+**רשימת מיקומים מאושרים (בחר רק מרשימה זו!):**
 ${locationNames.length > 0 ? locationNames.map((n, i) => `${i + 1}. ${n}`).join('\n') : 'אין מיקומים מוגדרים עדיין'}
 
 **רשימת קטגוריות תקלות:**
 ${finalCategories.map((n, i) => `${i + 1}. ${n}`).join('\n')}
 
 **הוראות:**
-1. בחר את המיקום המתאים ביותר מהרשימה המאושרת לפי הקלט החופשי. אם אין התאמה ברורה, החזר את הקלט המקורי.
-2. חלץ מספר חדר / כיתה מהקלט אם קיים (למשל: "101", "ז5", "קומה 2 חדר 14"). אם אין — החזר מחרוזת ריקה.
-3. בחר קטגוריית תקלה מהרשימה לפי תיאור התקלה. בחר תמיד אחת מהרשימה.
-4. צור כותרת קצרה של 2-3 מילים בעברית שמתארת את התקלה הספציפית (למשל: "נזילת מים", "חלון שבור", "תאורה לא עובדת", "דלת תקועה").
+1. זהה את המיקום מהקלט והתאם אותו לאחד מהמיקומים המאושרים. למשל אם כתוב "פנימייה ח" ובמיקומים יש "פנימייה ח׳" — בחר אותו. אם אין התאמה — החזר את הקלט כפי שהוא.
+2. חלץ את מספר החדר / כיתה אם קיים בנפרד (למשל "802", "ז5", "חדר 14"). אם אין — החזר מחרוזת ריקה.
+3. חלץ את תיאור התקלה (הסר ממנו את המיקום ומספר החדר אם הם שם).
+4. בחר קטגוריית תקלה מהרשימה לפי תיאור התקלה.
+5. צור כותרת קצרה של 2-3 מילים בעברית שמתארת את התקלה (למשל: "נזילת מים", "חלון שבור", "דלת תקועה").
 
-**החזר JSON בפורמט הבא בלבד (ללא טקסט נוסף):**
+**דוגמה:** קלט: "פנימייה ח חדר 802, הדלת לא נסגרת" → normalizedLocation: "פנימייה ח׳", roomNumber: "802", description: "הדלת לא נסגרת", faultCategory: "אחר", faultTitle: "דלת תקועה"
+
+**החזר JSON בפורמט הבא בלבד:**
 {
   "normalizedLocation": "שם המיקום מהרשימה",
   "roomNumber": "מספר חדר / כיתה אם קיים",
+  "description": "תיאור התקלה בלבד",
   "faultCategory": "שם הקטגוריה מהרשימה",
   "faultTitle": "כותרת קצרה 2-3 מילים"
 }
@@ -52,10 +58,11 @@ ${finalCategories.map((n, i) => `${i + 1}. ${n}`).join('\n')}
     response_json_schema: {
       type: 'object',
       properties: {
-      normalizedLocation: { type: 'string' },
-      roomNumber: { type: 'string' },
-      faultCategory: { type: 'string' },
-      faultTitle: { type: 'string' },
+        normalizedLocation: { type: 'string' },
+        roomNumber: { type: 'string' },
+        description: { type: 'string' },
+        faultCategory: { type: 'string' },
+        faultTitle: { type: 'string' },
       },
     },
   });

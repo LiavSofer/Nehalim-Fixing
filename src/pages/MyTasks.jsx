@@ -89,7 +89,7 @@ export default function MyTasks() {
           <p className="text-muted-foreground">אין לך משימות כרגע</p>
         </div>
       ) : (
-        <div className="border bg-card rounded-lg overflow-hidden">
+        <div className="bg-card rounded-lg overflow-hidden border divide-y divide-border/50">
           {sortedTasks.map((fault, index) => {
             const reportedUser = users.find(u => u.email === fault.reportedBy);
             return (

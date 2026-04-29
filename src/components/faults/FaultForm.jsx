@@ -77,30 +77,23 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
       setIsRecording(false);
       setRecordingStatus('processing');
 
-      // Use AI to split transcript into location + description
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `המשתמש אמר: "${transcript}"
-חלץ מהמשפט:
-1. מיקום – שם המקום/בניין/חדר שהוזכר
-2. תיאור – תיאור התקלה עצמה (בלי המיקום)
-
-אם לא ברור מה המיקום, השאר ריק.`,
-        response_json_schema: {
-          type: 'object',
-          properties: {
-            location: { type: 'string' },
-            description: { type: 'string' },
-          },
-        },
+      // Send raw transcript directly to analyzeFaultInput — it handles everything
+      const response = await base44.functions.invoke('analyzeFaultInput', {
+        rawText: transcript,
       });
+      const result = response.data;
 
-      const { location, description } = response;
-      if (location) setLocationText(location);
-      if (description) setFormData(prev => ({ ...prev, description }));
+      if (result.normalizedLocation) setLocationText(result.normalizedLocation);
+      setFormData(prev => ({
+        ...prev,
+        location: result.normalizedLocation || prev.location,
+        roomNumber: result.roomNumber || prev.roomNumber,
+        description: result.description || prev.description,
+        faultType: result.faultCategory || prev.faultType,
+        title: result.faultTitle || prev.title,
+      }));
 
       setRecordingStatus('');
-      // trigger analysis with extracted values
-      await runAnalysis(location || locationText, description || formData.description);
     };
 
     recognition.onerror = () => {
