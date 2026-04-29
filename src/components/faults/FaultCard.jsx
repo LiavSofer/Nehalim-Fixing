@@ -94,62 +94,70 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex flex-col gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={(e) => { e.stopPropagation(); shareToWhatsApp(fault); }}
-            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
-            title="שיתוף בוואטסאפ"
-          >
-            <Share2 className="w-4 h-4 text-green-600" />
-          </button>
-
-          {isMaintenanceManager && (
+        {/* Action buttons - 2x2 grid for maintenance manager */}
+        {isMaintenanceManager ? (
+          <div className="grid grid-cols-2 gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+            {[
+              {
+                onClick: (e) => { e.stopPropagation(); shareToWhatsApp(fault); },
+                icon: <Share2 className="w-3.5 h-3.5 text-green-600" />,
+                label: 'שיתוף',
+                className: 'hover:bg-green-50',
+              },
+              {
+                onClick: (e) => { e.stopPropagation(); setPriorityDialogOpen(true); },
+                icon: <Flag className={`w-3.5 h-3.5 ${
+                  fault.priority === 'גבוהה' ? 'text-red-500' :
+                  fault.priority === 'בינונית' ? 'text-amber-500' :
+                  fault.priority === 'נמוכה' ? 'text-blue-500' :
+                  'text-muted-foreground'
+                }`} />,
+                label: 'דחיפות',
+                className: 'hover:bg-amber-50',
+              },
+              {
+                onClick: (e) => { e.stopPropagation(); setDialogOpen(true); },
+                icon: <Wrench className="w-3.5 h-3.5 text-primary" />,
+                label: 'שיוך',
+                className: 'hover:bg-primary/10',
+              },
+              {
+                onClick: (e) => { e.stopPropagation(); onEdit?.(fault); },
+                icon: <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />,
+                label: 'עריכה',
+                className: 'hover:bg-muted',
+              },
+            ].map((btn) => (
+              <button
+                key={btn.label}
+                onClick={btn.onClick}
+                className={`flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-lg transition-colors ${btn.className}`}
+              >
+                {btn.icon}
+                <span className="text-[10px] text-muted-foreground leading-none">{btn.label}</span>
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
             <button
-              onClick={(e) => { e.stopPropagation(); setPriorityDialogOpen(true); }}
-              className="p-1.5 hover:bg-amber-50 rounded-lg transition-colors"
-              title="קביעת דחיפות"
-            >
-              <Flag className={`w-4 h-4 ${
-                fault.priority === 'גבוהה' ? 'text-red-500' :
-                fault.priority === 'בינונית' ? 'text-amber-500' :
-                fault.priority === 'נמוכה' ? 'text-blue-500' :
-                'text-muted-foreground'
-              }`} />
-            </button>
-          )}
-
-          {isMaintenanceManager && !assignedUser && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setDialogOpen(true); }}
-              className="px-2.5 py-1.5 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg transition-colors text-xs font-semibold flex items-center gap-1"
-              title="שיוך עובד"
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              שיוך
-            </button>
-          )}
-
-          {isMaintenanceManager && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onEdit?.(fault); }}
-              className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-              title="עריכה"
-            >
-              <Edit2 className="w-4 h-4 text-muted-foreground" />
-            </button>
-          )}
-
-          {isWorkerView && fault.status === 'בטיפול' && (
-            <button
-              onClick={(e) => { e.stopPropagation(); setRepairDialogOpen(true); }}
+              onClick={(e) => { e.stopPropagation(); shareToWhatsApp(fault); }}
               className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
-              title="סימון כטופל"
+              title="שיתוף בוואטסאפ"
             >
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <Share2 className="w-4 h-4 text-green-600" />
             </button>
-          )}
-        </div>
+            {isWorkerView && fault.status === 'בטיפול' && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setRepairDialogOpen(true); }}
+                className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
+                title="סימון כטופל"
+              >
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Fault Detail Dialog */}
