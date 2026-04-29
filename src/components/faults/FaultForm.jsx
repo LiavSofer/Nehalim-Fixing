@@ -150,7 +150,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
           <div className="space-y-1.5">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
               <Camera className="w-3.5 h-3.5 text-primary" />
-              תמונה (אופציונלי)
+              תמונה *
             </Label>
             {imagePreview ? (
               <div className="relative w-full h-40 rounded-xl overflow-hidden border group">
@@ -164,9 +164,10 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed rounded-xl cursor-pointer hover:bg-muted/40 transition-colors gap-2">
+              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
                 <Upload className="w-5 h-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">לחץ להעלאת תמונה</span>
+                <span className="text-sm text-orange-600 font-medium">לחץ להעלאת תמונה</span>
+                <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
                 <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
               </label>
             )}
@@ -209,7 +210,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
           <div className="pt-1">
             <Button
               type="submit"
-              disabled={loading || analyzing}
+              disabled={loading || analyzing || !imagePreview}
               className="w-full h-10 text-sm font-semibold rounded-xl"
             >
               {loading ? 'שומר...' : analyzing ? 'ממתין לניתוח AI...' : editingFault ? 'עדכון תקלה' : 'שליחת דיווח'}
