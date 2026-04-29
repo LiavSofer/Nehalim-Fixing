@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Wrench, Edit2, CheckCircle2, Share2, Flag } from 'lucide-react';
+import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -43,39 +43,39 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-row items-center gap-3 px-4 py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
+        className="flex flex-row items-center gap-3 px-4 py-4 md:py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
 
         {/* Image - right side */}
         {fault.image && (
-          <div className="w-14 h-14 flex-shrink-0 overflow-hidden bg-muted rounded-xl order-last">
+          <div className="w-16 h-16 md:w-14 md:h-14 flex-shrink-0 overflow-hidden bg-muted rounded-xl order-last">
             <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
           </div>
         )}
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-foreground text-sm leading-snug">{fault.title || fault.faultType}</h3>
-          <div className="flex items-center gap-1 mt-0.5">
-            <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
-            <p className="text-xs text-muted-foreground truncate">
+          <h3 className="font-bold text-foreground text-base md:text-sm leading-snug">{fault.title || fault.faultType}</h3>
+          <div className="flex items-center gap-1 mt-1">
+            <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+            <p className="text-sm md:text-xs text-muted-foreground truncate">
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
           </div>
           {fault.description && (
-            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{fault.description}</p>
+            <p className="text-sm md:text-xs text-muted-foreground mt-0.5 line-clamp-1">{fault.description}</p>
           )}
-          <div className="flex gap-1.5 mt-1.5 flex-wrap items-center">
+          <div className="flex gap-1.5 mt-2 flex-wrap items-center">
             {fault.faultType && (
-              <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">{fault.faultType}</span>
+              <span className="text-xs md:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">{fault.faultType}</span>
             )}
             {!isMadrich && fault.priority && fault.priority !== 'לא מוגדר' && (
-              <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+              <span className={`text-xs md:text-[11px] font-semibold px-2 py-0.5 rounded-full ${
                 fault.priority === 'גבוהה' ? 'bg-red-50 text-red-600' :
                 fault.priority === 'נמוכה' ? 'bg-blue-50 text-blue-600' :
                 'bg-amber-50 text-amber-600'
               }`}>{fault.priority}</span>
             )}
-            <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+            <span className={`text-xs md:text-[11px] font-semibold px-2 py-0.5 rounded-full ${
               fault.status === 'ממתין' ? 'bg-yellow-50 text-yellow-700' :
               fault.status === 'בטיפול' ? 'bg-blue-50 text-blue-700' :
               fault.status === 'ממתין לאישור' ? 'bg-green-50 text-green-700' :
@@ -83,10 +83,10 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             }`}>{fault.status}</span>
             {/* Assigned worker chip */}
             {assignedUser && (
-              <span className="flex items-center gap-1 text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
-                <Avatar className="h-3.5 w-3.5">
+              <span className="flex items-center gap-1 text-xs md:text-[11px] font-medium px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">
+                <Avatar className="h-4 w-4 md:h-3.5 md:w-3.5">
                   {assignedUser.profileImage && <AvatarImage src={assignedUser.profileImage} />}
-                  <AvatarFallback className="text-[8px] bg-primary/20 text-primary">{assignedInitials}</AvatarFallback>
+                  <AvatarFallback className="text-[9px] bg-primary/20 text-primary">{assignedInitials}</AvatarFallback>
                 </Avatar>
                 {assignedUser.full_name?.split(' ')[0]}
               </span>
@@ -96,17 +96,11 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
 
         {/* Action buttons - 2x2 grid for maintenance manager */}
         {isMaintenanceManager ? (
-          <div className="grid grid-cols-2 gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+          <div className="grid grid-cols-2 gap-1.5 flex-shrink-0 opacity-70 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
             {[
               {
-                onClick: (e) => { e.stopPropagation(); shareToWhatsApp(fault); },
-                icon: <Share2 className="w-3.5 h-3.5 text-green-600" />,
-                label: 'שיתוף',
-                className: 'hover:bg-green-50',
-              },
-              {
                 onClick: (e) => { e.stopPropagation(); setPriorityDialogOpen(true); },
-                icon: <Flag className={`w-3.5 h-3.5 ${
+                icon: <Flag fill="currentColor" className={`w-5 h-5 ${
                   fault.priority === 'גבוהה' ? 'text-red-500' :
                   fault.priority === 'בינונית' ? 'text-amber-500' :
                   fault.priority === 'נמוכה' ? 'text-blue-500' :
@@ -117,24 +111,30 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               },
               {
                 onClick: (e) => { e.stopPropagation(); setDialogOpen(true); },
-                icon: <Wrench className="w-3.5 h-3.5 text-primary" />,
+                icon: <Wrench fill="currentColor" className="w-5 h-5 text-primary" />,
                 label: 'שיוך',
                 className: 'hover:bg-primary/10',
               },
               {
                 onClick: (e) => { e.stopPropagation(); onEdit?.(fault); },
-                icon: <Edit2 className="w-3.5 h-3.5 text-muted-foreground" />,
+                icon: <PenLine className="w-5 h-5 text-slate-500" strokeWidth={2.5} />,
                 label: 'עריכה',
                 className: 'hover:bg-muted',
+              },
+              {
+                onClick: (e) => { e.stopPropagation(); shareToWhatsApp(fault); },
+                icon: <Share2 fill="currentColor" className="w-5 h-5 text-green-600" />,
+                label: 'שיתוף',
+                className: 'hover:bg-green-50',
               },
             ].map((btn) => (
               <button
                 key={btn.label}
                 onClick={btn.onClick}
-                className={`flex flex-col items-center justify-center gap-0.5 py-1.5 px-1 rounded-lg transition-colors ${btn.className}`}
+                className={`flex flex-col items-center justify-center gap-1 py-2 px-1.5 rounded-lg transition-colors ${btn.className}`}
               >
                 {btn.icon}
-                <span className="text-[10px] text-muted-foreground leading-none">{btn.label}</span>
+                <span className="text-[11px] font-medium text-muted-foreground leading-none">{btn.label}</span>
               </button>
             ))}
           </div>
