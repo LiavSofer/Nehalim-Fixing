@@ -51,14 +51,23 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
         open ? "translate-x-0" : "translate-x-full md:translate-x-0"
       )}>
       {/* Logo */}
-      <div className="p-6 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sidebar-primary to-blue-400 flex items-center justify-center shadow-lg">
-            <Wrench className="w-5 h-5 text-white" />
-          </div>
+      <div className="relative p-5 border-b border-sidebar-border overflow-hidden">
+        {/* Background logo watermark */}
+        <img
+          src="https://media.base44.com/images/public/69ef559b90d9349a2e6ed053/963997086_image.png"
+          alt=""
+          aria-hidden="true"
+          className="absolute -left-4 -top-4 w-32 h-32 object-contain opacity-[0.06] pointer-events-none select-none invert"
+        />
+        <div className="relative flex items-center gap-3">
+          <img
+            src="https://media.base44.com/images/public/69ef559b90d9349a2e6ed053/963997086_image.png"
+            alt="לוגו ישיבת נחלים"
+            className="w-10 h-10 object-contain opacity-90 invert"
+          />
           <div>
-            <h1 className="font-bold text-base leading-tight tracking-tight">ניהול אחזקה</h1>
-            <p className="text-xs text-sidebar-foreground/50 mt-0.5">מערכת חכמה לתחזוקה</p>
+            <h1 className="font-bold text-base leading-tight tracking-tight">ישיבת נחלים</h1>
+            <p className="text-xs text-sidebar-foreground/50 mt-0.5">מערכת ניהול אחזקה</p>
           </div>
         </div>
       </div>

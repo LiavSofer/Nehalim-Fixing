@@ -14,12 +14,26 @@ export default function BlockedScreen({ user }) {
         className="max-w-md w-full text-center"
       >
         <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="flex flex-col items-center mb-8"
+        >
+          <img
+            src="https://media.base44.com/images/public/69ef559b90d9349a2e6ed053/963997086_image.png"
+            alt="לוגו ישיבת נחלים"
+            className="w-28 h-28 object-contain mb-4 opacity-90"
+          />
+          <p className="text-sm font-semibold text-muted-foreground tracking-wide">ישיבת נחלים</p>
+        </motion.div>
+
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-          className="w-20 h-20 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-8"
+          transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+          className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6"
         >
-          <ShieldAlert className="w-10 h-10 text-primary" />
+          <ShieldAlert className="w-8 h-8 text-primary" />
         </motion.div>
 
         <h1 className="text-2xl font-bold text-foreground mb-3">
