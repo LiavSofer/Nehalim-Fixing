@@ -164,59 +164,37 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
 
           {/* Voice input button */}
           {!editingFault && (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex items-center gap-3">
               <AnimatePresence mode="wait">
                 {recordingStatus === 'processing' ? (
-                  <motion.div
-                    key="processing"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="flex items-center gap-2 text-sm text-primary font-medium"
+                  <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex items-center gap-1.5 text-xs text-primary font-medium px-3 py-1.5 bg-primary/8 rounded-full border border-primary/20"
                   >
-                    <Sparkles className="w-4 h-4 animate-pulse" />
-                    מעבד את הדיווח הקולי...
+                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
+                    מעבד...
                   </motion.div>
                 ) : isRecording ? (
-                  <motion.button
-                    key="stop"
-                    type="button"
-                    onClick={stopVoiceInput}
+                  <motion.button key="stop" type="button" onClick={stopVoiceInput}
                     initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition-colors shadow-md"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-medium transition-colors"
                   >
-                    <motion.span
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ repeat: Infinity, duration: 1 }}
-                    >
-                      <MicOff className="w-4 h-4" />
+                    <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
+                      <MicOff className="w-3.5 h-3.5" />
                     </motion.span>
-                    מקליט... לחץ לעצירה
+                    מקליט...
                   </motion.button>
                 ) : (
-                  <motion.button
-                    key="start"
-                    type="button"
-                    onClick={startVoiceInput}
+                  <motion.button key="start" type="button" onClick={startVoiceInput}
                     initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full text-sm font-medium transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/15 text-primary rounded-full text-xs font-medium transition-colors border border-primary/20"
                   >
-                    <Mic className="w-4 h-4" />
-                    דיווח קולי – מיקום + תיאור
+                    <Mic className="w-3.5 h-3.5" />
+                    דיווח קולי
                   </motion.button>
                 )}
               </AnimatePresence>
-              {!isRecording && recordingStatus === '' && (
-                <p className="text-xs text-muted-foreground text-center">
-                  לחץ והגד למשל: "פנימייה א׳ חדר 112, הדלת שבורה ולא נסגרת"
-                </p>
-              )}
-            </div>
-          )}
-
-          {/* Divider */}
-          {!editingFault && (
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <div className="flex-1 h-px bg-border" />
-              או מלא ידנית
+              <span className="text-xs text-muted-foreground">או מלא ידנית</span>
               <div className="flex-1 h-px bg-border" />
             </div>
           )}
