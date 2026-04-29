@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Users, Mail, Phone, Search, Clock, UserCheck, Pencil, Check, X, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,6 +23,7 @@ const ROLE_COLORS = {
 
 function UserRow({ user, onUpdate }) {
   const [editing, setEditing] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
   const [name, setName] = useState(user.displayName || user.full_name || '');
   const [phone, setPhone] = useState(user.phone || '');
   const [saving, setSaving] = useState(false);
@@ -51,13 +53,24 @@ function UserRow({ user, onUpdate }) {
       className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-border last:border-0"
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+      <div
+        className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+        onClick={() => user.profileImage && setPhotoOpen(true)}
+      >
         {user.profileImage ? (
           <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
         ) : (
           <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
         )}
       </div>
+
+      {/* Photo lightbox */}
+      <Dialog open={photoOpen} onOpenChange={setPhotoOpen}>
+        <DialogContent className="max-w-sm p-2 flex flex-col items-center gap-2">
+          <img src={user.profileImage} alt={displayName} className="w-full rounded-xl object-contain max-h-[70vh]" />
+          <p className="text-sm font-medium text-foreground">{displayName}</p>
+        </DialogContent>
+      </Dialog>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
