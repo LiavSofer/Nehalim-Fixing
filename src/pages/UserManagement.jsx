@@ -51,8 +51,12 @@ function UserRow({ user, onUpdate }) {
       className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-border last:border-0"
     >
       {/* Avatar */}
-      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-        <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
+      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {user.profileImage ? (
+          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
+        )}
       </div>
 
       {/* Info */}
