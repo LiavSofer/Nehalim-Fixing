@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Upload, X, Sparkles, MapPin, FileText, Camera, ChevronDown } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Upload, X, Sparkles, MapPin, FileText, Camera, Mic, MicOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
   const [formData, setFormData] = useState(editingFault || {
@@ -23,6 +23,9 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingStatus, setRecordingStatus] = useState(''); // 'recording' | 'processing' | ''
+  const recognitionRef = useRef(null);
 
   const handleImageUpload = async (file) => {
     if (!file) return;
@@ -31,22 +34,94 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     setImagePreview(file_url);
   };
 
-  const runAnalysis = async () => {
-    if (!locationText && !formData.description) return;
+  const runAnalysis = async (locText, descText) => {
+    const loc = locText !== undefined ? locText : locationText;
+    const desc = descText !== undefined ? descText : formData.description;
+    if (!loc && !desc) return;
     setAnalyzing(true);
     const response = await base44.functions.invoke('analyzeFaultInput', {
-      locationText,
-      descriptionText: formData.description,
+      locationText: loc,
+      descriptionText: desc,
     });
     const result = response.data;
     setFormData(prev => ({
       ...prev,
-      location: result.normalizedLocation || locationText,
+      location: result.normalizedLocation || loc,
       roomNumber: result.roomNumber || '',
       faultType: result.faultCategory || prev.faultType,
       title: result.faultTitle || prev.title || '',
     }));
     setAnalyzing(false);
+  };
+
+  const startVoiceInput = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('הדפדפן שלך אינו תומך בהקלטה קולית. נסה Chrome.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'he-IL';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognitionRef.current = recognition;
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      setRecordingStatus('recording');
+    };
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[0][0].transcript;
+      setIsRecording(false);
+      setRecordingStatus('processing');
+
+      // Use AI to split transcript into location + description
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `המשתמש אמר: "${transcript}"
+חלץ מהמשפט:
+1. מיקום – שם המקום/בניין/חדר שהוזכר
+2. תיאור – תיאור התקלה עצמה (בלי המיקום)
+
+אם לא ברור מה המיקום, השאר ריק.`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            location: { type: 'string' },
+            description: { type: 'string' },
+          },
+        },
+      });
+
+      const { location, description } = response;
+      if (location) setLocationText(location);
+      if (description) setFormData(prev => ({ ...prev, description }));
+
+      setRecordingStatus('');
+      // trigger analysis with extracted values
+      await runAnalysis(location || locationText, description || formData.description);
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      setRecordingStatus('');
+    };
+
+    recognition.onend = () => {
+      if (isRecording) {
+        setIsRecording(false);
+        setRecordingStatus('');
+      }
+    };
+
+    recognition.start();
+  };
+
+  const stopVoiceInput = () => {
+    recognitionRef.current?.stop();
+    setIsRecording(false);
+    setRecordingStatus('');
   };
 
   const handleSubmit = async (e) => {
@@ -94,6 +169,65 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
 
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
 
+          {/* Voice input button */}
+          {!editingFault && (
+            <div className="flex flex-col items-center gap-2">
+              <AnimatePresence mode="wait">
+                {recordingStatus === 'processing' ? (
+                  <motion.div
+                    key="processing"
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="flex items-center gap-2 text-sm text-primary font-medium"
+                  >
+                    <Sparkles className="w-4 h-4 animate-pulse" />
+                    מעבד את הדיווח הקולי...
+                  </motion.div>
+                ) : isRecording ? (
+                  <motion.button
+                    key="stop"
+                    type="button"
+                    onClick={stopVoiceInput}
+                    initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-full text-sm font-medium transition-colors shadow-md"
+                  >
+                    <motion.span
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ repeat: Infinity, duration: 1 }}
+                    >
+                      <MicOff className="w-4 h-4" />
+                    </motion.span>
+                    מקליט... לחץ לעצירה
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    key="start"
+                    type="button"
+                    onClick={startVoiceInput}
+                    initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full text-sm font-medium transition-colors shadow-sm"
+                  >
+                    <Mic className="w-4 h-4" />
+                    דיווח קולי – מיקום + תיאור
+                  </motion.button>
+                )}
+              </AnimatePresence>
+              {!isRecording && recordingStatus === '' && (
+                <p className="text-xs text-muted-foreground text-center">
+                  לחץ והגד למשל: "פנימייה א׳ חדר 112, הדלת שבורה ולא נסגרת"
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Divider */}
+          {!editingFault && (
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex-1 h-px bg-border" />
+              או מלא ידנית
+              <div className="flex-1 h-px bg-border" />
+            </div>
+          )}
+
           {/* Location */}
           <div className="space-y-1.5">
             <Label className="flex items-center gap-1.5 text-sm font-medium">
@@ -104,7 +238,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
               placeholder='לדוגמה: פנימייה א׳ חדר 112'
               value={locationText}
               onChange={(e) => setLocationText(e.target.value)}
-              onBlur={runAnalysis}
+              onBlur={() => runAnalysis()}
               required
               className="text-right"
             />
@@ -133,7 +267,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
               placeholder="תאר בפירוט את התקלה – מה קרה, מתי, ומה ניסית לעשות"
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              onBlur={runAnalysis}
+              onBlur={() => runAnalysis()}
               required
               rows={3}
               className="text-right resize-none"
