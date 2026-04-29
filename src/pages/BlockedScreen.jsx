@@ -42,12 +42,8 @@ export default function BlockedScreen({ user }) {
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-sm mb-6">
           <p className="text-muted-foreground leading-relaxed text-base">
-            עליך לפנות למנהל האחזקה לפתיחת הרשאות מתאימות.
+            בקשתך נמצאת בבדיקה — ממתין לאישור מנהל האחזקה.
           </p>
-          <div className="mt-6 flex items-center justify-center gap-2 text-sm text-muted-foreground/80">
-            <Phone className="w-4 h-4" />
-            <span>צור קשר עם מנהל המערכת</span>
-          </div>
         </div>
 
         <Button
