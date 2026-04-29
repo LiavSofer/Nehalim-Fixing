@@ -43,7 +43,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-row items-center gap-3 px-3 py-3 bg-card border-b last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
+        className="flex flex-row items-center gap-3 px-3 py-3 bg-card border-b border-border/40 last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
 
         {/* Image - left side */}
         {fault.image && (
