@@ -64,7 +64,7 @@ export default function Faults() {
   });
 
   const isMaintenanceManager = user?.role === 'מנהל אחזקה';
-  const isMadrich = user?.role === 'מדריך';
+  const isMadrich = user?.role === 'צוות מדווח';
 
   const visibleFaults = isMadrich ? faults.filter(f => f.reportedBy === user?.email) : faults;
 

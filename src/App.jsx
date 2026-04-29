@@ -65,7 +65,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<AppLayout user={user} />}>
-        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : ['מדריך', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
+        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : ['צוות מדווח', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
         {userRole === 'אב בית' && (
           <>
             <Route path="/my-tasks" element={<MyTasks />} />
@@ -76,6 +76,7 @@ const AuthenticatedApp = () => {
         {userRole === 'מנהל אחזקה' && (
           <>
             <Route path="/workers" element={<WorkerManagement />} />
+            <Route path="/users" element={<UserManagement />} />
             <Route path="/settings" element={<Settings />} />
           </>
         )}

@@ -24,13 +24,13 @@ export default function BottomNav({ user }) {
       path: '/',
       label: 'הקריאות שלי',
       icon: ClipboardList,
-      show: userRole === 'מדריך'
+      show: userRole === 'צוות מדווח'
     },
     {
       path: '/',
       label: 'בית',
       icon: Home,
-      show: userRole !== 'אב בית' && userRole !== 'מדריך'
+      show: userRole !== 'אב בית' && userRole !== 'צוות מדווח'
     },
     {
       path: '/workers',
@@ -42,7 +42,7 @@ export default function BottomNav({ user }) {
       path: '/users',
       label: 'משתמשים',
       icon: Users,
-      show: userRole === 'מפתח'
+      show: userRole === 'מפתח' || userRole === 'מנהל אחזקה'
     }
   ];
 
