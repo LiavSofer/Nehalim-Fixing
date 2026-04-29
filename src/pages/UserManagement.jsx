@@ -44,8 +44,10 @@ function UserRow({ user, onUpdate }) {
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
       className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-border last:border-0"
     >
       {/* Avatar */}
@@ -143,14 +145,22 @@ export default function UserManagement() {
     queryClient.invalidateQueries({ queryKey: ['users'] });
   };
 
+  const ROLE_ORDER = { 'מנהל אחזקה': 0, 'אב בית': 1, 'צוות מדווח': 2, 'מפתח': 3, 'ללא הרשאה': 4 };
+
   const pendingUsers = users.filter(u => (u.role || 'ללא הרשאה') === 'ללא הרשאה');
 
-  const filtered = (tab === 'pending' ? pendingUsers : users).filter(u => {
-    const name = (u.displayName || u.full_name || '').toLowerCase();
-    const email = (u.email || '').toLowerCase();
-    const q = search.toLowerCase();
-    return name.includes(q) || email.includes(q);
-  });
+  const filtered = (tab === 'pending' ? pendingUsers : users)
+    .filter(u => {
+      const name = (u.displayName || u.full_name || '').toLowerCase();
+      const email = (u.email || '').toLowerCase();
+      const q = search.toLowerCase();
+      return name.includes(q) || email.includes(q);
+    })
+    .sort((a, b) => {
+      const aOrder = ROLE_ORDER[a.role || 'ללא הרשאה'] ?? 5;
+      const bOrder = ROLE_ORDER[b.role || 'ללא הרשאה'] ?? 5;
+      return aOrder - bOrder;
+    });
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto" dir="rtl">
@@ -229,11 +239,11 @@ export default function UserManagement() {
               </p>
             </div>
           ) : (
-            <div>
+            <motion.div layout>
               {filtered.map(user => (
                 <UserRow key={user.id} user={user} onUpdate={handleUpdate} />
               ))}
-            </div>
+            </motion.div>
           )}
         </CardContent>
       </Card>
