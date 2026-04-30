@@ -27,7 +27,15 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'update' && userId && data) {
-      await base44.asServiceRole.entities.User.update(userId, data);
+      try {
+        await base44.asServiceRole.entities.User.update(userId, data);
+      } catch (updateError) {
+        const msg = updateError?.message || '';
+        if (msg.includes('owner')) {
+          return Response.json({ error: 'לא ניתן לשנות את תפקיד בעל האפליקציה' }, { status: 400 });
+        }
+        throw updateError;
+      }
       return Response.json({ success: true });
     }
 

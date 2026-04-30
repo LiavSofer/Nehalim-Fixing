@@ -10,6 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const ROLES = ['ללא הרשאה', 'צוות מדווח', 'אב בית', 'מנהל אחזקה', 'מפתח'];
 
@@ -30,15 +31,22 @@ function UserRow({ user, onUpdate }) {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { displayName: name, phone } });
+    const res = await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { displayName: name, phone } });
+    if (res.data?.error) {
+      toast.error(res.data.error);
+    }
     setSaving(false);
     setEditing(false);
     onUpdate();
   };
 
   const handleRoleChange = async (newRole) => {
-    await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
-    onUpdate();
+    const res = await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
+    if (res.data?.error) {
+      toast.error(res.data.error);
+    } else {
+      onUpdate();
+    }
   };
 
   const displayName = user.displayName || user.full_name || 'ללא שם';
