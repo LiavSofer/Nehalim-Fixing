@@ -30,14 +30,14 @@ function UserRow({ user, onUpdate }) {
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.entities.User.update(user.id, { displayName: name, phone });
+    await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { displayName: name, phone } });
     setSaving(false);
     setEditing(false);
     onUpdate();
   };
 
   const handleRoleChange = async (newRole) => {
-    await base44.entities.User.update(user.id, { role: newRole });
+    await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
     onUpdate();
   };
 
@@ -155,7 +155,10 @@ export default function UserManagement() {
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('manageUsers', { action: 'list' });
+      return res.data.users || [];
+    },
   });
 
   const handleUpdate = () => {
