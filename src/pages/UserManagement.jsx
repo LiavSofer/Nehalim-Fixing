@@ -31,21 +31,25 @@ function UserRow({ user, onUpdate }) {
 
   const handleSave = async () => {
     setSaving(true);
-    const res = await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { displayName: name, phone } });
-    if (res.data?.error) {
-      toast.error(res.data.error);
+    try {
+      await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { displayName: name, phone } });
+      setEditing(false);
+      onUpdate();
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'שגיאה בשמירה';
+      toast.error(msg);
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
-    setEditing(false);
-    onUpdate();
   };
 
   const handleRoleChange = async (newRole) => {
-    const res = await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
-    if (res.data?.error) {
-      toast.error(res.data.error);
-    } else {
+    try {
+      await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
       onUpdate();
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'שגיאה בעדכון התפקיד';
+      toast.error(msg);
     }
   };
 
