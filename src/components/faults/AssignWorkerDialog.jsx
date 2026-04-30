@@ -12,9 +12,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
   const [saving, setSaving] = useState(false);
 
   // Filter maintenance workers only
-  const maintenanceWorkers = users.filter(user => 
-    ['אב בית', 'עובד אחזקה'].includes(user.role)
-  );
+  const maintenanceWorkers = users.filter(user => user.role === 'אב בית');
 
   const handleAssign = async () => {
     setSaving(true);
