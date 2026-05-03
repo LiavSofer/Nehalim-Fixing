@@ -1,12 +1,12 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Upload, X, Sparkles, MapPin, FileText, Camera, Mic, MicOff } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, X, Sparkles, MapPin, FileText, Camera } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
   const [formData, setFormData] = useState(editingFault || {
@@ -23,10 +23,6 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingStatus, setRecordingStatus] = useState(''); // 'recording' | 'processing' | ''
-  const recognitionRef = useRef(null);
-
   const handleImageUpload = async (file) => {
     if (!file) return;
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -52,69 +48,6 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
       title: result.faultTitle || prev.title || '',
     }));
     setAnalyzing(false);
-  };
-
-  const startVoiceInput = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('הדפדפן שלך אינו תומך בהקלטה קולית. נסה Chrome.');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'he-IL';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    recognitionRef.current = recognition;
-
-    recognition.onstart = () => {
-      setIsRecording(true);
-      setRecordingStatus('recording');
-    };
-
-    recognition.onresult = async (event) => {
-      const transcript = event.results[0][0].transcript;
-      setIsRecording(false);
-      setRecordingStatus('processing');
-
-      // Send raw transcript directly to analyzeFaultInput — it handles everything
-      const response = await base44.functions.invoke('analyzeFaultInput', {
-        rawText: transcript,
-      });
-      const result = response.data;
-
-      if (result.normalizedLocation) setLocationText(result.normalizedLocation);
-      setFormData(prev => ({
-        ...prev,
-        location: result.normalizedLocation || prev.location,
-        roomNumber: result.roomNumber || prev.roomNumber,
-        description: result.description || prev.description,
-        faultType: result.faultCategory || prev.faultType,
-        title: result.faultTitle || prev.title,
-      }));
-
-      setRecordingStatus('');
-    };
-
-    recognition.onerror = () => {
-      setIsRecording(false);
-      setRecordingStatus('');
-    };
-
-    recognition.onend = () => {
-      if (isRecording) {
-        setIsRecording(false);
-        setRecordingStatus('');
-      }
-    };
-
-    recognition.start();
-  };
-
-  const stopVoiceInput = () => {
-    recognitionRef.current?.stop();
-    setIsRecording(false);
-    setRecordingStatus('');
   };
 
   const handleSubmit = async (e) => {
@@ -161,43 +94,6 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
-
-          {/* Voice input button */}
-          {!editingFault && (
-            <div className="flex items-center gap-3">
-              <AnimatePresence mode="wait">
-                {recordingStatus === 'processing' ? (
-                  <motion.div key="processing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    className="flex items-center gap-1.5 text-xs text-primary font-medium px-3 py-1.5 bg-primary/8 rounded-full border border-primary/20"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 animate-pulse" />
-                    מעבד...
-                  </motion.div>
-                ) : isRecording ? (
-                  <motion.button key="stop" type="button" onClick={stopVoiceInput}
-                    initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full text-xs font-medium transition-colors"
-                  >
-                    <motion.span animate={{ scale: [1, 1.3, 1] }} transition={{ repeat: Infinity, duration: 1 }}>
-                      <MicOff className="w-3.5 h-3.5" />
-                    </motion.span>
-                    מקליט...
-                  </motion.button>
-                ) : (
-                  <motion.button key="start" type="button" onClick={startVoiceInput}
-                    initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/15 text-primary rounded-full text-xs font-medium transition-colors border border-primary/20"
-                  >
-                    <Mic className="w-3.5 h-3.5" />
-                    דיווח קולי
-                  </motion.button>
-                )}
-              </AnimatePresence>
-              <div className="flex-1 h-px bg-border" />
-              <span className="text-xs text-muted-foreground">או מלא ידנית</span>
-              <div className="flex-1 h-px bg-border" />
-            </div>
-          )}
 
           {/* Location */}
           <div className="space-y-1.5">
@@ -269,18 +165,12 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 </button>
               </div>
             ) : (
-              <div className="flex gap-2">
-                <label className="flex flex-1 flex-col items-center justify-center py-5 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-1.5">
-                  <Camera className="w-5 h-5 text-orange-500" />
-                  <span className="text-sm text-orange-600 font-medium">צלם תמונה</span>
-                  <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
-                </label>
-                <label className="flex flex-1 flex-col items-center justify-center py-5 border-2 border-dashed border-border bg-muted/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors gap-1.5">
-                  <Upload className="w-5 h-5 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground font-medium">מהגלריה</span>
-                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
-                </label>
-              </div>
+              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
+                <Camera className="w-5 h-5 text-orange-500" />
+                <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
+                <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
+                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+              </label>
             )}
           </div>
 
