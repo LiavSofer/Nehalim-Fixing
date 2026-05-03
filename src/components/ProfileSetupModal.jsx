@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { User, Phone, Camera, Loader2 } from 'lucide-react';
+import { User, Phone, Camera, Upload, Loader2 } from 'lucide-react';
 
 export default function ProfileSetupModal({ onComplete }) {
   const [displayName, setDisplayName] = useState('');
@@ -57,21 +57,26 @@ export default function ProfileSetupModal({ onComplete }) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Profile Image */}
-          <div className="flex flex-col items-center gap-2">
-            <div
-              className="w-24 h-24 rounded-full border-2 border-dashed border-border flex items-center justify-center overflow-hidden cursor-pointer bg-muted hover:bg-muted/70 transition-colors"
-              onClick={() => document.getElementById('profile-img-input').click()}
-            >
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-24 h-24 rounded-full border-2 border-dashed border-border flex items-center justify-center overflow-hidden bg-muted">
               {previewUrl ? (
                 <img src={previewUrl} alt="תמונת פרופיל" className="w-full h-full object-cover" />
               ) : (
                 <Camera className="w-8 h-8 text-muted-foreground" />
               )}
             </div>
-            <input id="profile-img-input" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-            <button type="button" className="text-sm text-primary underline" onClick={() => document.getElementById('profile-img-input').click()}>
-              {previewUrl ? 'החלף תמונה' : 'העלה תמונת פרופיל'}
-            </button>
+            <div className="flex gap-2">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/15 text-primary rounded-lg text-sm font-medium cursor-pointer transition-colors border border-primary/20">
+                <Camera className="w-4 h-4" />
+                צלם
+                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageChange} />
+              </label>
+              <label className="flex items-center gap-1.5 px-3 py-1.5 bg-muted hover:bg-muted/70 text-muted-foreground rounded-lg text-sm font-medium cursor-pointer transition-colors border border-border">
+                <Upload className="w-4 h-4" />
+                גלריה
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </label>
+            </div>
             {errors.profileImage && <p className="text-destructive text-xs">{errors.profileImage}</p>}
           </div>
 

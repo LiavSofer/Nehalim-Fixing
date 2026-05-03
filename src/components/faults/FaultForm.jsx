@@ -269,12 +269,18 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
-                <Upload className="w-5 h-5 text-muted-foreground" />
-                <span className="text-sm text-orange-600 font-medium">לחץ להעלאת תמונה</span>
-                <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
-                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
-              </label>
+              <div className="flex gap-2">
+                <label className="flex flex-1 flex-col items-center justify-center py-5 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-1.5">
+                  <Camera className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm text-orange-600 font-medium">צלם תמונה</span>
+                  <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+                </label>
+                <label className="flex flex-1 flex-col items-center justify-center py-5 border-2 border-dashed border-border bg-muted/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors gap-1.5">
+                  <Upload className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground font-medium">מהגלריה</span>
+                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+                </label>
+              </div>
             )}
           </div>
 
