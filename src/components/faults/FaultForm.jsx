@@ -100,27 +100,33 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const user = await base44.auth.me();
-    let dataToSave = { ...formData };
+    try {
+      const user = await base44.auth.me();
+      let dataToSave = { ...formData };
 
-    if (editingFault) {
-      const wasUnassigned = !editingFault.assignedTo;
-      const nowAssigned = formData.assignedTo;
-      if (wasUnassigned && nowAssigned && formData.status === 'ממתין') {
-        dataToSave.status = 'בטיפול';
+      if (editingFault) {
+        const wasUnassigned = !editingFault.assignedTo;
+        const nowAssigned = formData.assignedTo;
+        if (wasUnassigned && nowAssigned && formData.status === 'ממתין') {
+          dataToSave.status = 'בטיפול';
+        }
+        await base44.entities.Fault.update(editingFault.id, dataToSave);
+      } else {
+        dataToSave.status = 'ממתין';
+        dataToSave.reportedBy = user.email;
+        await base44.entities.Fault.create(dataToSave);
       }
-      await base44.entities.Fault.update(editingFault.id, dataToSave);
-    } else {
-      dataToSave.status = 'ממתין';
-      dataToSave.reportedBy = user.email;
-      await base44.entities.Fault.create(dataToSave);
-    }
 
-    setFormData({ location: '', roomNumber: '', faultType: '', description: '', image: '', priority: 'לא מוגדר', assignedTo: '', status: 'ממתין' });
-    setLocationText('');
-    setImagePreview('');
-    if (onSuccess) onSuccess();
-    setLoading(false);
+      setFormData({ location: '', roomNumber: '', faultType: '', description: '', image: '', priority: 'לא מוגדר', assignedTo: '', status: 'ממתין' });
+      setLocationText('');
+      setImagePreview('');
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error('שגיאה בשמירת תקלה:', err);
+      alert('שגיאה בשמירת התקלה: ' + (err.message || 'אנא נסה שוב'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
