@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
 import { Camera, X } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function MarkRepairedDialog({ open, onOpenChange, fault, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [repairImage, setRepairImage] = useState(null);
@@ -69,6 +71,10 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
         action: 'markRepaired',
       });
       if (response.data?.error) throw new Error(response.data.error);
+      
+      // Invalidate queries to trigger real-time UI update
+      await queryClient.invalidateQueries({ queryKey: ['faults'] });
+      
       onSuccess?.();
       onOpenChange(false);
       setImagePreview('');

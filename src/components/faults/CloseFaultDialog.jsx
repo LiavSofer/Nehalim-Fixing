@@ -2,15 +2,24 @@ import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess }) {
   const [loading, setLoading] = useState(false);
+  const queryClient = useQueryClient();
 
   const handleCloseFault = async () => {
     try {
       setLoading(true);
       const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
       if (response.data?.error) throw new Error(response.data.error);
+      
+      // Invalidate all relevant queries to trigger real-time UI update
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['faults'] }),
+        queryClient.invalidateQueries({ queryKey: ['all-users'] }),
+      ]);
+      
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
