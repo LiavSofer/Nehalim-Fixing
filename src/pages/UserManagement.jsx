@@ -119,7 +119,7 @@ function UserRow({ user, onUpdate }) {
       {/* Role selector */}
       {!editing && (
         <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
-          <SelectTrigger className="w-28 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
+          <SelectTrigger className="w-24 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
