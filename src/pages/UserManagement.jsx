@@ -62,10 +62,22 @@ function UserRow({ user, onUpdate }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
-      className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-muted/50 transition-colors group"
+      className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3.5 hover:bg-muted/50 transition-colors group"
     >
+      {/* Avatar */}
+      <div
+        className={`w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden sm:order-3 ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+        onClick={() => user.profileImage && setPhotoOpen(true)}
+      >
+        {user.profileImage ? (
+          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
+        )}
+      </div>
+
       {/* Info */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 sm:order-1">
         {editing ? (
           <div className="flex flex-col gap-2">
             <Input
@@ -84,14 +96,14 @@ function UserRow({ user, onUpdate }) {
           </div>
         ) : (
           <>
-            <p className="font-semibold text-foreground text-base truncate">{displayName}</p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+            <p className="font-semibold text-foreground text-base">{displayName}</p>
+            <div className="flex flex-col gap-1 mt-1">
+              <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground truncate">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
                 {user.email}
               </span>
               {user.phone && (
-                <span className="flex items-center gap-1.5 text-sm text-muted-foreground" dir="ltr">
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground" dir="ltr">
                   <Phone className="w-3.5 h-3.5 flex-shrink-0" />
                   {user.phone}
                 </span>
@@ -104,7 +116,7 @@ function UserRow({ user, onUpdate }) {
       {/* Role selector */}
       {!editing && (
         <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
-          <SelectTrigger className="w-36 h-8 text-sm opacity-70 group-hover:opacity-100 transition-opacity">
+          <SelectTrigger className="w-full sm:w-36 h-8 text-xs sm:text-sm opacity-70 group-hover:opacity-100 transition-opacity sm:order-2">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -120,7 +132,7 @@ function UserRow({ user, onUpdate }) {
       )}
 
       {/* Edit / Save / Cancel */}
-      <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div className="flex items-center gap-1.5 flex-shrink-0 sm:order-4">
         {editing ? (
           <>
             <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
@@ -134,18 +146,6 @@ function UserRow({ user, onUpdate }) {
           <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
             <Pencil className="w-4 h-4" />
           </Button>
-        )}
-      </div>
-
-      {/* Avatar */}
-      <div
-        className={`w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
-        onClick={() => user.profileImage && setPhotoOpen(true)}
-      >
-        {user.profileImage ? (
-          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
         )}
       </div>
 
