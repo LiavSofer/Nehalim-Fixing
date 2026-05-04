@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, Wrench, BarChart2 } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -190,13 +191,23 @@ export default function WorkerManagement() {
             >
               <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
                 <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">{worker.name}</CardTitle>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10">
+                      {users.find(u => u.id === worker.id)?.profileImage && (
+                        <AvatarImage src={users.find(u => u.id === worker.id).profileImage} />
+                      )}
+                      <AvatarFallback className="text-sm bg-primary/15 text-primary">
+                        {worker.name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <CardTitle className="text-base">{worker.name}</CardTitle>
+                  </div>
                   <button
                     onClick={() => { setSelectedPerfWorker(users.find(u => u.id === worker.id)); setPerfDialogOpen(true); }}
-                    className="flex items-center gap-1.5 text-xs text-primary hover:underline"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors px-3 py-1.5 rounded-lg"
                   >
                     <BarChart2 className="w-3.5 h-3.5" />
-                    ביצועים
+                    פירוט מלא
                   </button>
                 </CardHeader>
 
@@ -222,7 +233,9 @@ export default function WorkerManagement() {
 
                      {/* Average Time to Resolve */}
                      <div>
-                       <p className="text-lg font-bold text-orange-600">{worker.avgTimeToResolve}h</p>
+                       <p className="text-lg font-bold text-orange-600">
+                         {worker.avgTimeToResolve === 0 ? '—' : worker.avgTimeToResolve >= 24 ? `${Math.round(worker.avgTimeToResolve / 24)} ימים` : `${worker.avgTimeToResolve} שעות`}
+                       </p>
                        <p className="text-xs text-muted-foreground">זמן ממוצע</p>
                      </div>
                     </div>
