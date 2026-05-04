@@ -30,32 +30,16 @@
   ],
   "rls": {
     "create": {
-      "userId": "{{user.id}}"
+      "data.userEmail": "{{user.email}}"
     },
     "read": {
-      "$or": [
-        {
-          "userId": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "\u05de\u05e4\u05ea\u05d7"
-          }
-        }
-      ]
+      "data.userEmail": "{{user.email}}"
     },
     "update": {
-      "$or": [
-        {
-          "userId": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "role": "\u05de\u05e4\u05ea\u05d7"
-          }
-        }
-      ]
+      "data.userEmail": "{{user.email}}"
     },
-    "delete": null
+    "delete": {
+      "data.userEmail": "{{user.email}}"
+    }
   }
 }
