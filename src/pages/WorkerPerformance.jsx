@@ -131,8 +131,10 @@ export default function WorkerPerformance({ user }) {
 
   const { data: workers = [] } = useQuery({
     queryKey: ['workers-list'],
-    queryFn: () => base44.entities.User.list(),
-    select: (users) => users.filter(u => u.role === 'אב בית'),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('manageUsers', { action: 'getWorkers' });
+      return res.data.users || [];
+    },
     enabled: isManager,
   });
 

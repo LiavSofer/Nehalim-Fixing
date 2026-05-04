@@ -26,6 +26,11 @@ Deno.serve(async (req) => {
       return Response.json({ users: allUsers });
     }
 
+    if (action === 'getWorkers') {
+      const workers = allUsers.filter(u => u.role === 'אב בית');
+      return Response.json({ users: workers });
+    }
+
     if (action === 'update' && userId && data) {
       try {
         await base44.asServiceRole.entities.User.update(userId, data);

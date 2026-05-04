@@ -52,8 +52,11 @@ export default function Faults() {
   });
 
   const { data: users } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['all-users'],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('manageUsers', { action: 'list' });
+      return res.data.users || [];
+    },
     initialData: [],
   });
 
