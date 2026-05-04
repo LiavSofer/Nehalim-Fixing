@@ -86,19 +86,19 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
           {/* Location and Type */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <MapPin className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">מיקום</span>
             </div>
-            <p className="text-base text-foreground">
+            <p className="text-base text-foreground text-center">
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
           </div>
 
           {/* Description */}
           <div className="space-y-2">
-            <span className="text-sm text-muted-foreground">תיאור</span>
-            <p className="text-base text-foreground">{fault.description}</p>
+            <span className="text-sm text-muted-foreground block text-center">תיאור</span>
+            <p className="text-base text-foreground text-center">{fault.description}</p>
           </div>
 
           {/* Timeline details */}
@@ -147,28 +147,28 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
             {/* Other timeline details */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">תאריך יצירה</span>
                 </div>
-                <p className="text-sm text-foreground">{formatDate(createdDate)}</p>
+                <p className="text-sm text-foreground text-center">{formatDate(createdDate)}</p>
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 justify-center">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
                 </div>
-                <p className="text-sm text-foreground">{formatDate(updatedDate)}</p>
+                <p className="text-sm text-foreground text-center">{formatDate(updatedDate)}</p>
               </div>
 
               {getTimeDetails() && (
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 justify-center">
                     <Clock className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
                   </div>
-                  <p className="text-sm text-foreground font-medium text-primary">{getTimeDetails()}</p>
+                  <p className="text-sm text-foreground font-medium text-primary text-center">{getTimeDetails()}</p>
                 </div>
               )}
             </div>
