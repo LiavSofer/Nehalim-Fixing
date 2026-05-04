@@ -40,10 +40,11 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
+      className="bg-card border-b border-sky-200/50 last:border-b-0"
     >
       <div 
         onClick={() => setDetailDialogOpen(true)}
-        className="flex flex-row items-center gap-3 px-3 py-3 bg-card border-b border-sky-200/50 last:border-b-0 hover:bg-muted/40 transition-colors cursor-pointer group">
+        className="flex flex-row items-center gap-3 px-3 py-3 hover:bg-muted/40 transition-colors cursor-pointer group">
 
         {/* Image - left side */}
         {fault.image && (
@@ -138,27 +139,21 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
               </button>
             ))}
           </div>
-        ) : (
-          <div className="flex flex-col gap-1 flex-shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={(e) => { e.stopPropagation(); shareToWhatsApp(fault); }}
-              className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
-              title="שיתוף בוואטסאפ"
-            >
-              <Share2 className="w-4 h-4 text-green-600" />
-            </button>
-            {isWorkerView && fault.status === 'בטיפול' && (
-              <button
-                onClick={(e) => { e.stopPropagation(); setRepairDialogOpen(true); }}
-                className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
-                title="סימון כטופל"
-              >
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-              </button>
-            )}
-          </div>
-        )}
+        ) : null}
       </div>
+
+      {/* Worker: Mark as repaired - full width button */}
+      {isWorkerView && fault.status === 'בטיפול' && (
+        <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+          <Button
+            onClick={(e) => { e.stopPropagation(); setRepairDialogOpen(true); }}
+            className="w-full h-12 text-base font-bold bg-green-600 hover:bg-green-700 text-white rounded-xl gap-2"
+          >
+            <CheckCircle2 className="w-5 h-5" />
+            סיום טיפול
+          </Button>
+        </div>
+      )}
 
       {/* Fault Detail Dialog */}
       <FaultDetailDialog
