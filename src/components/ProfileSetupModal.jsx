@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/uploadFile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,7 +61,8 @@ export default function ProfileSetupModal({ onComplete }) {
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
 
     setLoading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: profileImage });
+    const fileToUpload = new File([profileImage], 'profile.jpg', { type: 'image/jpeg' });
+    const { file_url } = await uploadFile(fileToUpload);
     await base44.auth.updateMe({
       displayName: displayName.trim(),
       phone: phone.trim(),
