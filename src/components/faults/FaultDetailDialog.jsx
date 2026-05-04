@@ -76,7 +76,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
           )}
 
           {/* Status, Priority and Type in one row */}
-          <div className="flex flex-wrap gap-6 justify-end text-xs">
+          <div className="flex flex-wrap gap-6 justify-center text-xs">
             {fault.faultType && (
               <span className="text-foreground"><span className="text-muted-foreground">סוג תקלה:</span> {fault.faultType}</span>
             )}
