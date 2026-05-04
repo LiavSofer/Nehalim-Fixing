@@ -29,7 +29,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
-      const MAX = 1200;
+      const MAX = 800;
       let { width, height } = img;
       if (width > MAX || height > MAX) {
         if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
@@ -39,7 +39,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(url);
-      canvas.toBlob(resolve, 'image/jpeg', 0.75);
+      canvas.toBlob(resolve, 'image/jpeg', 0.70);
     };
     img.src = url;
   });
