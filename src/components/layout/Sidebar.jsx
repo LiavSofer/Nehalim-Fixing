@@ -114,7 +114,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
             <p className="text-sm font-semibold truncate">{user?.full_name || 'משתמש'}</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <Shield className="w-3 h-3 text-sidebar-primary" />
-              <p className="text-xs text-sidebar-foreground/50">{userRole}</p>
+              <p className="text-xs text-sidebar-foreground/50">{userRole === 'ללא הרשאה' ? 'ממתין לאישור' : userRole}</p>
             </div>
           </div>
         </div>
