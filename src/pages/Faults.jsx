@@ -213,33 +213,35 @@ export default function Faults() {
       </div>
 
       {/* Sort control */}
-      <div className="flex justify-end mb-4 relative">
-        <button
-          onClick={() => setSortMenuOpen(v => !v)}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border bg-card hover:bg-muted transition-colors"
-        >
-          {currentSortLabel}
-          <ChevronDown className="w-3.5 h-3.5" />
-        </button>
-        <AnimatePresence>
-          {sortMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-              className="absolute top-9 left-0 z-50 bg-card border rounded-xl shadow-lg py-1 min-w-[160px]"
-            >
-              {SORT_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => { setSortBy(opt.value); setSortMenuOpen(false); }}
-                  className={`w-full text-right px-4 py-2 text-sm hover:bg-muted transition-colors ${sortBy === opt.value ? 'font-semibold text-primary' : 'text-foreground'}`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      {!isMadrich && (
+        <div className="flex justify-end mb-4 relative">
+          <button
+            onClick={() => setSortMenuOpen(v => !v)}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg border bg-card hover:bg-muted transition-colors"
+          >
+            {currentSortLabel}
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+          <AnimatePresence>
+            {sortMenuOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
+                className="absolute top-9 left-0 z-50 bg-card border rounded-xl shadow-lg py-1 min-w-[160px]"
+              >
+                {SORT_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => { setSortBy(opt.value); setSortMenuOpen(false); }}
+                    className={`w-full text-right px-4 py-2 text-sm hover:bg-muted transition-colors ${sortBy === opt.value ? 'font-semibold text-primary' : 'text-foreground'}`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
 
       {/* Dialog for new/edit fault */}
       <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) setEditingFault(null); }}>
