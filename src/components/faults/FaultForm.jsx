@@ -112,9 +112,8 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
         }
         await base44.entities.Fault.update(editingFault.id, dataToSave);
       } else {
-        dataToSave.status = 'ממתין';
-        dataToSave.reportedBy = user.email;
-        await base44.entities.Fault.create(dataToSave);
+        const response = await base44.functions.invoke('createFault', dataToSave);
+        if (response.data?.error) throw new Error(response.data.error);
       }
 
       setFormData({ location: '', roomNumber: '', faultType: '', description: '', image: '', priority: 'לא מוגדר', assignedTo: '', status: 'ממתין' });
