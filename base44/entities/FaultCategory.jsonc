@@ -25,13 +25,7 @@
         }
       }
     },
-    "read": {
-      "user_condition": {
-        "id": {
-          "$exists": true
-        }
-      }
-    },
+    "read": {},
     "update": {
       "user_condition": {
         "role": {
