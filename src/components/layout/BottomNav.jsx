@@ -60,12 +60,14 @@ export default function BottomNav({ user }) {
               key={item.path}
               to={item.path}
               className={cn(
-                "px-4 py-3 flex flex-col items-center justify-center flex-1 transition-colors",
-                isActive ? "text-primary" : "text-muted-foreground hover:text-primary/70"
+                "px-4 py-4 flex flex-col items-center justify-center flex-1 transition-all",
+                isActive 
+                  ? "text-primary bg-primary/5" 
+                  : "text-muted-foreground hover:text-primary/70"
               )}
             >
-              <Icon className="mb-1 w-5 h-5" />
-              <span className="text-xs">{item.label}</span>
+              <Icon className={cn("mb-1 w-6 h-6", isActive && "scale-110")} />
+              <span className="text-xs font-medium">{item.label}</span>
             </Link>
           );
         })}
