@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [analyzing, setAnalyzing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
+  const fileInputRef = useRef(null);
 
   const compressImage = (file) => new Promise((resolve, reject) => {
     const img = new Image();
@@ -48,8 +49,11 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     img.src = url;
   });
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
+    // Reset input so the same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setUploading(true);
     try {
       const compressed = await compressImage(file);
@@ -211,7 +215,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                    <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
                  </>
                )}
-               <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+               <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} className="hidden" disabled={uploading} />
              </label>
             )}
           </div>

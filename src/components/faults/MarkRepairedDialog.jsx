@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -9,6 +9,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [repairImage, setRepairImage] = useState(null);
+  const fileInputRef = useRef(null);
 
   const compressImage = (file) => new Promise((resolve, reject) => {
     const img = new Image();
@@ -33,8 +34,11 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
     img.src = url;
   });
 
-  const handleImageUpload = async (file) => {
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
     if (!file) return;
+    // Reset input so the same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = '';
     setUploading(true);
     try {
       const compressed = await compressImage(file);
@@ -106,10 +110,13 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
                   )}
                 </div>
                 <input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                    onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                  capture="environment"
+                  onChange={handleImageUpload}
                   className="hidden"
+                  disabled={uploading}
                 />
               </label>
             ) : (
