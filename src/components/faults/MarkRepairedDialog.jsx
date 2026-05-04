@@ -10,7 +10,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
   const [imagePreview, setImagePreview] = useState('');
   const [repairImage, setRepairImage] = useState(null);
 
-  const compressImage = (file) => new Promise((resolve) => {
+  const compressImage = (file) => new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -24,8 +24,12 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       canvas.width = width; canvas.height = height;
       canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       URL.revokeObjectURL(url);
-      canvas.toBlob(resolve, 'image/jpeg', 0.70);
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('שגיאה בדחיסת תמונה'));
+      }, 'image/jpeg', 0.70);
     };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('שגיאה בטעינת תמונה')); };
     img.src = url;
   });
 
