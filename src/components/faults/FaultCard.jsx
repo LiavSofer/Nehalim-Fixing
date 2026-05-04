@@ -160,6 +160,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         open={detailDialogOpen}
         onOpenChange={setDetailDialogOpen}
         fault={fault}
+        users={users}
       />
 
       {/* Assign Worker Dialog */}

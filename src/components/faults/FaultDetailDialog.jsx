@@ -109,19 +109,19 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                 <span className="text-sm text-muted-foreground">נוצר ע"י</span>
                 <div className="flex items-center gap-2">
                   {(() => {
-                    const reportedUser = users.find(u => u.email === fault.reportedBy);
-                    return (
-                      <>
-                        <Avatar className="h-6 w-6">
-                          {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
-                          <AvatarFallback className="text-[10px]">
-                            {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="text-sm text-foreground">{reportedUser?.full_name || 'משתמש בלתי ידוע'}</span>
-                      </>
-                    );
-                  })()}
+                      const reportedUser = users.find(u => u.email === fault.reportedBy);
+                      return (
+                        <>
+                          <Avatar className="h-6 w-6">
+                            {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
+                            <AvatarFallback className="text-[10px]">
+                              {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy?.split('@')[0] || 'משתמש בלתי ידוע'}</span>
+                        </>
+                      );
+                    })()}
                 </div>
               </div>
               <div className="space-y-2">
