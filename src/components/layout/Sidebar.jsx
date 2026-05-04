@@ -123,6 +123,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
           <LogOut className="w-4 h-4" />
           <span>התנתקות</span>
         </button>
+        <p className="text-center text-xs text-sidebar-foreground/25 mt-2">v1.0.4</p>
       </div>
     </aside>
     </>
