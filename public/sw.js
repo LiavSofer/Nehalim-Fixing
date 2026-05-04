@@ -1,43 +1,41 @@
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(clients.claim());
+});
+
 self.addEventListener('push', (event) => {
-  if (!event.data) {
-    return;
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'התראה חדשה', body: event.data ? event.data.text() : '' };
   }
 
-  const data = event.data.json();
+  const title = data.title || 'מערכת אחזקה';
   const options = {
-    body: data.body,
-    icon: '/icon.png',
-    badge: '/badge.png',
-    tag: data.data?.faultId || 'default',
-    requireInteraction: true,
-    data: data.data || {}
+    body: data.body || '',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    dir: 'rtl',
+    lang: 'he',
+    data: data.data || {},
+    requireInteraction: false,
   };
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
-  const data = event.notification.data;
-  let urlToOpen = '/';
-
-  if (data.faultId) {
-    urlToOpen = `/all-faults`;
-  }
-
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url === urlToOpen && 'focus' in client) {
-          return client.focus();
-        }
+      if (clientList.length > 0) {
+        return clientList[0].focus();
       }
-      if (clients.openWindow) {
-        return clients.openWindow(urlToOpen);
-      }
+      return clients.openWindow('/');
     })
   );
 });

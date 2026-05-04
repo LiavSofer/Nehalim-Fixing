@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
       targetUserEmail: workerEmail,
       title: '📋 משימה חדשה שוייכה אליך',
       body: `${data.faultType} ב${data.location}`,
+      notificationKey: 'notifyTaskAssigned',
       data: {
         faultId: data.id,
         type: 'task_assignment'

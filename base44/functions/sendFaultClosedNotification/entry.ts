@@ -16,6 +16,7 @@ Deno.serve(async (req) => {
       targetUserEmail: data.reportedBy,
       title: '✅ התקלה שלך נפתרה!',
       body: `${data.faultType} ב${data.location} סגורה`,
+      notificationKey: 'notifyFaultClosed',
       data: {
         faultId: data.id,
         type: 'fault_closed'

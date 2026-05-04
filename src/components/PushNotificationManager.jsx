@@ -1,53 +1,59 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
+const VAPID_PUBLIC_KEY = 'BEp_b0JJG7-HbuFT_x79GWS26Ydr4Uc5XAiNWqN2WwP8bHGIbXzSNhNEhbVjjSZNFJr-yd7KhVEQjVtOCgFOLIk';
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
+
 export default function PushNotificationManager() {
-  const [registered, setRegistered] = useState(false);
-
   useEffect(() => {
-    const registerServiceWorker = async () => {
+    const register = async () => {
+      // אל תנסה לרשום push בתוך iframe (למשל ב-preview של הדשבורד)
+      if (window.self !== window.top) return;
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+
+      // רשום רק אם המשתמש כבר אישר התראות - אל תשאל אוטומטית
+      if (Notification.permission !== 'granted') return;
+
       try {
-        // בדוק תמיכה בדפדפן
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-          return;
-        }
-
-        // אל תנסה לרשום push בתוך iframe (למשל ב-preview של הדשבורד)
-        if (window.self !== window.top) {
-          return;
-        }
-
-        // רשום את ה-service worker
         const registration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
 
-        // קבל את ה-subscription
         let subscription = await registration.pushManager.getSubscription();
 
         if (!subscription) {
           subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: 'BEp_b0JJG7-HbuFT_x79GWS26Ydr4Uc5XAiNWqN2WwP8bHGIbXzSNhNEhbVjjSZNFJr-yd7KhVEQjVtOCgFOLIk'
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
           });
         }
 
-        // שלח את ה-subscription לשרת
         if (subscription) {
           await base44.functions.invoke('registerPushSubscription', {
             endpoint: subscription.endpoint,
-            auth: subscription.getKey('auth') ? 
-              btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth')))) : '',
-            p256dh: subscription.getKey('p256dh') ? 
-              btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh')))) : ''
+            auth: subscription.getKey('auth')
+              ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
+              : '',
+            p256dh: subscription.getKey('p256dh')
+              ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh'))))
+              : '',
           });
-
-          setRegistered(true);
         }
       } catch (error) {
-        console.error('Push notification registration failed:', error);
+        console.error('Push registration failed:', error);
       }
     };
 
-    registerServiceWorker();
+    register();
   }, []);
 
   return null;

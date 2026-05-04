@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
         targetUserEmail: manager.email,
         title: '⏳ משימה בממתין לאישור',
         body: `${data.faultType} ב${data.location} מחכה לאישורך`,
+        notificationKey: 'notifyAwaitingApproval',
         data: {
           faultId: data.id,
           type: 'awaiting_approval'

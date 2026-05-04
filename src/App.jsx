@@ -19,6 +19,7 @@ import BlockedScreen from '@/pages/BlockedScreen';
 import WorkerPerformance from '@/pages/WorkerPerformance';
 import LocationManagement from '@/pages/LocationManagement';
 import Settings from '@/pages/Settings';
+import MyNotificationSettings from '@/pages/MyNotificationSettings';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -83,6 +84,7 @@ const AuthenticatedApp = () => {
         {userRole === 'מפתח' && (
           <Route path="/users" element={<UserManagement />} />
         )}
+        <Route path="/notification-settings" element={<MyNotificationSettings user={user} />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
