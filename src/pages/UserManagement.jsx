@@ -62,61 +62,64 @@ function UserRow({ user, onUpdate }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
-      className="flex flex-col sm:flex-row sm:items-center gap-2 px-4 py-2 hover:bg-muted/50 transition-colors group"
+      className="relative flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted/50 transition-colors group"
     >
-      {/* Avatar */}
-      <div
-        className={`w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden sm:order-3 ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
-        onClick={() => user.profileImage && setPhotoOpen(true)}
-      >
-        {user.profileImage ? (
-          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-xs font-bold text-primary">{displayName[0] || '?'}</span>
-        )}
-      </div>
+      {/* Avatar + Info in one row */}
+      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+        {/* Avatar */}
+        <div
+          className={`w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+          onClick={() => user.profileImage && setPhotoOpen(true)}
+        >
+          {user.profileImage ? (
+            <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-xs font-bold text-primary">{displayName[0] || '?'}</span>
+          )}
+        </div>
 
-      {/* Info */}
-      <div className="flex-1 min-w-0 sm:order-1">
-        {editing ? (
-          <div className="flex flex-col gap-1.5">
-            <Input
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="שם מלא"
-              className="h-7 text-xs"
-            />
-            <Input
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
-              placeholder="מספר טלפון"
-              className="h-7 text-xs"
-              dir="ltr"
-            />
-          </div>
-        ) : (
-          <>
-            <p className="font-semibold text-foreground text-sm leading-tight">{displayName}</p>
-            <div className="flex flex-col gap-0.5 mt-0.5">
-              <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
-                <Mail className="w-3 h-3 flex-shrink-0" />
-                {user.email}
-              </span>
-              {user.phone && (
-                <span className="flex items-center gap-1 text-xs text-muted-foreground" dir="ltr">
-                  <Phone className="w-3 h-3 flex-shrink-0" />
-                  {user.phone}
-                </span>
-              )}
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          {editing ? (
+            <div className="flex flex-col gap-1">
+              <Input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="שם מלא"
+                className="h-6 text-xs"
+              />
+              <Input
+                value={phone}
+                onChange={e => setPhone(e.target.value)}
+                placeholder="מספר טלפון"
+                className="h-6 text-xs"
+                dir="ltr"
+              />
             </div>
-          </>
-        )}
+          ) : (
+            <>
+              <p className="font-semibold text-foreground text-sm leading-none">{displayName}</p>
+              <div className="flex flex-col gap-0 mt-0.5">
+                <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
+                  <Mail className="w-3 h-3 flex-shrink-0" />
+                  {user.email}
+                </span>
+                {user.phone && (
+                  <span className="flex items-center gap-1 text-xs text-muted-foreground" dir="ltr">
+                    <Phone className="w-3 h-3 flex-shrink-0" />
+                    {user.phone}
+                  </span>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Role selector */}
       {!editing && (
         <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
-          <SelectTrigger className="w-full sm:w-32 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity sm:order-2">
+          <SelectTrigger className="w-28 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -131,23 +134,21 @@ function UserRow({ user, onUpdate }) {
         </Select>
       )}
 
-      {/* Edit / Save / Cancel */}
-      <div className="flex items-center gap-1 flex-shrink-0 sm:order-4">
-        {editing ? (
-          <>
-            <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
-            </Button>
-            <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:bg-muted" onClick={() => setEditing(false)}>
-              <X className="w-3.5 h-3.5" />
-            </Button>
-          </>
-        ) : (
-          <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
-            <Pencil className="w-3.5 h-3.5" />
+      {/* Edit / Save / Cancel - positioned in corner */}
+      {editing ? (
+        <div className="flex items-center gap-0.5 flex-shrink-0">
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
           </Button>
-        )}
-      </div>
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:bg-muted" onClick={() => setEditing(false)}>
+            <X className="w-3.5 h-3.5" />
+          </Button>
+        </div>
+      ) : (
+        <Button size="icon" variant="ghost" className="absolute top-1 left-1 h-6 w-6 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
+          <Pencil className="w-3 h-3" />
+        </Button>
+      )}
 
       {/* Photo lightbox */}
       <Dialog open={photoOpen} onOpenChange={setPhotoOpen}>
