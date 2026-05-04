@@ -21,10 +21,16 @@ export default function PushNotificationManager() {
       if (window.self !== window.top) return;
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
 
-      // רשום רק אם המשתמש כבר אישר התראות - אל תשאל אוטומטית
-      if (Notification.permission !== 'granted') return;
-
       try {
+        // בקש הרשאה אם עדיין לא אושרה
+        let permission = Notification.permission;
+        if (permission !== 'granted' && permission !== 'denied') {
+          permission = await Notification.requestPermission();
+        }
+        
+        // רשום רק אם אישור הוענק
+        if (permission !== 'granted') return;
+
         const registration = await navigator.serviceWorker.register('/sw.js');
         await navigator.serviceWorker.ready;
 
@@ -38,14 +44,13 @@ export default function PushNotificationManager() {
         }
 
         if (subscription) {
+          const authKey = subscription.getKey('auth');
+          const p256dhKey = subscription.getKey('p256dh');
+          
           await base44.functions.invoke('registerPushSubscription', {
             endpoint: subscription.endpoint,
-            auth: subscription.getKey('auth')
-              ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('auth'))))
-              : '',
-            p256dh: subscription.getKey('p256dh')
-              ? btoa(String.fromCharCode.apply(null, new Uint8Array(subscription.getKey('p256dh'))))
-              : '',
+            auth: authKey ? btoa(String.fromCharCode(...new Uint8Array(authKey))) : '',
+            p256dh: p256dhKey ? btoa(String.fromCharCode(...new Uint8Array(p256dhKey))) : '',
           });
         }
       } catch (error) {
