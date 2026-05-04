@@ -48,7 +48,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
 
       {/* Sidebar */}
       <aside className={cn(
-        "fixed top-0 right-0 h-screen w-64 bg-sidebar text-sidebar-foreground flex flex-col z-40 border-l border-sidebar-border transition-transform duration-300",
+        "fixed top-0 right-0 h-screen w-64 bg-sidebar text-sidebar-foreground flex flex-col z-40 border-l border-sidebar-border transition-transform duration-300 pb-16 md:pb-0",
         open ? "translate-x-0" : "translate-x-full md:translate-x-0"
       )}>
       {/* Logo */}
