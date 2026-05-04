@@ -1,7 +1,7 @@
 {
-  "name": "ניהול תחזוקה - ישיבת נחלים",
-  "short_name": "ניהול תחזוקה",
-  "description": "מערכת ניהול אחזוקה",
+  "name": "תחזוקה נחלים",
+  "short_name": "תחזוקה",
+  "description": "מערכת ניהול תחזוקה",
   "start_url": "/",
   "scope": "/",
   "orientation": "portrait",
