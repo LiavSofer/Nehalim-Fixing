@@ -118,7 +118,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                             {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy}</span>
+                        <span className="text-sm text-foreground">{reportedUser?.full_name || 'משתמש בלתי ידוע'}</span>
                       </>
                     );
                   })()}
