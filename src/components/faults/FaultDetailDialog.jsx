@@ -76,9 +76,9 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
 
           {/* Location and Type */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2 justify-end">
-              <span className="text-sm text-muted-foreground">מיקום</span>
+            <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">מיקום</span>
             </div>
             <p className="text-base text-foreground">
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
@@ -103,26 +103,26 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
           {/* Timeline details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
             <div className="space-y-2">
-              <div className="flex items-center gap-2 justify-end">
-                <span className="text-sm text-muted-foreground">תאריך יצירה</span>
+              <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">תאריך יצירה</span>
               </div>
               <p className="text-sm text-foreground">{formatDate(createdDate)}</p>
             </div>
 
             <div className="space-y-2">
-              <div className="flex items-center gap-2 justify-end">
-                <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
+              <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
               </div>
               <p className="text-sm text-foreground">{formatDate(updatedDate)}</p>
             </div>
 
             {getTimeDetails() && (
               <div className="space-y-2">
-                <div className="flex items-center gap-2 justify-end">
-                  <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
+                <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
                 </div>
                 <p className="text-sm text-foreground font-medium text-primary">{getTimeDetails()}</p>
               </div>
