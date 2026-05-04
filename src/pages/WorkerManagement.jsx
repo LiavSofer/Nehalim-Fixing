@@ -190,9 +190,10 @@ export default function WorkerManagement() {
               transition={{ delay: idx * 0.05 }}
             >
               <Card className="border overflow-hidden hover:shadow-md transition-shadow duration-200">
-                <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
+                <CardContent className="p-4">
+                  {/* Header row: avatar + name + button */}
+                  <div className="flex items-center gap-2.5 mb-3">
+                    <Avatar className="h-9 w-9 flex-shrink-0">
                       {users.find(u => u.id === worker.id)?.profileImage && (
                         <AvatarImage src={users.find(u => u.id === worker.id).profileImage} />
                       )}
@@ -200,45 +201,37 @@ export default function WorkerManagement() {
                         {worker.name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?'}
                       </AvatarFallback>
                     </Avatar>
-                    <CardTitle className="text-base">{worker.name}</CardTitle>
+                    <span className="font-bold text-base flex-1 truncate">{worker.name}</span>
+                    <button
+                      onClick={() => { setSelectedPerfWorker(users.find(u => u.id === worker.id)); setPerfDialogOpen(true); }}
+                      className="flex items-center gap-1 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors px-2.5 py-1.5 rounded-lg flex-shrink-0"
+                    >
+                      <BarChart2 className="w-3.5 h-3.5" />
+                      פירוט מלא
+                    </button>
                   </div>
-                  <button
-                    onClick={() => { setSelectedPerfWorker(users.find(u => u.id === worker.id)); setPerfDialogOpen(true); }}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/10 hover:bg-primary/20 transition-colors px-3 py-1.5 rounded-lg"
-                  >
-                    <BarChart2 className="w-3.5 h-3.5" />
-                    פירוט מלא
-                  </button>
-                </CardHeader>
 
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-center">
-                     {/* Open Tasks */}
-                     <button onClick={() => handleOpenTasks(worker)} className="hover:opacity-70 transition-opacity">
-                       <p className="text-lg font-bold text-amber-600">{worker.openTasks}</p>
-                       <p className="text-xs text-muted-foreground">פתוחות</p>
-                     </button>
-
-                     {/* Closed Today */}
-                     <button onClick={() => handleClosedTodayTasks(worker)} className="hover:opacity-70 transition-opacity">
-                       <p className="text-lg font-bold text-green-600">{worker.closedToday}</p>
-                       <p className="text-xs text-muted-foreground">נפתרו היום</p>
-                     </button>
-
-                     {/* This Week */}
-                     <button onClick={() => handleClosedThisWeekTasks(worker)} className="hover:opacity-70 transition-opacity">
-                       <p className="text-lg font-bold text-blue-600">{worker.closedThisWeek}</p>
-                       <p className="text-xs text-muted-foreground">השבוע</p>
-                     </button>
-
-                     {/* Average Time to Resolve */}
-                     <div>
-                       <p className="text-lg font-bold text-orange-600">
-                         {worker.avgTimeToResolve === 0 ? '—' : worker.avgTimeToResolve >= 24 ? `${Math.round(worker.avgTimeToResolve / 24)} ימים` : `${worker.avgTimeToResolve} שעות`}
-                       </p>
-                       <p className="text-xs text-muted-foreground">זמן ממוצע</p>
-                     </div>
+                  {/* Stats row */}
+                  <div className="grid grid-cols-4 gap-1 text-center border-t pt-3">
+                    <button onClick={() => handleOpenTasks(worker)} className="hover:bg-muted rounded-lg py-1.5 transition-colors">
+                      <p className="text-base font-bold text-amber-600">{worker.openTasks}</p>
+                      <p className="text-[11px] text-muted-foreground">פתוחות</p>
+                    </button>
+                    <button onClick={() => handleClosedTodayTasks(worker)} className="hover:bg-muted rounded-lg py-1.5 transition-colors">
+                      <p className="text-base font-bold text-green-600">{worker.closedToday}</p>
+                      <p className="text-[11px] text-muted-foreground">היום</p>
+                    </button>
+                    <button onClick={() => handleClosedThisWeekTasks(worker)} className="hover:bg-muted rounded-lg py-1.5 transition-colors">
+                      <p className="text-base font-bold text-blue-600">{worker.closedThisWeek}</p>
+                      <p className="text-[11px] text-muted-foreground">השבוע</p>
+                    </button>
+                    <div className="py-1.5">
+                      <p className="text-base font-bold text-orange-600">
+                        {worker.avgTimeToResolve === 0 ? '—' : worker.avgTimeToResolve >= 24 ? `${Math.round(worker.avgTimeToResolve / 24)}י` : `${worker.avgTimeToResolve}ש`}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground">זמן ממוצע</p>
                     </div>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
