@@ -90,7 +90,15 @@
           }
         },
         {
+          "user_condition": {
+            "role": "\u05d0\u05d1 \u05d1\u05d9\u05ea"
+          }
+        },
+        {
           "reportedBy": "{{user.email}}"
+        },
+        {
+          "created_by": "{{user.email}}"
         },
         {
           "assignedTo": "{{user.id}}"
