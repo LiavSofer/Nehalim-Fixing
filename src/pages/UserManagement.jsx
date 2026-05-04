@@ -62,7 +62,7 @@ function UserRow({ user, onUpdate }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
-      className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-muted/40 transition-colors rounded-lg group border border-transparent hover:border-border"
+      className="flex items-center justify-between gap-4 px-4 py-3.5 hover:bg-muted/50 transition-colors group"
     >
       {/* Info */}
       <div className="flex-1 min-w-0">
@@ -195,90 +195,94 @@ export default function UserManagement() {
     });
 
   return (
-    <div className="p-4 md:p-8 max-w-3xl mx-auto" dir="rtl">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-          <Users className="w-5 h-5 text-primary" />
+    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background p-4 md:p-8" dir="rtl">
+      <div className="max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
+              <Users className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">ניהול משתמשים</h1>
+              <p className="text-sm text-muted-foreground mt-1">{users.length} משתמשים רשומים בסך הכל</p>
+            </div>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">ניהול משתמשים</h1>
-          <p className="text-sm text-muted-foreground">{users.length} משתמשים רשומים</p>
+
+        {/* Tabs and Search */}
+        <div className="space-y-4 mb-6">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setTab('all')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                tab === 'all' ? 'bg-primary text-primary-foreground shadow-md' : 'bg-card text-muted-foreground border border-border hover:border-primary/30'
+              }`}
+            >
+              <UserCheck className="w-4 h-4" />
+              כל המשתמשים
+            </button>
+            <button
+              onClick={() => setTab('pending')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                tab === 'pending' ? 'bg-orange-500 text-white shadow-md' : 'bg-card text-orange-600 border border-orange-200 hover:border-orange-400'
+              }`}
+            >
+              <Clock className="w-4 h-4" />
+              ממתינים לאישור
+              {pendingUsers.length > 0 && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  tab === 'pending' ? 'bg-white/20' : 'bg-orange-500 text-white'
+                }`}>
+                  {pendingUsers.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="חיפוש לפי שם או אימייל..."
+              className="pr-10 text-sm h-10 bg-card border-border"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setTab('all')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-            tab === 'all' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-muted/80'
-          }`}
-        >
-          <UserCheck className="w-4 h-4" />
-          כל המשתמשים
-        </button>
-        <button
-          onClick={() => setTab('pending')}
-          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors relative ${
-            tab === 'pending' ? 'bg-orange-500 text-white' : 'bg-orange-50 text-orange-600 hover:bg-orange-100'
-          }`}
-        >
-          <Clock className="w-4 h-4" />
-          ממתינים לאישור
-          {pendingUsers.length > 0 && (
-            <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${
-              tab === 'pending' ? 'bg-white/30 text-white' : 'bg-orange-500 text-white'
-            }`}>
-              {pendingUsers.length}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="חיפוש לפי שם..."
-          className="pr-9 text-sm"
-        />
-      </div>
-
-      {/* List */}
-      <Card>
-        <CardContent className="p-4">
+        {/* List Container */}
+        <div className="bg-card rounded-xl border border-border overflow-hidden shadow-sm">
           {isLoading ? (
-            <div className="space-y-4">
+            <div className="divide-y">
               {Array(5).fill(0).map((_, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <Skeleton className="w-10 h-10 rounded-full" />
+                <div key={i} className="flex items-center gap-4 p-4">
+                  <Skeleton className="w-10 h-10 rounded-lg flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-4 w-32" />
-                    <Skeleton className="h-3 w-48" />
+                    <Skeleton className="h-4 w-40" />
+                    <Skeleton className="h-3 w-52" />
                   </div>
-                  <Skeleton className="h-8 w-36" />
+                  <Skeleton className="h-8 w-32 flex-shrink-0" />
                 </div>
               ))}
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-12 text-center">
-              <Users className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
-              <p className="text-muted-foreground">
+            <div className="py-16 text-center">
+              <Users className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+              <p className="text-muted-foreground font-medium">
                 {tab === 'pending' ? 'אין משתמשים ממתינים לאישור' : 'לא נמצאו משתמשים'}
               </p>
             </div>
           ) : (
-            <motion.div layout>
+            <motion.div layout className="divide-y divide-border">
               {filtered.map(user => (
                 <UserRow key={user.id} user={user} onUpdate={handleUpdate} />
               ))}
             </motion.div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
