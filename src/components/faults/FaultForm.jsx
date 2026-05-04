@@ -47,11 +47,16 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const handleImageUpload = async (file) => {
     if (!file) return;
     setUploading(true);
-    const compressed = await compressImage(file);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
-    setFormData(prev => ({ ...prev, image: file_url }));
-    setImagePreview(file_url);
-    setUploading(false);
+    try {
+      const compressed = await compressImage(file);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
+      setFormData(prev => ({ ...prev, image: file_url }));
+      setImagePreview(file_url);
+    } catch (err) {
+      console.error('שגיאה בהעלאת תמונה:', err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const runAnalysis = async (locText, descText) => {
@@ -202,7 +207,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                    <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
                  </>
                )}
-               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+               <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
              </label>
             )}
           </div>

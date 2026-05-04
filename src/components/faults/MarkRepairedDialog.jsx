@@ -32,11 +32,16 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
   const handleImageUpload = async (file) => {
     if (!file) return;
     setUploading(true);
-    const compressed = await compressImage(file);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
-    setRepairImage(file_url);
-    setImagePreview(file_url);
-    setUploading(false);
+    try {
+      const compressed = await compressImage(file);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
+      setRepairImage(file_url);
+      setImagePreview(file_url);
+    } catch (err) {
+      console.error('שגיאה בהעלאת תמונה:', err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleMarkRepaired = async () => {
@@ -99,8 +104,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
                 <input
                   type="file"
                   accept="image/*"
-                  capture="environment"
-                  onChange={(e) => handleImageUpload(e.target.files?.[0])}
+                    onChange={(e) => handleImageUpload(e.target.files?.[0])}
                   className="hidden"
                 />
               </label>
