@@ -74,6 +74,15 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
             </div>
           )}
 
+          {/* Status, Priority and Type in one row */}
+          <div className="flex flex-wrap gap-6 justify-end text-xs">
+            {fault.faultType && (
+              <span className="text-foreground"><span className="text-muted-foreground">סוג תקלה:</span> {fault.faultType}</span>
+            )}
+            <span className="text-foreground"><span className="text-muted-foreground">סטטוס:</span> {fault.status}</span>
+            <span className="text-foreground"><span className="text-muted-foreground">דחיפות:</span> {fault.priority}</span>
+          </div>
+
           {/* Location and Type */}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
@@ -83,15 +92,6 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
             <p className="text-base text-foreground">
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
-          </div>
-
-          {/* Status, Priority and Type in one row */}
-          <div className="flex flex-wrap gap-6 justify-end text-xs">
-            {fault.faultType && (
-              <span className="text-foreground"><span className="text-muted-foreground">סוג תקלה:</span> {fault.faultType}</span>
-            )}
-            <span className="text-foreground"><span className="text-muted-foreground">סטטוס:</span> {fault.status}</span>
-            <span className="text-foreground"><span className="text-muted-foreground">דחיפות:</span> {fault.priority}</span>
           </div>
 
           {/* Description */}
