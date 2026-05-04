@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/uploadFile';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -60,7 +61,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     try {
       const compressed = await compressImage(file);
       const fileToUpload = new File([compressed], file.name || 'image.jpg', { type: 'image/jpeg' });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToUpload });
+      const { file_url } = await uploadFile(fileToUpload);
       URL.revokeObjectURL(localPreview);
       uploadedUrlRef.current = file_url;
       setFormData(prev => ({ ...prev, image: file_url }));

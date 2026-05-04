@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
+import { uploadFile } from '@/lib/uploadFile';
 import { Camera, X } from 'lucide-react';
 
 export default function MarkRepairedDialog({ open, onOpenChange, fault, onSuccess }) {
@@ -40,7 +41,8 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
     setUploading(true);
     try {
       const compressed = await compressImage(file);
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
+      const fileToUpload = new File([compressed], file.name || 'image.jpg', { type: 'image/jpeg' });
+      const { file_url } = await uploadFile(fileToUpload);
       // Reset input AFTER upload so it doesn't interfere
       if (fileInputRef.current) fileInputRef.current.value = '';
       setRepairImage(file_url);

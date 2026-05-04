@@ -7,9 +7,13 @@ export default function PushNotificationManager() {
   useEffect(() => {
     const registerServiceWorker = async () => {
       try {
-        // בדוק תמיכה בבדפדפן
+        // בדוק תמיכה בדפדפן
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-          console.log('Push notifications not supported');
+          return;
+        }
+
+        // אל תנסה לרשום push בתוך iframe (למשל ב-preview של הדשבורד)
+        if (window.self !== window.top) {
           return;
         }
 
