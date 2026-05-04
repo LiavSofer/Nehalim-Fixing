@@ -189,7 +189,7 @@ export default function Faults() {
       </motion.div>
 
       {/* Status Tabs */}
-      <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
+      <div className="flex flex-wrap gap-2 mb-4 pb-1">
         {visibleTabs.map((tab, i) => {
           const count = statsByTab[tab.value] ?? 0;
           const isActive = activeStatus === tab.value;
@@ -200,7 +200,7 @@ export default function Faults() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.06 }}
               onClick={() => setActiveStatus(tab.value)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all whitespace-nowrap ${
+              className={`w-[calc(50%-0.25rem)] md:w-auto flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all whitespace-nowrap ${
                 isActive ? `${tab.bg} ${tab.activeBorder} ${tab.color}` : 'bg-card border-transparent text-muted-foreground hover:border-border'
               }`}
             >
