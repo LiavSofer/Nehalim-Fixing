@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import FaultCard from '@/components/faults/FaultCard';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -66,21 +67,7 @@ export default function MyTasks() {
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <CheckCircle2 className="w-6 h-6 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground leading-tight">המשימות שלי</h1>
-            <p className="text-xs text-muted-foreground">התקלות המשויכות אליך</p>
-          </div>
-        </div>
-      </motion.div>
+      <PageHeader icon={CheckCircle2} title="המשימות שלי" subtitle="התקלות המשויכות אליך" />
 
 
 

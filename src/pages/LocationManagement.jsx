@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { MapPin, Plus, Trash2, Edit2, Building, Home, MoreHorizontal } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion } from 'framer-motion';
 
 const TYPE_LABELS = {
@@ -73,23 +74,13 @@ export default function LocationManagement() {
 
   return (
     <div className="p-4 md:p-8 max-w-2xl mx-auto" dir="rtl">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <MapPin className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground leading-tight">ניהול מיקומים</h1>
-              <p className="text-xs text-muted-foreground">הגדרת מיקומים לדיווח על תקלות</p>
-            </div>
-          </div>
-          <Button onClick={openNew} className="gap-2">
-            <Plus className="w-4 h-4" />
-            מיקום חדש
-          </Button>
-        </div>
-      </motion.div>
+      <div className="flex items-center justify-between mb-6">
+        <PageHeader icon={MapPin} title="ניהול מיקומים" subtitle="הגדרת מיקומים לדיווח על תקלות" />
+        <Button onClick={openNew} className="gap-2 flex-shrink-0">
+          <Plus className="w-4 h-4" />
+          מיקום חדש
+        </Button>
+      </div>
 
       {/* Grouped by type */}
       {['dormitory', 'classBuilding', 'other'].map(type => {

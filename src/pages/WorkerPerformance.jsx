@@ -6,7 +6,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line
 } from 'recharts';
-import { CheckCircle2, Clock, TrendingUp, Zap, ChevronDown } from 'lucide-react';
+import { CheckCircle2, Clock, TrendingUp, Zap, ChevronDown, TrendingUp as TrendIcon } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import { format, subMonths, startOfMonth, endOfMonth, differenceInHours } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -143,11 +144,8 @@ export default function WorkerPerformance({ user }) {
   // For non-managers (אב בית), show their own stats
   if (!isManager) {
     return (
-      <div dir="rtl" className="p-4 md:p-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">הביצועים שלי</h1>
-          <p className="text-muted-foreground text-sm mt-1">סקירת ביצועים אישית לפי נתוני תקלות</p>
-        </div>
+      <div dir="rtl" className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+        <PageHeader icon={TrendIcon} title="הביצועים שלי" subtitle="סקירת ביצועים אישית לפי נתוני תקלות" />
         <WorkerStats workerId={user?.id} />
       </div>
     );
@@ -159,11 +157,8 @@ export default function WorkerPerformance({ user }) {
   const displayId = displayWorker?.id;
 
   return (
-    <div dir="rtl" className="p-4 md:p-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">ביצועי עובדים</h1>
-        <p className="text-muted-foreground text-sm mt-1">סקירת ביצועים לפי עובד</p>
-      </div>
+    <div dir="rtl" className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+      <PageHeader icon={TrendIcon} title="ביצועי עובדים" subtitle="סקירת ביצועים לפי עובד" />
 
       {workers.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">אין אבות בית מוגדרים במערכת</div>
@@ -207,8 +202,8 @@ export default function WorkerPerformance({ user }) {
           </div>
 
           {displayId && <WorkerStats workerId={displayId} />}
-        </>
-      )}
-    </div>
-  );
-}
+          </>
+          )}
+          </div>
+          );
+          }

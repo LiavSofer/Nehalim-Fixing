@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Users, Mail, Phone, Search, Clock, UserCheck, Pencil, Check, X, Loader2 } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -196,20 +197,9 @@ export default function UserManagement() {
     });
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/5 to-background p-4 md:p-8" dir="rtl">
-      <div className="max-w-5xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-4 mb-2">
-            <div className="w-12 h-12 rounded-xl bg-primary/15 flex items-center justify-center">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">ניהול משתמשים</h1>
-              <p className="text-sm text-muted-foreground mt-1">{users.length} משתמשים רשומים בסך הכל</p>
-            </div>
-          </div>
-        </div>
+    <div className="p-4 md:p-8 max-w-5xl mx-auto" dir="rtl">
+      {/* Header */}
+      <PageHeader icon={Users} title="ניהול משתמשים" subtitle={`${users.length} משתמשים רשומים בסך הכל`} />
 
         {/* Tabs and Search */}
         <div className="space-y-4 mb-6">
@@ -283,7 +273,6 @@ export default function UserManagement() {
             </motion.div>
           )}
         </div>
-      </div>
     </div>
   );
 }

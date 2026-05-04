@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Wrench, ClipboardList, BarChart3 } from 'lucide-react';
+import { Wrench, ClipboardList, BarChart3, Home as HomeIcon } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion } from 'framer-motion';
 
 const STATS = [
@@ -12,15 +13,8 @@ const STATS = [
 
 export default function Home() {
   return (
-    <div className="p-8">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <h1 className="text-3xl font-bold text-foreground">לוח בקרה</h1>
-        <p className="text-muted-foreground mt-1">סקירה כללית של מערכת ניהול האחזקה</p>
-      </motion.div>
+    <div className="p-4 md:p-8 max-w-5xl mx-auto">
+      <PageHeader icon={HomeIcon} title="לוח בקרה" subtitle="סקירה כללית של מערכת ניהול האחזקה" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {STATS.map((stat, i) => (

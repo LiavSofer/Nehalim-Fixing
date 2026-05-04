@@ -7,6 +7,7 @@ import { Wrench, Plus, CheckCircle2, ChevronDown } from 'lucide-react';
 import FaultForm from '@/components/faults/FaultForm';
 import FaultCard from '@/components/faults/FaultCard';
 import CloseFaultDialog from '@/components/faults/CloseFaultDialog';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -174,19 +175,7 @@ export default function Faults() {
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto">
       {/* Header */}
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <Wrench className="w-6 h-6 text-primary" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-foreground leading-tight">קריאות טכניות</h1>
-              <p className="text-xs text-muted-foreground">ניהול ודיווח על תקלות</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+      <PageHeader icon={Wrench} title="קריאות טכניות" subtitle="ניהול ודיווח על תקלות" />
 
       {/* Status Tabs */}
       <div className="flex flex-wrap gap-2 mb-4 pb-1">

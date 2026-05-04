@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, Wrench, BarChart2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import PageHeader from '@/components/layout/PageHeader';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -134,18 +135,8 @@ export default function WorkerManagement() {
   };
 
   return (
-    <div className="p-8">
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8"
-      >
-        <div className="flex items-center gap-3 mb-1">
-        <Users className="w-7 h-7 text-primary" />
-        <h1 className="text-3xl font-bold text-foreground">ביצועי עובדים</h1>
-        </div>
-        <p className="text-muted-foreground">בקרה על ביצועי עובדי התחזוקה ותוכנית עבודתם</p>
-      </motion.div>
+    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+      <PageHeader icon={Users} title="ביצועי עובדים" subtitle="בקרה על ביצועי עובדי התחזוקה ותוכנית עבודתם" />
 
       {/* Overview Stats */}
       <div className="flex justify-around gap-4 mb-8 overflow-x-auto pb-2">
@@ -293,6 +284,6 @@ export default function WorkerManagement() {
           )}
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
+      </div>
+      );
+      }
