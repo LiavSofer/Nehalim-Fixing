@@ -2,6 +2,7 @@ import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Calendar } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { format, differenceInHours, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 
@@ -18,7 +19,7 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultDetailDialog({ open, onOpenChange, fault }) {
+export default function FaultDetailDialog({ open, onOpenChange, fault, users = [] }) {
   if (!fault) return null;
 
   const createdDate = new Date(fault.created_date);
@@ -98,6 +99,48 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
           <div className="space-y-2">
             <span className="text-sm text-muted-foreground">תיאור</span>
             <p className="text-base text-foreground">{fault.description}</p>
+          </div>
+
+          {/* Created by and Assigned to */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <span className="text-sm text-muted-foreground">נוצר ע"י</span>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const reportedUser = users.find(u => u.email === fault.reportedBy);
+                  return (
+                    <>
+                      <Avatar className="h-6 w-6">
+                        {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
+                        <AvatarFallback className="text-[10px]">
+                          {reportedUser?.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy}</span>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <span className="text-sm text-muted-foreground">משויך ל</span>
+              <div className="flex items-center gap-2">
+                {(() => {
+                  const assignedUser = users.find(u => u.id === fault.assignedTo);
+                  return (
+                    <>
+                      <Avatar className="h-6 w-6">
+                        {assignedUser?.profileImage && <AvatarImage src={assignedUser.profileImage} />}
+                        <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
+                          {assignedUser?.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-foreground">{assignedUser?.full_name || 'לא משויך'}</span>
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
           </div>
 
           {/* Timeline details */}
