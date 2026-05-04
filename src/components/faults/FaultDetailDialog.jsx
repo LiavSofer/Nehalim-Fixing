@@ -86,21 +86,12 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
           </div>
 
           {/* Status, Priority and Type in one row */}
-          <div className="flex flex-wrap gap-4 justify-end">
+          <div className="flex flex-wrap gap-6 justify-end text-xs">
             {fault.faultType && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">סוג תקלה:</span>
-                <span className="text-sm font-medium text-foreground">{fault.faultType}</span>
-              </div>
+              <span className="text-foreground"><span className="text-muted-foreground">סוג תקלה:</span> {fault.faultType}</span>
             )}
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">סטטוס:</span>
-              <span className="text-sm font-medium text-foreground">{fault.status}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">דחיפות:</span>
-              <span className="text-sm font-medium text-foreground">{fault.priority}</span>
-            </div>
+            <span className="text-foreground"><span className="text-muted-foreground">סטטוס:</span> {fault.status}</span>
+            <span className="text-foreground"><span className="text-muted-foreground">דחיפות:</span> {fault.priority}</span>
           </div>
 
           {/* Description */}
