@@ -295,10 +295,10 @@ export default function Faults() {
                 )}
                 <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm">
                   {group.items.map((fault) => {
-                    const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
-                    const reportedUser = users.find(u => u.email === fault.reportedBy);
-                    return (
-                      <React.Fragment key={fault.id}>
+                   const assignedUser = fault.assignedTo ? users.find(u => u.id === fault.assignedTo) : null;
+                   const reportedUser = users.find(u => u.email === fault.reportedBy);
+                   return (
+                     <div key={fault.id}>
                         <FaultCard
                           fault={fault}
                           assignedUser={assignedUser}
@@ -321,7 +321,7 @@ export default function Faults() {
                             </Button>
                           </div>
                         )}
-                      </React.Fragment>
+                        </div>
                     );
                   })}
                 </div>
