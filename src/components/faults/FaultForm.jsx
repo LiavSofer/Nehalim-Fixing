@@ -22,12 +22,36 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [locationText, setLocationText] = useState(editingFault?.location || '');
   const [loading, setLoading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
+
+  const compressImage = (file) => new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1200;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+        else { width = Math.round(width * MAX / height); height = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(resolve, 'image/jpeg', 0.75);
+    };
+    img.src = url;
+  });
+
   const handleImageUpload = async (file) => {
     if (!file) return;
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setUploading(true);
+    const compressed = await compressImage(file);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
     setFormData(prev => ({ ...prev, image: file_url }));
     setImagePreview(file_url);
+    setUploading(false);
   };
 
   const runAnalysis = async (locText, descText) => {
@@ -165,12 +189,21 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 </button>
               </div>
             ) : (
-              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
-                <Camera className="w-5 h-5 text-orange-500" />
-                <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
-                <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
-                <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
-              </label>
+             <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
+               {uploading ? (
+                 <>
+                   <div className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                   <span className="text-sm text-orange-600 font-medium">מעלה תמונה...</span>
+                 </>
+               ) : (
+                 <>
+                   <Camera className="w-5 h-5 text-orange-500" />
+                   <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
+                   <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
+                 </>
+               )}
+               <input type="file" accept="image/*" capture="environment" onChange={(e) => handleImageUpload(e.target.files?.[0])} className="hidden" />
+             </label>
             )}
           </div>
 

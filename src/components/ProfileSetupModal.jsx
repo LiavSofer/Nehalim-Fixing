@@ -11,15 +11,38 @@ export default function ProfileSetupModal({ onComplete }) {
   const [profileImage, setProfileImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [errors, setErrors] = useState({});
 
   const validatePhone = (p) => /^0[0-9]{8,9}$/.test(p.replace(/-/g, ''));
 
-  const handleImageChange = (e) => {
+  const compressImage = (file) => new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 800;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+        else { width = Math.round(width * MAX / height); height = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = width; canvas.height = height;
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(resolve, 'image/jpeg', 0.8);
+    };
+    img.src = url;
+  });
+
+  const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setProfileImage(file);
+    setUploadingImage(true);
     setPreviewUrl(URL.createObjectURL(file));
+    const compressed = await compressImage(file);
+    setProfileImage(compressed);
+    setUploadingImage(false);
   };
 
   const validate = () => {
@@ -66,9 +89,18 @@ export default function ProfileSetupModal({ onComplete }) {
               )}
             </div>
             <label className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/15 text-primary rounded-lg text-sm font-medium cursor-pointer transition-colors border border-primary/20">
-              <Camera className="w-4 h-4" />
-              העלה תמונה
-              <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              {uploadingImage ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  מכין תמונה...
+                </>
+              ) : (
+                <>
+                  <Camera className="w-4 h-4" />
+                  צלם / העלה תמונה
+                </>
+              )}
+              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageChange} />
             </label>
             {errors.profileImage && <p className="text-destructive text-xs">{errors.profileImage}</p>}
           </div>
