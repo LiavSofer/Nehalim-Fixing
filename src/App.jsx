@@ -58,6 +58,9 @@ const AuthenticatedApp = () => {
 
   const userRole = user?.role || 'ללא הרשאה';
 
+  // Update role to default if empty/null
+  // (handled via entity default, no action needed here)
+
   // Blocked users see the blocked screen
   if (userRole === 'ללא הרשאה') {
     return <BlockedScreen user={user} />;
