@@ -62,30 +62,30 @@ function UserRow({ user, onUpdate }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
-      className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-border last:border-0"
+      className="flex items-center justify-between gap-3 px-3 py-2.5 hover:bg-muted/40 transition-colors rounded-lg group"
     >
       {/* Info */}
       <div className="flex-1 min-w-0">
         {editing ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             <Input
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="שם מלא"
-              className="h-8 text-sm"
+              className="h-7 text-xs"
             />
             <Input
               value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="מספר טלפון"
-              className="h-8 text-sm"
+              className="h-7 text-xs"
               dir="ltr"
             />
           </div>
         ) : (
           <>
-            <p className="font-medium text-foreground truncate">{displayName}</p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-0.5">
+            <p className="font-semibold text-foreground text-sm truncate">{displayName}</p>
+            <div className="flex items-center gap-3 mt-0.5">
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Mail className="w-3 h-3" />
                 {user.email}
@@ -102,50 +102,50 @@ function UserRow({ user, onUpdate }) {
       </div>
 
       {/* Role selector */}
-      <div className="flex items-center gap-2 flex-shrink-0">
-        {!editing && (
-          <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
-            <SelectTrigger className="w-36 h-8 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ROLES.map(role => (
-                <SelectItem key={role} value={role}>
-                  <Badge variant="outline" className={`text-xs px-2 py-0 ${ROLE_COLORS[role]}`}>
-                    {role}
-                  </Badge>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+      {!editing && (
+        <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
+          <SelectTrigger className="w-32 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ROLES.map(role => (
+              <SelectItem key={role} value={role}>
+                <Badge variant="outline" className={`text-xs px-2 py-0 ${ROLE_COLORS[role]}`}>
+                  {role}
+                </Badge>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
 
-        {/* Edit / Save / Cancel */}
+      {/* Edit / Save / Cancel */}
+      <div className="flex items-center gap-1 flex-shrink-0">
         {editing ? (
           <>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
             </Button>
-            <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:bg-muted" onClick={() => setEditing(false)}>
-              <X className="w-4 h-4" />
+            <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:bg-muted" onClick={() => setEditing(false)}>
+              <X className="w-3.5 h-3.5" />
             </Button>
           </>
         ) : (
-          <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground hover:bg-muted" onClick={() => setEditing(true)}>
-            <Pencil className="w-4 h-4" />
+          <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground opacity-70 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
+            <Pencil className="w-3.5 h-3.5" />
           </Button>
         )}
       </div>
 
       {/* Avatar */}
       <div
-        className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+        className={`w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
         onClick={() => user.profileImage && setPhotoOpen(true)}
       >
         {user.profileImage ? (
           <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
         ) : (
-          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
+          <span className="text-xs font-bold text-primary">{displayName[0] || '?'}</span>
         )}
       </div>
 
