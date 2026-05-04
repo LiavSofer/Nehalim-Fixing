@@ -60,8 +60,10 @@ function WorkerStats({ workerId }) {
     return { closed: closed.length, total: faults.length, avgDisplay, completionRate, monthlyData, avgPerMonth };
   }, [faults]);
 
+  const avgDailyResolved = stats.closed > 0 ? (stats.closed / 180).toFixed(1) : '0';
+
   const summaryCards = [
-    { label: 'תקלות שנפתרו', value: stats.closed, sub: `מתוך ${stats.total} שהוקצו`, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
+    { label: 'ממוצע תקלות יומי', value: avgDailyResolved, sub: 'על בסיס 180 ימים אחרונים', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
     { label: 'זמן פתרון ממוצע', value: stats.avgDisplay, sub: 'לתקלה סגורה', icon: Clock, color: 'text-blue-600', bg: 'bg-blue-50' },
     { label: 'ממוצע חודשי', value: stats.avgPerMonth, sub: 'תקלות ב-6 חודשים אחרונים', icon: TrendingUp, color: 'text-primary', bg: 'bg-primary/10' },
     { label: 'אחוז ביצוע', value: `${stats.completionRate}%`, sub: 'מסך כל הקצאות', icon: Zap, color: 'text-amber-600', bg: 'bg-amber-50' },
