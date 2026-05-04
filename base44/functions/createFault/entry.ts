@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
       reportedBy: user.email,
     };
 
-    const fault = await base44.asServiceRole.entities.Fault.create(faultData);
+    const fault = await base44.entities.Fault.create(faultData);
 
     return Response.json({ fault });
   } catch (error) {
