@@ -17,8 +17,7 @@ function urlBase64ToUint8Array(base64String) {
 export default function PushNotificationManager() {
   useEffect(() => {
     const register = async () => {
-      // אל תנסה לרשום push בתוך iframe (למשל ב-preview של הדשבורד)
-      if (window.self !== window.top) return;
+      // בדוק הזמינות של API הדרוש
       if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
 
       try {
