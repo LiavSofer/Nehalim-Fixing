@@ -1,7 +1,10 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin } from 'lucide-react';
+import { MapPin, Clock, Calendar } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { format, differenceInHours, differenceInDays } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -16,17 +19,40 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultDetailDialog({ open, onOpenChange, fault }) {
+export default function FaultDetailDialog({ open, onOpenChange, fault, users = [] }) {
   if (!fault) return null;
+
+  const createdDate = new Date(fault.created_date);
+  const updatedDate = new Date(fault.updated_date);
+  const now = new Date();
+  
+  const formatDate = (date) => format(date, 'dd.MM.yyyy HH:mm', { locale: he });
+  
+  const getTimeDetails = () => {
+    if (fault.status === 'בטיפול') {
+      const hours = differenceInHours(now, createdDate);
+      if (hours < 24) {
+        return `${hours} שעות בטיפול`;
+      }
+      return `${Math.round(hours / 24)} ימים בטיפול`;
+    } else if (fault.status === 'ממתין') {
+      const hours = differenceInHours(now, createdDate);
+      if (hours < 24) {
+        return `${hours} שעות ממתינה`;
+      }
+      return `${Math.round(hours / 24)} ימים ממתינה`;
+    }
+    return null;
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{fault.title || fault.faultType}</DialogTitle>
+          <DialogTitle className="text-right">{fault.title || fault.faultType}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <div className="space-y-6 text-right">
           {/* Images */}
           {(fault.image || fault.repairImage) && (
             <div className={`grid gap-3 ${fault.image && fault.repairImage ? 'grid-cols-2' : 'grid-cols-1'}`}>
@@ -49,50 +75,105 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
             </div>
           )}
 
+          {/* Status, Priority and Type in one row */}
+          <div className="flex flex-wrap gap-6 justify-center text-xs">
+            {fault.faultType && (
+              <span className="text-foreground"><span className="text-muted-foreground">סוג תקלה:</span> {fault.faultType}</span>
+            )}
+            <span className="text-foreground"><span className="text-muted-foreground">סטטוס:</span> {fault.status}</span>
+            <span className="text-foreground"><span className="text-muted-foreground">דחיפות:</span> {fault.priority}</span>
+          </div>
+
           {/* Location and Type */}
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 justify-center">
               <MapPin className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">מיקום</span>
             </div>
-            <p className="text-base text-foreground">
+            <p className="text-base text-foreground text-center">
               {fault.location}{fault.roomNumber ? ` - ${fault.roomNumber}` : ''}
             </p>
           </div>
 
-          {/* Fault Type tag */}
-          {fault.faultType && (
-            <div>
-              <span className="text-sm text-muted-foreground">סוג תקלה</span>
-              <div className="mt-1">
-                <span className="text-sm font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{fault.faultType}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Status and Priority */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm text-muted-foreground">סטטוס</span>
-              <Badge className={`${STATUS_COLORS[fault.status]} border text-sm mt-2`}>
-                {fault.status}
-              </Badge>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">דחיפות</span>
-              <Badge className={`${PRIORITY_COLORS[fault.priority]} border text-sm mt-2`}>
-                {fault.priority}
-              </Badge>
-            </div>
-          </div>
-
           {/* Description */}
           <div className="space-y-2">
-            <span className="text-sm text-muted-foreground">תיאור</span>
-            <p className="text-base text-foreground">{fault.description}</p>
+            <span className="text-sm text-muted-foreground block text-center">תיאור</span>
+            <p className="text-base text-foreground text-center">{fault.description}</p>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+
+          {/* Timeline details */}
+          <div className="space-y-4 pt-4 border-t">
+            {/* Created by and Assigned to */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground">נוצר ע"י</span>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                      const reportedUser = users.find(u => u.email === fault.reportedBy);
+                      return (
+                        <>
+                          <Avatar className="h-6 w-6">
+                            {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
+                            <AvatarFallback className="text-[10px]">
+                              {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy?.split('@')[0] || 'משתמש בלתי ידוע'}</span>
+                        </>
+                      );
+                    })()}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground">משויך ל</span>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const assignedUser = users.find(u => u.id === fault.assignedTo);
+                    return (
+                      <>
+                        <Avatar className="h-6 w-6">
+                          {assignedUser?.profileImage && <AvatarImage src={assignedUser.profileImage} />}
+                          <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
+                            {assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-foreground">{assignedUser?.full_name || 'לא משויך'}</span>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Other timeline details */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 justify-center">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">תאריך יצירה</span>
+                </div>
+                <p className="text-sm text-foreground text-center">{formatDate(createdDate)}</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 justify-center">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
+                </div>
+                <p className="text-sm text-foreground text-center">{formatDate(updatedDate)}</p>
+              </div>
+
+              {getTimeDetails() && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 justify-center">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
+                  </div>
+                  <p className="text-sm text-foreground font-medium text-primary text-center">{getTimeDetails()}</p>
+                </div>
+              )}
+            </div>
+            </div>
+          </DialogContent>
+          </Dialog>
+          );
+          }
