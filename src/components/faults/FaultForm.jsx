@@ -59,7 +59,8 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     setUploading(true);
     try {
       const compressed = await compressImage(file);
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
+      const fileToUpload = new File([compressed], file.name || 'image.jpg', { type: 'image/jpeg' });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: fileToUpload });
       URL.revokeObjectURL(localPreview);
       uploadedUrlRef.current = file_url;
       setFormData(prev => ({ ...prev, image: file_url }));
