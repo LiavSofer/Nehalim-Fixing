@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
+import { APP_VERSION } from '@/lib/version';
 
 const NAV_ITEMS = [
   { label: 'המשימות שלי', path: '/', icon: CheckCircle2, roles: ['אב בית'] },
@@ -123,7 +124,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
           <LogOut className="w-4 h-4" />
           <span>התנתקות</span>
         </button>
-        <p className="text-center text-xs text-sidebar-foreground/25 mt-2">v1.0.4</p>
+        <p className="text-center text-xs text-sidebar-foreground/25 mt-2">v{APP_VERSION}</p>
       </div>
     </aside>
     </>
