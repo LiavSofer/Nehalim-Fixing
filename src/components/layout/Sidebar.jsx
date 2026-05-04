@@ -70,6 +70,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
           <div>
             <h1 className="font-bold text-base leading-tight tracking-tight">ישיבת נחלים</h1>
             <p className="text-xs text-sidebar-foreground/50 mt-0.5">מערכת ניהול אחזקה</p>
+            <p className="text-xs text-sidebar-foreground/25 mt-1">v{APP_VERSION}</p>
           </div>
         </div>
       </div>
@@ -125,7 +126,6 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
           <LogOut className="w-4 h-4" />
           <span>התנתקות</span>
         </button>
-        <p className="text-center text-xs text-sidebar-foreground/25 mt-2">v{APP_VERSION}</p>
       </div>
     </aside>
     </>
