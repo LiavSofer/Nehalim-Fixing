@@ -51,6 +51,14 @@ export default function Faults() {
     initialData: [],
   });
 
+  // Real-time subscription
+  useEffect(() => {
+    const unsubscribe = base44.entities.Fault.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['faults'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   const { data: users } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {

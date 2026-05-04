@@ -27,10 +27,25 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Image */}
-          {fault.image && (
-            <div className="w-full h-64 rounded-lg overflow-hidden bg-muted">
-              <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
+          {/* Images */}
+          {(fault.image || fault.repairImage) && (
+            <div className={`grid gap-3 ${fault.image && fault.repairImage ? 'grid-cols-2' : 'grid-cols-1'}`}>
+              {fault.image && (
+                <div className="space-y-1">
+                  {fault.repairImage && <p className="text-xs text-muted-foreground font-medium text-center">תמונה מקורית</p>}
+                  <div className="w-full h-52 rounded-lg overflow-hidden bg-muted">
+                    <img src={fault.image} alt={fault.faultType} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
+              {fault.repairImage && (
+                <div className="space-y-1">
+                  <p className="text-xs text-green-600 font-medium text-center">לאחר התיקון</p>
+                  <div className="w-full h-52 rounded-lg overflow-hidden bg-muted border-2 border-green-400">
+                    <img src={fault.repairImage} alt="לאחר תיקון" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

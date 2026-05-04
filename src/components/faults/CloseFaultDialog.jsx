@@ -26,13 +26,25 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
           <DialogTitle>אישור סגירת תקלה</DialogTitle>
         </DialogHeader>
 
-        {fault?.image && (
-          <div className="w-full h-80 rounded-lg overflow-hidden bg-muted">
-            <img 
-              src={fault.image} 
-              alt="תקלה מתוקנת" 
-              className="w-full h-full object-cover"
-            />
+        {/* Show original image + repair image side by side */}
+        {(fault?.image || fault?.repairImage) && (
+          <div className={`grid gap-3 ${fault?.image && fault?.repairImage ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {fault?.image && (
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground font-medium text-center">תמונה מקורית</p>
+                <div className="h-52 rounded-lg overflow-hidden bg-muted border">
+                  <img src={fault.image} alt="תקלה מקורית" className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
+            {fault?.repairImage && (
+              <div className="space-y-1">
+                <p className="text-xs text-green-600 font-medium text-center">לאחר התיקון</p>
+                <div className="h-52 rounded-lg overflow-hidden bg-muted border-2 border-green-400">
+                  <img src={fault.repairImage} alt="לאחר תיקון" className="w-full h-full object-cover" />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

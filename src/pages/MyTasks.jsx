@@ -35,8 +35,16 @@ export default function MyTasks() {
     initialData: [],
   });
 
-  // Filter tasks assigned to current user
-  const myTasks = faults.filter(fault => fault.assignedTo === user?.id);
+  // Real-time subscription
+  useEffect(() => {
+    const unsubscribe = base44.entities.Fault.subscribe(() => {
+      queryClient.invalidateQueries({ queryKey: ['faults'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
+  // Filter tasks assigned to current user — exclude closed faults
+  const myTasks = faults.filter(fault => fault.assignedTo === user?.id && fault.status !== 'סגור');
 
   // Sort by priority (high to low) and then by date (old to new)
   const sortedTasks = [...myTasks].sort((a, b) => {
