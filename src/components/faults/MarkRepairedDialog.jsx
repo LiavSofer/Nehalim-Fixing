@@ -37,16 +37,17 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Reset input so the same file can be selected again
-    if (fileInputRef.current) fileInputRef.current.value = '';
     setUploading(true);
     try {
       const compressed = await compressImage(file);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
+      // Reset input AFTER upload so it doesn't interfere
+      if (fileInputRef.current) fileInputRef.current.value = '';
       setRepairImage(file_url);
       setImagePreview(file_url);
     } catch (err) {
       console.error('שגיאה בהעלאת תמונה:', err);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } finally {
       setUploading(false);
     }
