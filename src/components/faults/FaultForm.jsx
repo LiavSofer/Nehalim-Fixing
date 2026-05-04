@@ -25,6 +25,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
   const fileInputRef = useRef(null);
+  const uploadedUrlRef = useRef(editingFault?.image || '');
 
   const compressImage = (file) => new Promise((resolve, reject) => {
     const img = new Image();
@@ -52,19 +53,25 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Take a local object URL immediately so preview shows right away
+    const localPreview = URL.createObjectURL(file);
+    setImagePreview(localPreview);
     setUploading(true);
     try {
       const compressed = await compressImage(file);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: compressed });
-      // Reset input AFTER upload so it doesn't interfere
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      URL.revokeObjectURL(localPreview);
+      uploadedUrlRef.current = file_url;
       setFormData(prev => ({ ...prev, image: file_url }));
       setImagePreview(file_url);
     } catch (err) {
       console.error('שגיאה בהעלאת תמונה:', err);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      URL.revokeObjectURL(localPreview);
+      setImagePreview('');
+      uploadedUrlRef.current = '';
     } finally {
       setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -194,29 +201,30 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
             {imagePreview ? (
               <div className="relative w-full h-40 rounded-xl overflow-hidden border group">
                 <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                <button
-                  type="button"
-                  onClick={() => { setFormData(prev => ({ ...prev, image: '' })); setImagePreview(''); }}
-                  className="absolute top-2 left-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+                {uploading && (
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-2">
+                    <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span className="text-xs text-white font-medium">מעלה תמונה...</span>
+                  </div>
+                )}
+                {!uploading && (
+                  <button
+                    type="button"
+                    onClick={() => { uploadedUrlRef.current = ''; setFormData(prev => ({ ...prev, image: '' })); setImagePreview(''); }}
+                    className="absolute top-2 left-2 bg-black/60 hover:bg-black/80 text-white rounded-full p-1 transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             ) : (
              <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
-               {uploading ? (
-                 <>
-                   <div className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
-                   <span className="text-sm text-orange-600 font-medium">מעלה תמונה...</span>
-                 </>
-               ) : (
-                 <>
-                   <Camera className="w-5 h-5 text-orange-500" />
-                   <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
-                   <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
-                 </>
-               )}
-               <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+               <>
+                 <Camera className="w-5 h-5 text-orange-500" />
+                 <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
+                 <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
+               </>
+               <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} className="hidden" />
              </label>
             )}
           </div>
@@ -258,7 +266,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
           <div className="pt-1">
             <Button
               type="submit"
-              disabled={loading || analyzing || !imagePreview}
+              disabled={loading || analyzing || uploading || !imagePreview || !uploadedUrlRef.current}
               className="w-full h-10 text-sm font-semibold rounded-xl"
             >
               {loading ? 'שומר...' : analyzing ? 'ממתין לניתוח AI...' : editingFault ? 'עדכון תקלה' : 'שליחת דיווח'}
