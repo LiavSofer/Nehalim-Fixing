@@ -40,4 +40,15 @@ checkForUpdates().then(() => {
   ReactDOM.createRoot(document.getElementById('root')).render(
     <App />
   );
+  
+  // Register service worker for PWA functionality
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => {
+        console.log('Service Worker registered successfully:', reg);
+      })
+      .catch(error => {
+        console.warn('Service Worker registration failed:', error);
+      });
+  }
 });
