@@ -101,77 +101,78 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
             <p className="text-base text-foreground">{fault.description}</p>
           </div>
 
-          {/* Created by and Assigned to */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <span className="text-sm text-muted-foreground">נוצר ע"י</span>
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const reportedUser = users.find(u => u.email === fault.reportedBy);
-                  return (
-                    <>
-                      <Avatar className="h-6 w-6">
-                        {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
-                        <AvatarFallback className="text-[10px]">
-                          {reportedUser?.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy}</span>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <span className="text-sm text-muted-foreground">משויך ל</span>
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const assignedUser = users.find(u => u.id === fault.assignedTo);
-                  return (
-                    <>
-                      <Avatar className="h-6 w-6">
-                        {assignedUser?.profileImage && <AvatarImage src={assignedUser.profileImage} />}
-                        <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
-                          {assignedUser?.full_name.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-foreground">{assignedUser?.full_name || 'לא משויך'}</span>
-                    </>
-                  );
-                })()}
-              </div>
-            </div>
-          </div>
-
           {/* Timeline details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">תאריך יצירה</span>
+          <div className="space-y-4 pt-4 border-t">
+            {/* Created by and Assigned to */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground">נוצר ע"י</span>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const reportedUser = users.find(u => u.email === fault.reportedBy);
+                    return (
+                      <>
+                        <Avatar className="h-6 w-6">
+                          {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
+                          <AvatarFallback className="text-[10px]">
+                            {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy}</span>
+                      </>
+                    );
+                  })()}
+                </div>
               </div>
-              <p className="text-sm text-foreground">{formatDate(createdDate)}</p>
+              <div className="space-y-2">
+                <span className="text-sm text-muted-foreground">משויך ל</span>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const assignedUser = users.find(u => u.id === fault.assignedTo);
+                    return (
+                      <>
+                        <Avatar className="h-6 w-6">
+                          {assignedUser?.profileImage && <AvatarImage src={assignedUser.profileImage} />}
+                          <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
+                            {assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-foreground">{assignedUser?.full_name || 'לא משויך'}</span>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
-              </div>
-              <p className="text-sm text-foreground">{formatDate(updatedDate)}</p>
-            </div>
-
-            {getTimeDetails() && (
+            {/* Other timeline details */}
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">תאריך יצירה</span>
                 </div>
-                <p className="text-sm text-foreground font-medium text-primary">{getTimeDetails()}</p>
+                <p className="text-sm text-foreground">{formatDate(createdDate)}</p>
               </div>
-            )}
-          </div>
-          </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">תאריך עדכון אחרון</span>
+                </div>
+                <p className="text-sm text-foreground">{formatDate(updatedDate)}</p>
+              </div>
+
+              {getTimeDetails() && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">{fault.status === 'בטיפול' ? 'זמן בטיפול' : 'זמן ממתינה'}</span>
+                  </div>
+                  <p className="text-sm text-foreground font-medium text-primary">{getTimeDetails()}</p>
+                </div>
+              )}
+            </div>
+            </div>
           </DialogContent>
           </Dialog>
           );
