@@ -64,26 +64,6 @@ function UserRow({ user, onUpdate }) {
       transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
       className="flex flex-col sm:flex-row sm:items-center gap-3 py-4 border-b border-border last:border-0"
     >
-      {/* Avatar */}
-      <div
-        className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
-        onClick={() => user.profileImage && setPhotoOpen(true)}
-      >
-        {user.profileImage ? (
-          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
-        ) : (
-          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
-        )}
-      </div>
-
-      {/* Photo lightbox */}
-      <Dialog open={photoOpen} onOpenChange={setPhotoOpen}>
-        <DialogContent className="max-w-sm p-2 flex flex-col items-center gap-2">
-          <img src={user.profileImage} alt={displayName} className="w-full rounded-xl object-contain max-h-[70vh]" />
-          <p className="text-sm font-medium text-foreground">{displayName}</p>
-        </DialogContent>
-      </Dialog>
-
       {/* Info */}
       <div className="flex-1 min-w-0">
         {editing ? (
@@ -156,6 +136,26 @@ function UserRow({ user, onUpdate }) {
           </Button>
         )}
       </div>
+
+      {/* Avatar */}
+      <div
+        className={`w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 overflow-hidden ${user.profileImage ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`}
+        onClick={() => user.profileImage && setPhotoOpen(true)}
+      >
+        {user.profileImage ? (
+          <img src={user.profileImage} alt={displayName} className="w-full h-full object-cover" />
+        ) : (
+          <span className="text-sm font-bold text-primary">{displayName[0] || '?'}</span>
+        )}
+      </div>
+
+      {/* Photo lightbox */}
+      <Dialog open={photoOpen} onOpenChange={setPhotoOpen}>
+        <DialogContent className="max-w-sm p-2 flex flex-col items-center gap-2">
+          <img src={user.profileImage} alt={displayName} className="w-full rounded-xl object-contain max-h-[70vh]" />
+          <p className="text-sm font-medium text-foreground">{displayName}</p>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
