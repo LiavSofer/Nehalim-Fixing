@@ -31,7 +31,12 @@ const AuthenticatedApp = () => {
       if (authError) {
         setLoadingUser(false);
       } else {
-        base44.auth.me().then(u => {
+        base44.auth.me().then(async u => {
+          // אם המשתמש קיבל role "user" כברירת מחדל, שנה ל"ללא הרשאה"
+          if (u && u.role === 'user') {
+            await base44.auth.updateMe({ role: 'ללא הרשאה' });
+            u = { ...u, role: 'ללא הרשאה' };
+          }
           setUser(u);
           setLoadingUser(false);
         }).catch(() => setLoadingUser(false));
