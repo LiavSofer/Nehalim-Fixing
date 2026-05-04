@@ -85,29 +85,21 @@ export default function FaultDetailDialog({ open, onOpenChange, fault }) {
             </p>
           </div>
 
-          {/* Fault Type tag */}
-          {fault.faultType && (
-            <div>
-              <span className="text-sm text-muted-foreground">סוג תקלה</span>
-              <div className="mt-1">
-                <span className="text-sm font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground">{fault.faultType}</span>
+          {/* Status, Priority and Type in one row */}
+          <div className="flex flex-wrap gap-4 justify-end">
+            {fault.faultType && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">סוג תקלה:</span>
+                <span className="text-sm font-medium text-foreground">{fault.faultType}</span>
               </div>
+            )}
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">סטטוס:</span>
+              <span className="text-sm font-medium text-foreground">{fault.status}</span>
             </div>
-          )}
-
-          {/* Status and Priority */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <span className="text-sm text-muted-foreground">סטטוס</span>
-              <Badge className={`${STATUS_COLORS[fault.status]} border text-sm mt-2`}>
-                {fault.status}
-              </Badge>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">דחיפות</span>
-              <Badge className={`${PRIORITY_COLORS[fault.priority]} border text-sm mt-2`}>
-                {fault.priority}
-              </Badge>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">דחיפות:</span>
+              <span className="text-sm font-medium text-foreground">{fault.priority}</span>
             </div>
           </div>
 
