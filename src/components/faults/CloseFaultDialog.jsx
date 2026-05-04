@@ -9,7 +9,8 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
   const handleCloseFault = async () => {
     try {
       setLoading(true);
-      await base44.entities.Fault.update(fault.id, { status: 'סגור' });
+      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
+      if (response.data?.error) throw new Error(response.data.error);
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {

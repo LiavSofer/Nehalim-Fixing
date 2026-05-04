@@ -63,10 +63,12 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
 
     try {
       setLoading(true);
-      await base44.entities.Fault.update(fault.id, { 
-        status: 'ממתין לאישור',
-        repairImage: repairImage 
+      const response = await base44.functions.invoke('updateFault', {
+        faultId: fault.id,
+        updates: { status: 'ממתין לאישור', repairImage },
+        action: 'markRepaired',
       });
+      if (response.data?.error) throw new Error(response.data.error);
       onSuccess?.();
       onOpenChange(false);
       setImagePreview('');

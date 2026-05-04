@@ -16,7 +16,8 @@ export default function PriorityDialog({ open, onOpenChange, fault, onSuccess })
 
   const handleSave = async () => {
     setSaving(true);
-    await base44.entities.Fault.update(fault.id, { priority });
+    const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { priority }, action: 'priority' });
+    if (response.data?.error) throw new Error(response.data.error);
     onSuccess?.();
     onOpenChange(false);
     setSaving(false);

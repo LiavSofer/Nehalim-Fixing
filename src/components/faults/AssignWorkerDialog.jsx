@@ -29,7 +29,8 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
           updateData.status = 'ממתין';
         }
       }
-      await base44.entities.Fault.update(fault.id, updateData);
+      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: updateData, action: 'assign' });
+      if (response.data?.error) throw new Error(response.data.error);
       onAssignmentChange?.();
       onOpenChange(false);
     } catch (err) {
