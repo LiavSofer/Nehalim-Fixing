@@ -84,7 +84,6 @@ const AuthenticatedApp = () => {
         {userRole === 'אב בית' && (
           <>
             <Route path="/my-tasks" element={<MyTasks />} />
-            <Route path="/all-faults" element={<Faults />} />
             <Route path="/performance" element={<WorkerPerformance user={user} />} />
           </>
         )}

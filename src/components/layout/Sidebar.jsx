@@ -7,7 +7,6 @@ import { APP_VERSION } from '@/lib/version';
 
 const NAV_ITEMS = [
   { label: 'המשימות שלי', path: '/', icon: CheckCircle2, roles: ['אב בית'] },
-  { label: 'כל התקלות', path: '/all-faults', icon: Home, roles: ['אב בית'] },
   { label: 'הביצועים שלי', path: '/performance', icon: Wrench, roles: ['אב בית'] },
   { label: 'דף הבית', path: '/', icon: Home, roles: ['צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
   { label: 'ביצועי עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
