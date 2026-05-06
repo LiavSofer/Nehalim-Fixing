@@ -89,7 +89,7 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
 
         {/* Return comment */}
         <div className="space-y-1.5">
-          <Label className="text-sm font-medium">הערה להחזרה לעובד (חובה אם מחזירים)</Label>
+          <Label className="text-sm font-medium">הוספת הערה:</Label>
           <Textarea
             value={returnComment}
             onChange={(e) => setReturnComment(e.target.value)}
