@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
-import { Camera, X } from 'lucide-react';
+import { Camera, X, MapPin } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
@@ -126,9 +126,13 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
             אנא העלה תמונה של התיקון שביצעת
           </p>
 
-          <div className="bg-muted/50 p-3 rounded-lg">
-            <p className="text-sm font-medium text-foreground">{fault?.faultType}</p>
-            <p className="text-xs text-muted-foreground mt-1">{fault?.location}</p>
+          <div className="bg-muted/50 p-3 rounded-lg space-y-1">
+            <p className="text-sm font-semibold text-foreground">{fault?.title || fault?.faultType}</p>
+            {fault?.description && <p className="text-xs text-muted-foreground">{fault.description}</p>}
+            <div className="flex items-center gap-1 pt-0.5">
+              <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+              <p className="text-xs text-muted-foreground">{fault?.location}{fault?.roomNumber ? ` - ${fault.roomNumber}` : ''}</p>
+            </div>
           </div>
 
           {/* Image Upload */}
