@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
 import { Camera, X } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function MarkRepairedDialog({ open, onOpenChange, fault, onSuccess }) {
@@ -12,6 +14,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [repairImage, setRepairImage] = useState(null);
+  const [manualComment, setManualComment] = useState('');
   const fileInputRef = useRef(null);
 
   const compressImage = (file) => new Promise((resolve, reject) => {
@@ -83,6 +86,18 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
         type: 'automatic',
         automaticEventType: 'repaired',
       });
+
+      // Add manual comment if provided
+      if (manualComment.trim()) {
+        await base44.entities.FaultComment.create({
+          faultId: fault.id,
+          comment: manualComment.trim(),
+          userId: me?.id || '',
+          userName: me?.full_name || '',
+          userProfileImage: me?.profileImage || '',
+          type: 'manual',
+        });
+      }
       
       // Invalidate queries to trigger real-time UI update
       await queryClient.invalidateQueries({ queryKey: ['faults'] });
@@ -91,6 +106,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       onOpenChange(false);
       setImagePreview('');
       setRepairImage(null);
+      setManualComment('');
     } catch (error) {
       console.error('Error marking repaired:', error);
     } finally {
@@ -113,6 +129,17 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
           <div className="bg-muted/50 p-3 rounded-lg">
             <p className="text-sm font-medium text-foreground">{fault?.faultType}</p>
             <p className="text-xs text-muted-foreground mt-1">{fault?.location}</p>
+          </div>
+
+          {/* Manual Comment */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">הערה לצ'אט (אופציונלי)</Label>
+            <Textarea
+              placeholder="הוסף הערה על הטיפול שבוצע..."
+              value={manualComment}
+              onChange={(e) => setManualComment(e.target.value)}
+              className="resize-none h-20 text-sm"
+            />
           </div>
 
           {/* Image Upload */}
