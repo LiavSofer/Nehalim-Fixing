@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Calendar } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { format, differenceInHours, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { base44 } from '@/api/base44Client';
+import FaultChat from './FaultChat';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -19,7 +21,16 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultDetailDialog({ open, onOpenChange, fault, users = [] }) {
+export default function FaultDetailDialog({ open, onOpenChange, fault, users = [], currentUser }) {
+  const [hasComments, setHasComments] = useState(false);
+
+  useEffect(() => {
+    if (!fault?.id || !open) return;
+    base44.entities.FaultComment.filter({ faultId: fault.id }, '-created_date', 1)
+      .then(data => setHasComments(data.length > 0))
+      .catch(() => {});
+  }, [fault?.id, open]);
+
   if (!fault) return null;
 
   const createdDate = new Date(fault.created_date);
@@ -47,7 +58,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl" style={{paddingBottom: '1.5rem'}}>
         <DialogHeader>
           <DialogTitle className="text-right">{fault.title || fault.faultType}</DialogTitle>
         </DialogHeader>
@@ -188,6 +199,12 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                 </div>
               )}
             </div>
+
+          {/* Chat */}
+          <div className="pt-4 border-t">
+            <FaultChat fault={fault} currentUser={currentUser} />
+          </div>
+
             </div>
           </DialogContent>
           </Dialog>

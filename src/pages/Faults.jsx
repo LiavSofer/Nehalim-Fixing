@@ -300,14 +300,15 @@ export default function Faults() {
                    return (
                      <div key={fault.id}>
                         <FaultCard
-                          fault={fault}
-                          assignedUser={assignedUser}
-                          reportedUser={reportedUser}
-                          isMaintenanceManager={isMaintenanceManager}
-                          isMadrich={isMadrich}
-                          onEdit={handleEdit}
-                          users={users}
-                          onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
+                         fault={fault}
+                         assignedUser={assignedUser}
+                         reportedUser={reportedUser}
+                         isMaintenanceManager={isMaintenanceManager}
+                         isMadrich={isMadrich}
+                         onEdit={handleEdit}
+                         users={users}
+                         currentUser={user}
+                         onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
                         />
                         {activeStatus === 'ממתין לאישור' && isMaintenanceManager && (
                           <div className="px-4 pb-3">

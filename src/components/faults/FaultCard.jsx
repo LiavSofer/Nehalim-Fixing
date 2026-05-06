@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag } from 'lucide-react';
+import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { base44 } from '@/api/base44Client';
 import AssignWorkerDialog from './AssignWorkerDialog';
 import MarkRepairedDialog from './MarkRepairedDialog';
 import FaultDetailDialog from './FaultDetailDialog.jsx';
@@ -28,11 +29,26 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, isMadrich, onEdit, users = [], onAssignmentChange, isWorkerView = false }) {
+export default function FaultCard({ fault, assignedUser, reportedUser, isMaintenanceManager, isMadrich, onEdit, users = [], onAssignmentChange, isWorkerView = false, currentUser }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [repairDialogOpen, setRepairDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
+
+  useEffect(() => {
+    if (!fault?.id) return;
+    base44.entities.FaultComment.filter({ faultId: fault.id }, '-created_date', 1)
+      .then(data => setCommentCount(data.length))
+      .catch(() => {});
+
+    const unsubscribe = base44.entities.FaultComment.subscribe((event) => {
+      if (event.data?.faultId === fault.id) {
+        setCommentCount(prev => event.type === 'create' ? prev + 1 : prev);
+      }
+    });
+    return () => unsubscribe();
+  }, [fault?.id]);
 
   const assignedInitials = assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
 
@@ -66,6 +82,12 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             <p className="text-sm md:text-xs text-muted-foreground mt-0.5 line-clamp-1">{fault.description}</p>
           )}
           <div className="flex gap-1.5 mt-2 flex-wrap items-center">
+            {commentCount > 0 && (
+              <span className="flex items-center gap-1 text-xs md:text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
+                <MessageCircle className="w-3 h-3" />
+                נוספה הערה
+              </span>
+            )}
             {fault.faultType && (
               <span className="text-xs md:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">{fault.faultType}</span>
             )}
@@ -161,6 +183,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         onOpenChange={setDetailDialogOpen}
         fault={fault}
         users={users}
+        currentUser={currentUser}
       />
 
       {/* Assign Worker Dialog */}

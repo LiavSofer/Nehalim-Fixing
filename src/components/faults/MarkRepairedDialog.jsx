@@ -71,6 +71,18 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
         action: 'markRepaired',
       });
       if (response.data?.error) throw new Error(response.data.error);
+
+      // Add automatic comment
+      const me = await base44.auth.me();
+      await base44.entities.FaultComment.create({
+        faultId: fault.id,
+        comment: 'התקלה טופלה ומחכה לאישור',
+        userId: me?.id || '',
+        userName: me?.full_name || '',
+        userProfileImage: me?.profileImage || '',
+        type: 'automatic',
+        automaticEventType: 'repaired',
+      });
       
       // Invalidate queries to trigger real-time UI update
       await queryClient.invalidateQueries({ queryKey: ['faults'] });

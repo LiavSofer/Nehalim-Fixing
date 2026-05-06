@@ -31,6 +31,22 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       }
       const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: updateData, action: 'assign' });
       if (response.data?.error) throw new Error(response.data.error);
+
+      // Add automatic comment when assigning to a worker
+      if (selectedWorker) {
+        const worker = users.find(u => u.id === selectedWorker);
+        const me = await base44.auth.me();
+        await base44.entities.FaultComment.create({
+          faultId: fault.id,
+          comment: `התקלה הועברה לטיפול${worker ? ` - ${worker.full_name}` : ''}`,
+          userId: me?.id || '',
+          userName: me?.full_name || '',
+          userProfileImage: me?.profileImage || '',
+          type: 'automatic',
+          automaticEventType: 'assigned',
+        });
+      }
+
       onAssignmentChange?.();
       onOpenChange(false);
     } catch (err) {
