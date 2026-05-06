@@ -87,23 +87,25 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
           )}
 
           {/* Status, Priority and Type */}
-          <div className="space-y-3">
-            <div className="flex flex-wrap gap-4 justify-center text-xs text-muted-foreground">
-              {fault.faultType && <span>סוג תקלה</span>}
-              <span>סטטוס</span>
-              <span>דחיפות</span>
-            </div>
-            <div className="flex flex-wrap gap-4 justify-center text-xs font-medium">
-              {fault.faultType && (
-                <span className="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700">{fault.faultType}</span>
-              )}
-              <span className={`px-3 py-1.5 rounded-lg ${
+          <div className="flex flex-wrap gap-4 justify-center">
+            {fault.faultType && (
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-xs text-muted-foreground">סוג תקלה</span>
+                <span className="px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 text-xs font-medium">{fault.faultType}</span>
+              </div>
+            )}
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs text-muted-foreground">סטטוס</span>
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                 fault.status === 'ממתין' ? 'bg-yellow-50 text-yellow-700' :
                 fault.status === 'בטיפול' ? 'bg-blue-50 text-blue-700' :
                 fault.status === 'ממתין לאישור' ? 'bg-orange-50 text-orange-700' :
                 'bg-green-50 text-green-700'
               }`}>{fault.status}</span>
-              <span className={`px-3 py-1.5 rounded-lg ${
+            </div>
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs text-muted-foreground">דחיפות</span>
+              <span className={`px-3 py-1.5 rounded-lg text-xs font-medium ${
                 fault.priority === 'גבוהה' ? 'bg-red-50 text-red-700' :
                 fault.priority === 'בינונית' ? 'bg-amber-50 text-amber-700' :
                 'bg-gray-50 text-gray-700'
