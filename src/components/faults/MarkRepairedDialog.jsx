@@ -131,17 +131,6 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
             <p className="text-xs text-muted-foreground mt-1">{fault?.location}</p>
           </div>
 
-          {/* Manual Comment */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium">הערה לצ'אט (אופציונלי)</Label>
-            <Textarea
-              placeholder="הוסף הערה על הטיפול שבוצע..."
-              value={manualComment}
-              onChange={(e) => setManualComment(e.target.value)}
-              className="resize-none h-20 text-sm"
-            />
-          </div>
-
           {/* Image Upload */}
           <div className="space-y-2">
             {!imagePreview ? (
@@ -184,6 +173,17 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Manual Comment */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium">הערה לצ'אט (אופציונלי)</Label>
+            <Textarea
+              placeholder="הוסף הערה על הטיפול שבוצע..."
+              value={manualComment}
+              onChange={(e) => setManualComment(e.target.value)}
+              className="resize-none h-20 text-sm"
+            />
           </div>
         </div>
 
