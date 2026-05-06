@@ -116,7 +116,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg" dir="rtl">
         <DialogHeader>
           <DialogTitle>סיום טיפול בתקלה</DialogTitle>
         </DialogHeader>
