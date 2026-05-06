@@ -128,7 +128,7 @@ function WorkerStats({ workerId }) {
 }
 
 export default function WorkerPerformance({ user }) {
-  const isManager = user?.role === 'מנהל אחזקה';
+  const isManager = user?.userType === 'מנהל אחזקה';
   const [selectedWorkerId, setSelectedWorkerId] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 

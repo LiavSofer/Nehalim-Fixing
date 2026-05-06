@@ -75,8 +75,8 @@ export default function Faults() {
     initialData: [],
   });
 
-  const isMaintenanceManager = user?.role === 'מנהל אחזקה';
-  const isMadrich = user?.role === 'צוות מדווח';
+  const isMaintenanceManager = user?.userType === 'מנהל אחזקה';
+  const isMadrich = user?.userType === 'צוות מדווח';
 
   const visibleFaults = isMadrich ? faults.filter(f => f.reportedBy === user?.email) : faults;
 

@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 export default function BottomNav({ user }) {
   const location = useLocation();
-  const userRole = user?.role || 'ללא הרשאה';
+  const userRole = user?.userType || 'ללא הרשאה';
 
   const navItems = [
     {

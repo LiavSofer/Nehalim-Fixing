@@ -21,7 +21,7 @@ export default function UserRoleEditor({ user, onUpdate }) {
   const handleRoleChange = async (newRole) => {
     setSaving(true);
     setSaved(false);
-    await base44.entities.User.update(user.id, { role: newRole });
+    await base44.entities.User.update(user.id, { userType: newRole });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
@@ -30,7 +30,7 @@ export default function UserRoleEditor({ user, onUpdate }) {
 
   return (
     <div className="flex items-center gap-3">
-      <Select defaultValue={user.role || 'ללא הרשאה'} onValueChange={handleRoleChange}>
+      <Select defaultValue={user.userType || 'ללא הרשאה'} onValueChange={handleRoleChange}>
         <SelectTrigger className="w-40 text-sm">
           <SelectValue />
         </SelectTrigger>

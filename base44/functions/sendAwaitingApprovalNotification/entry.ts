@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     }
 
     // קבל את מנהלי האחזקה (משתמשים עם תפקיד "מנהל אחזקה")
-    const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
+    const managers = await base44.asServiceRole.entities.User.filter({ userType: 'מנהל אחזקה' });
 
     if (!managers || managers.length === 0) {
       return Response.json({ success: true, message: 'No managers found' });

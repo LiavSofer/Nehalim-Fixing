@@ -17,7 +17,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ user, open = false, onOpenChange }) {
   const location = useLocation();
-  const userRole = user?.role || 'ללא הרשאה';
+  const userRole = user?.userType || 'ללא הרשאה';
 
   const filteredNav = NAV_ITEMS.filter(item => item.roles.includes(userRole));
 

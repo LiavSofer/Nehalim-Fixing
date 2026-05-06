@@ -46,7 +46,7 @@ function UserRow({ user, onUpdate }) {
 
   const handleRoleChange = async (newRole) => {
     try {
-      await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { role: newRole } });
+      await base44.functions.invoke('manageUsers', { action: 'update', userId: user.id, data: { userType: newRole } });
       onUpdate();
     } catch (err) {
       const msg = err?.response?.data?.error || 'שגיאה בעדכון התפקיד';
@@ -55,7 +55,7 @@ function UserRow({ user, onUpdate }) {
   };
 
   const displayName = user.displayName || user.full_name || 'ללא שם';
-  const userRole = user.role || 'ללא הרשאה';
+  const userRole = user.userType || 'ללא הרשאה';
 
   return (
     <motion.div
@@ -119,7 +119,7 @@ function UserRow({ user, onUpdate }) {
 
       {/* Role selector */}
       {!editing && (
-        <Select defaultValue={userRole} key={userRole} onValueChange={handleRoleChange}>
+        <Select defaultValue={userRole} key={`role-${user.id}-${userRole}`} onValueChange={handleRoleChange}>
           <SelectTrigger className="w-24 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
             <SelectValue />
           </SelectTrigger>
@@ -181,7 +181,7 @@ export default function UserManagement() {
 
   const ROLE_ORDER = { 'מנהל אחזקה': 0, 'אב בית': 1, 'צוות מדווח': 2, 'מפתח': 3, 'ללא הרשאה': 4 };
 
-  const pendingUsers = users.filter(u => (u.role || 'ללא הרשאה') === 'ללא הרשאה');
+  const pendingUsers = users.filter(u => (u.userType || 'ללא הרשאה') === 'ללא הרשאה');
 
   const filtered = (tab === 'pending' ? pendingUsers : users)
     .filter(u => {
@@ -191,8 +191,8 @@ export default function UserManagement() {
       return name.includes(q) || email.includes(q);
     })
     .sort((a, b) => {
-      const aOrder = ROLE_ORDER[a.role || 'ללא הרשאה'] ?? 5;
-      const bOrder = ROLE_ORDER[b.role || 'ללא הרשאה'] ?? 5;
+      const aOrder = ROLE_ORDER[a.userType || 'ללא הרשאה'] ?? 5;
+      const bOrder = ROLE_ORDER[b.userType || 'ללא הרשאה'] ?? 5;
       return aOrder - bOrder;
     });
 

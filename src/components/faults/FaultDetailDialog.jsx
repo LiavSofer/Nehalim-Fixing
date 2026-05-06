@@ -29,7 +29,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
 
-  const isMaintenanceManager = currentUser?.role === 'מנהל אחזקה';
+  const isMaintenanceManager = currentUser?.userType === 'מנהל אחזקה';
 
   useEffect(() => {
     if (!fault?.id || !open) return;

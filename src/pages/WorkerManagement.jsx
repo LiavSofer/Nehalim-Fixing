@@ -30,7 +30,7 @@ export default function WorkerManagement() {
 
   // Calculate worker stats
     const getWorkerStats = () => {
-      const workers = users.filter(u => u.role === 'אב בית');
+      const workers = users.filter(u => u.userType === 'אב בית');
     
     const now = new Date();
     const todayStart = startOfDay(now);
