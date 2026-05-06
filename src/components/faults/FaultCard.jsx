@@ -37,12 +37,20 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
+  const [wasReturned, setWasReturned] = useState(false);
 
   useEffect(() => {
     if (!fault?.id) return;
     base44.entities.FaultComment.filter({ faultId: fault.id }, '-created_date', 1)
       .then(data => setCommentCount(data.length))
       .catch(() => {});
+
+    // Check if fault was returned to worker
+    if (isWorkerView && fault.status === 'בטיפול') {
+      base44.entities.FaultComment.filter({ faultId: fault.id, automaticEventType: 'returnedToWorker' }, '-created_date', 1)
+        .then(data => setWasReturned(data.length > 0))
+        .catch(() => {});
+    }
 
     const unsubscribe = base44.entities.FaultComment.subscribe((event) => {
       if (event.data?.faultId === fault.id) {
@@ -73,7 +81,12 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
 
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-foreground text-base md:text-sm leading-snug">{fault.title || fault.faultType}</h3>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-bold text-foreground text-base md:text-sm leading-snug">{fault.title || fault.faultType}</h3>
+            {wasReturned && (
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-300 whitespace-nowrap">↩ חזרה לטיפולך</span>
+            )}
+          </div>
           <div className="flex items-center gap-1 mt-1">
             <MapPin className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
             <p className="text-sm md:text-xs text-muted-foreground truncate">
