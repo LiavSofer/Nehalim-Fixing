@@ -23,6 +23,20 @@ Deno.serve(async (req) => {
 
     const fault = await base44.entities.Fault.create(faultData);
 
+    // If assigned at creation, add the same automatic comment as the assign button
+    if (faultData.assignedTo) {
+      const worker = await base44.asServiceRole.entities.User.get(faultData.assignedTo).catch(() => null);
+      await base44.asServiceRole.entities.FaultComment.create({
+        faultId: fault.id,
+        comment: `התקלה הועברה לטיפול${worker ? ` - ${worker.full_name}` : ''}`,
+        userId: user.id || '',
+        userName: user.full_name || '',
+        userProfileImage: user.profileImage || '',
+        type: 'automatic',
+        automaticEventType: 'assigned',
+      });
+    }
+
     return Response.json({ fault });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
