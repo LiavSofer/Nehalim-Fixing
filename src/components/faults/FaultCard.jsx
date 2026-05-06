@@ -166,7 +166,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
           <Button
             onClick={(e) => { e.stopPropagation(); setReviewDialogOpen(true); }}
-            className="w-full h-12 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
+            className="w-full gap-2 bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Eye className="w-5 h-5" />
             לצפייה בתיקון
