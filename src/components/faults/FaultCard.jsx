@@ -209,6 +209,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         fault={fault}
         users={users}
         currentUser={currentUser}
+        onAssignmentChange={onAssignmentChange}
       />
 
       {/* Assign Worker Dialog */}

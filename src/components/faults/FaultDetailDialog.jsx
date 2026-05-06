@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Calendar } from 'lucide-react';
+import { MapPin, Clock, Calendar, Wrench, Flag } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { format, differenceInHours, differenceInDays } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { base44 } from '@/api/base44Client';
 import FaultChat from './FaultChat';
+import AssignWorkerDialog from './AssignWorkerDialog';
+import PriorityDialog from './PriorityDialog';
 
 const STATUS_COLORS = {
   'ממתין': 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -21,8 +24,12 @@ const PRIORITY_COLORS = {
   'לא מוגדר': 'bg-gray-100 text-gray-800 border-gray-200',
 };
 
-export default function FaultDetailDialog({ open, onOpenChange, fault, users = [], currentUser }) {
+export default function FaultDetailDialog({ open, onOpenChange, fault, users = [], currentUser, onAssignmentChange }) {
   const [hasComments, setHasComments] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
+
+  const isMaintenanceManager = currentUser?.role === 'מנהל אחזקה';
 
   useEffect(() => {
     if (!fault?.id || !open) return;
@@ -57,6 +64,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl" style={{paddingBottom: '1.5rem'}}>
         <DialogHeader>
@@ -202,6 +210,28 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
               )}
             </div>
 
+          {/* Manager actions */}
+          {isMaintenanceManager && (
+            <div className="flex gap-3 pt-2">
+              <Button
+                variant="outline"
+                className="flex-1 gap-2"
+                onClick={() => setAssignDialogOpen(true)}
+              >
+                <Wrench className="w-4 h-4 text-primary" />
+                שיוך לעובד
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 gap-2"
+                onClick={() => setPriorityDialogOpen(true)}
+              >
+                <Flag className="w-4 h-4 text-amber-500" />
+                שינוי דחיפות
+              </Button>
+            </div>
+          )}
+
           {/* Chat */}
           <div className="pt-4 border-t">
             <FaultChat fault={fault} currentUser={currentUser} />
@@ -209,6 +239,21 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
             </div>
           </DialogContent>
-          </Dialog>
-          );
-          }
+        </Dialog>
+
+        <AssignWorkerDialog
+          open={assignDialogOpen}
+          onOpenChange={setAssignDialogOpen}
+          fault={fault}
+          users={users}
+          onAssignmentChange={() => { onAssignmentChange?.(); }}
+        />
+        <PriorityDialog
+          open={priorityDialogOpen}
+          onOpenChange={setPriorityDialogOpen}
+          fault={fault}
+          onSuccess={() => { onAssignmentChange?.(); }}
+        />
+      </>
+    );
+}
