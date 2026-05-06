@@ -12,7 +12,7 @@
     },
     "roomNumber": {
       "type": "string",
-      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d3\u05e8 / \u05db\u05d9\u05ea\u05d4 (\u05de\u05d7\u05d5\u05dc\u05e5 \u05e2\"\u05d9 AI)"
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d3\u05e8 / \u05db\u05d9\u05ea\u05d4 (\u05de\u05d7\u05d5\u05da \u05e2\"\u05d9 AI)"
     },
     "faultType": {
       "type": "string",
@@ -53,7 +53,7 @@
     },
     "assignedTo": {
       "type": "string",
-      "description": "ID \u05e9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05de\u05d5\u05e0\u05d4 \u05dc\u05ea\u05e7\u05dc\u05d4"
+      "description": "ID \u05e9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05de\u05de\u05d5\u05e0\u05d4 \u05dc\u05ea\u05e7\u05dc\u05d4"
     },
     "reportedBy": {
       "type": "string",
@@ -65,5 +65,29 @@
     "faultType",
     "description"
   ],
-  "rls": {}
+  "rls": {
+    "create": {},
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": {
+              "$in": [
+                "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
+                "\u05de\u05e4\u05ea\u05d7"
+              ]
+            }
+          }
+        },
+        {
+          "reportedBy": "{{user.email}}"
+        },
+        {
+          "assignedTo": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {},
+    "delete": {}
+  }
 }
