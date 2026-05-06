@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag, MessageCircle } from 'lucide-react';
+import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag, MessageCircle, Eye, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
 import AssignWorkerDialog from './AssignWorkerDialog';
 import MarkRepairedDialog from './MarkRepairedDialog';
+import ManagerReviewDialog from './ManagerReviewDialog';
 import FaultDetailDialog from './FaultDetailDialog.jsx';
 import PriorityDialog from './PriorityDialog.jsx';
 
@@ -34,6 +35,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
   const [repairDialogOpen, setRepairDialogOpen] = useState(false);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
@@ -164,6 +166,19 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         ) : null}
       </div>
 
+      {/* Manager: Review repair - full width button */}
+      {isMaintenanceManager && fault.status === 'ממתין לאישור' && (
+        <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
+          <Button
+            onClick={(e) => { e.stopPropagation(); setReviewDialogOpen(true); }}
+            className="w-full h-12 text-base font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl gap-2"
+          >
+            <Eye className="w-5 h-5" />
+            לצפייה בתיקון
+          </Button>
+        </div>
+      )}
+
       {/* Worker: Mark as repaired - full width button */}
       {isWorkerView && fault.status === 'בטיפול' && (
         <div className="px-3 pb-3" onClick={(e) => e.stopPropagation()}>
@@ -207,6 +222,14 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
       <PriorityDialog
         open={priorityDialogOpen}
         onOpenChange={setPriorityDialogOpen}
+        fault={fault}
+        onSuccess={onAssignmentChange}
+      />
+
+      {/* Manager Review Dialog */}
+      <ManagerReviewDialog
+        open={reviewDialogOpen}
+        onOpenChange={setReviewDialogOpen}
         fault={fault}
         onSuccess={onAssignmentChange}
       />
