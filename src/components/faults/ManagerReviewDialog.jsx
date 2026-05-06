@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, RotateCcw } from 'lucide-react';
+import { CheckCircle2, RotateCcw, MapPin } from 'lucide-react';
 
 export default function ManagerReviewDialog({ open, onOpenChange, fault, onSuccess }) {
   const [loading, setLoading] = useState(false);
@@ -84,9 +84,12 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
         {/* Fault info */}
         <div className="bg-muted/50 p-3 rounded-lg space-y-0.5">
           {fault?.title && <p className="text-sm font-bold text-foreground">{fault.title}</p>}
-          
-          <p className="text-xs text-muted-foreground">{fault?.location}{fault?.roomNumber ? ` - ${fault.roomNumber}` : ''}</p>
+          <p className="text-sm font-medium text-foreground hidden">{fault?.faultType}</p>
           {fault?.description && <p className="text-xs text-muted-foreground pt-0.5">{fault.description}</p>}
+          <div className="flex items-center gap-1 pt-1">
+            <MapPin className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">{fault?.location}{fault?.roomNumber ? ` - ${fault.roomNumber}` : ''}</p>
+          </div>
         </div>
 
         {/* Return comment */}
