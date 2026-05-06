@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const faultData = {
       ...body,
-      status: 'ממתין',
+      status: body.assignedTo ? 'בטיפול' : 'ממתין',
       reportedBy: user.email,
     };
 
