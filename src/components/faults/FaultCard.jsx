@@ -84,12 +84,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
             <p className="text-sm md:text-xs text-muted-foreground mt-0.5 line-clamp-1">{fault.description}</p>
           )}
           <div className="flex gap-1.5 mt-2 flex-wrap items-center">
-            {commentCount > 0 && (
-              <span className="flex items-center gap-1 text-xs md:text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-600">
-                <MessageCircle className="w-3 h-3" />
-                נוספה הערה
-              </span>
-            )}
+
             {fault.faultType && (
               <span className="text-xs md:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-purple-50 text-purple-700">{fault.faultType}</span>
             )}
