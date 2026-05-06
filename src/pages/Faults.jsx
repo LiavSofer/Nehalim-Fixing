@@ -310,18 +310,7 @@ export default function Faults() {
                          currentUser={user}
                          onAssignmentChange={() => queryClient.invalidateQueries({ queryKey: ['faults'] })}
                         />
-                        {activeStatus === 'ממתין לאישור' && isMaintenanceManager && (
-                          <div className="px-4 pb-3">
-                            <Button
-                              onClick={() => handleCloseFault(fault)}
-                              className="w-full gap-2 bg-green-600 hover:bg-green-700"
-                              size="sm"
-                            >
-                              <CheckCircle2 className="w-4 h-4" />
-                              אישור סגירה
-                            </Button>
-                          </div>
-                        )}
+
                         </div>
                     );
                   })}
