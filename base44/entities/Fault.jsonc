@@ -66,28 +66,36 @@
     "description"
   ],
   "rls": {
-    "create": {},
     "read": {
       "$or": [
         {
-          "user_condition": {
-            "role": {
-              "$in": [
-                "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
-                "\u05de\u05e4\u05ea\u05d7"
-              ]
-            }
-          }
+          "data.\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4": "{{user.role}}"
         },
         {
           "reportedBy": "{{user.email}}"
         },
         {
-          "assignedTo": "{{user.id}}"
+          "data.assignedTo": "{{user.id}}"
         }
       ]
     },
-    "update": {},
-    "delete": {}
+    "update": {
+      "$or": [
+        {
+          "data.\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4": "{{user.role}}"
+        },
+        {
+          "assignedTo": "{{user.id}}"
+        },
+        {
+          "data.reportedBy": "{{user.email}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
   }
 }
