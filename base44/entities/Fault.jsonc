@@ -12,7 +12,7 @@
     },
     "roomNumber": {
       "type": "string",
-      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d3\u05e8 / \u05db\u05d9\u05ea\u05d4 (\u05de\u05d7\u05d5\u05da \u05e2\"\u05d9 AI)"
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d3\u05e8 / \u05db\u05d9\u05ea\u05d4 (\u05de\u05d7\u05d5\u05e5 \u05e2\"\u05d9 AI)"
     },
     "faultType": {
       "type": "string",
@@ -66,13 +66,27 @@
     "description"
   ],
   "rls": {
+    "create": {
+      "user_condition": {
+        "role": {
+          "$in": [
+            "\u05e6\u05d5\u05d5\u05ea \u05de\u05d3\u05d5\u05d5\u05d7",
+            "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
+            "\u05de\u05e4\u05ea\u05d7",
+            "\u05d0\u05d1 \u05d1\u05d9\u05ea"
+          ]
+        }
+      }
+    },
     "read": {
       "$or": [
         {
-          "data.\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4": "{{user.role}}"
+          "user_condition": {
+            "role": "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4"
+          }
         },
         {
-          "reportedBy": "{{user.email}}"
+          "created_by": "{{user.email}}"
         },
         {
           "data.assignedTo": "{{user.id}}"
@@ -82,19 +96,26 @@
     "update": {
       "$or": [
         {
-          "data.\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4": "{{user.role}}"
+          "user_condition": {
+            "role": "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4"
+          }
         },
         {
-          "assignedTo": "{{user.id}}"
+          "data.assignedTo": "{{user.id}}"
         },
         {
-          "data.reportedBy": "{{user.email}}"
+          "created_by": "{{user.email}}"
         }
       ]
     },
     "delete": {
       "user_condition": {
-        "role": "admin"
+        "role": {
+          "$in": [
+            "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
+            "\u05de\u05e4\u05ea\u05d7"
+          ]
+        }
       }
     }
   }
