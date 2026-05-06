@@ -82,9 +82,11 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
         )}
 
         {/* Fault info */}
-        <div className="bg-muted/50 p-3 rounded-lg">
-          <p className="text-sm font-medium">{fault?.faultType}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{fault?.location}{fault?.roomNumber ? ` - ${fault.roomNumber}` : ''}</p>
+        <div className="bg-muted/50 p-3 rounded-lg space-y-0.5">
+          {fault?.title && <p className="text-sm font-bold text-foreground">{fault.title}</p>}
+          <p className="text-sm font-medium text-foreground">{fault?.faultType}</p>
+          <p className="text-xs text-muted-foreground">{fault?.location}{fault?.roomNumber ? ` - ${fault.roomNumber}` : ''}</p>
+          {fault?.description && <p className="text-xs text-muted-foreground pt-0.5">{fault.description}</p>}
         </div>
 
         {/* Return comment */}
