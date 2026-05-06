@@ -10,6 +10,7 @@ import { base44 } from '@/api/base44Client';
 
 import AppLayout from '@/components/layout/AppLayout';
 import PushNotificationManager from '@/components/PushNotificationManager';
+import ProfileSetupModal from '@/components/ProfileSetupModal';
 import Home from '@/pages/Home';
 import Faults from '@/pages/Faults';
 import UserManagement from '@/pages/UserManagement';
@@ -65,6 +66,11 @@ const AuthenticatedApp = () => {
 
   // Update role to default if empty/null
   // (handled via entity default, no action needed here)
+
+  // All users (including blocked) must complete profile first
+  if (user && !user.profileCompleted) {
+    return <ProfileSetupModal onComplete={() => base44.auth.me().then(u => setUser(u))} />;
+  }
 
   // Blocked users see the blocked screen
   if (userRole === 'ללא הרשאה') {
