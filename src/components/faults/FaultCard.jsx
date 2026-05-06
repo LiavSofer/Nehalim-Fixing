@@ -45,11 +45,13 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
       .then(data => setCommentCount(data.length))
       .catch(() => {});
 
-    // Check if fault was returned to worker
+    // Check if fault was returned to worker (only show badge if still in בטיפול and last auto event was returnedToWorker)
     if (isWorkerView && fault.status === 'בטיפול') {
-      base44.entities.FaultComment.filter({ faultId: fault.id, automaticEventType: 'returnedToWorker' }, '-created_date', 1)
-        .then(data => setWasReturned(data.length > 0))
+      base44.entities.FaultComment.filter({ faultId: fault.id, type: 'automatic' }, '-created_date', 1)
+        .then(data => setWasReturned(data.length > 0 && data[0].automaticEventType === 'returnedToWorker'))
         .catch(() => {});
+    } else {
+      setWasReturned(false);
     }
 
     const unsubscribe = base44.entities.FaultComment.subscribe((event) => {
