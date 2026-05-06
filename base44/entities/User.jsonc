@@ -5,6 +5,15 @@
     "role": {
       "type": "string",
       "enum": [
+        "user",
+        "admin"
+      ],
+      "default": "user",
+      "description": "\u05ea\u05e4\u05e7\u05d9\u05d3 \u05de\u05e2\u05e8\u05db\u05ea \u05de\u05d5\u05d1\u05e0\u05d4"
+    },
+    "userType": {
+      "type": "string",
+      "enum": [
         "\u05dc\u05dc\u05d0 \u05d4\u05e8\u05e9\u05d0\u05d4",
         "\u05e6\u05d5\u05d5\u05ea \u05de\u05d3\u05d5\u05d5\u05d7",
         "\u05d0\u05d1 \u05d1\u05d9\u05ea",
@@ -12,7 +21,7 @@
         "\u05de\u05e4\u05ea\u05d7"
       ],
       "default": "\u05dc\u05dc\u05d0 \u05d4\u05e8\u05e9\u05d0\u05d4",
-      "description": "\u05ea\u05e4\u05e7\u05d9\u05d3 \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d1\u05de\u05e2\u05e8\u05db\u05ea"
+      "description": "\u05ea\u05e4\u05e7\u05d9\u05d3 \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d1\u05d0\u05e4\u05dc\u05d9\u05e7\u05e6\u05d9\u05d4"
     },
     "phone": {
       "type": "string",
