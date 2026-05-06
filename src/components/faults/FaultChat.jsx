@@ -138,24 +138,42 @@ function ChatMessage({ comment, formatTime, currentUserId }) {
 
   if (isAutomatic) {
     const isReturned = comment.automaticEventType === 'returnedToWorker';
-    return (
-      <div className="flex justify-center my-1">
-        {isReturned ? (
-          <div className="w-full max-w-[95%] bg-orange-50 border border-orange-200 rounded-xl px-3 py-2.5">
-            <div className="flex items-center gap-2 mb-1">
-              <RotateCcw className="w-3.5 h-3.5 text-orange-500 flex-shrink-0" />
-              <span className="text-xs font-semibold text-orange-700">התקלה הוחזרה לטיפול - נדרש שיפור</span>
-              <span className="text-[10px] text-orange-400 mr-auto flex-shrink-0">{formatTime(comment.created_date)}</span>
+
+    if (isReturned) {
+      return (
+        <div className="flex gap-2 flex-row my-1">
+          <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+            {comment.userProfileImage && <AvatarImage src={comment.userProfileImage} />}
+            <AvatarFallback className="text-[11px] bg-orange-100 text-orange-700">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col max-w-[80%] items-start">
+            <span className="text-[11px] text-muted-foreground mb-0.5 px-1">{comment.userName}</span>
+            <div className="bg-orange-50 border border-orange-200 rounded-2xl rounded-tl-sm px-3 py-2">
+              <div className="flex items-center gap-1.5 mb-1">
+                <RotateCcw className="w-3 h-3 text-orange-500 flex-shrink-0" />
+                <span className="text-xs font-semibold text-orange-700">התקלה הוחזרה לטיפול - נדרש שיפור</span>
+              </div>
+              <p className="text-xs text-orange-800">{comment.comment}</p>
             </div>
-            <p className="text-xs text-orange-800 pr-5">{comment.comment}</p>
+            <span className="text-[10px] text-muted-foreground/60 mt-0.5 px-1">{formatTime(comment.created_date)}</span>
           </div>
-        ) : (
-          <div className="flex items-center gap-2 bg-muted/60 border border-border/50 rounded-full px-3 py-1.5 max-w-[90%]">
-            <Bot className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-            <span className="text-xs text-muted-foreground">{label}</span>
-            <span className="text-[10px] text-muted-foreground/60 flex-shrink-0">{formatTime(comment.created_date)}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex gap-2 flex-row my-1">
+        <Avatar className="h-8 w-8 flex-shrink-0 mt-1">
+          {comment.userProfileImage && <AvatarImage src={comment.userProfileImage} />}
+          <AvatarFallback className="text-[11px] bg-secondary text-secondary-foreground">{initials}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col max-w-[80%] items-start">
+          <span className="text-[11px] text-muted-foreground mb-0.5 px-1">{comment.userName}</span>
+          <div className="bg-muted/60 border border-border/50 rounded-2xl rounded-tl-sm px-3 py-2 text-xs text-muted-foreground">
+            {label}
           </div>
-        )}
+          <span className="text-[10px] text-muted-foreground/60 mt-0.5 px-1">{formatTime(comment.created_date)}</span>
+        </div>
       </div>
     );
   }
