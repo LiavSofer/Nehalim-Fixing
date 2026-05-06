@@ -25,9 +25,20 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
       type: 'automatic',
       automaticEventType: 'closed'
     });
+    if (returnComment.trim()) {
+      await base44.entities.FaultComment.create({
+        faultId: fault.id,
+        comment: returnComment.trim(),
+        userId: me?.id || '',
+        userName: me?.full_name || '',
+        userProfileImage: me?.profileImage || '',
+        type: 'manual',
+      });
+    }
     await queryClient.invalidateQueries({ queryKey: ['faults'] });
     onSuccess?.();
     onOpenChange(false);
+    setReturnComment('');
     setLoading(false);
   };
 
