@@ -18,13 +18,24 @@ export default function AppLayout({ user }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(user);
   const [showGreeting, setShowGreeting] = useState(true);
+  const [minTimePassed, setMinTimePassed] = useState(false);
+  const [dataReady, setDataReady] = useState(false);
 
   const needsProfile = currentUser && !currentUser.profileCompleted;
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowGreeting(false), 3000);
+    const timer = setTimeout(() => setMinTimePassed(true), 1500);
     return () => clearTimeout(timer);
   }, []);
+
+  // Hide greeting only when both min time passed AND data is ready
+  const greetingVisible = showGreeting && !(minTimePassed && dataReady);
+
+  useEffect(() => {
+    if (minTimePassed && dataReady) {
+      setShowGreeting(false);
+    }
+  }, [minTimePassed, dataReady]);
 
   const handleProfileComplete = async () => {
     const updated = await base44.auth.me();
@@ -41,7 +52,7 @@ export default function AppLayout({ user }) {
 
       {/* Greeting Splash */}
       <AnimatePresence>
-        {showGreeting && greeting && (
+        {greetingVisible && greeting && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -76,7 +87,7 @@ export default function AppLayout({ user }) {
 
       <Sidebar user={currentUser} open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="md:mr-64 min-h-screen pb-20 md:pb-0">
-        <Outlet context={{ sidebarOpen, setSidebarOpen }} />
+        <Outlet context={{ sidebarOpen, setSidebarOpen, onDataReady: () => setDataReady(true) }} />
       </main>
       <BottomNav user={currentUser} />
     </div>

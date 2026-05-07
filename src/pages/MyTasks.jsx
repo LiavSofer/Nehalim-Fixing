@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useOutletContext } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import FaultCard from '@/components/faults/FaultCard';
@@ -16,6 +17,7 @@ const priorityOrder = {
 };
 
 export default function MyTasks() {
+  const { onDataReady } = useOutletContext() || {};
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -29,6 +31,10 @@ export default function MyTasks() {
     queryFn: () => base44.entities.Fault.list('-created_date'),
     initialData: [],
   });
+
+  useEffect(() => {
+    if (!isLoading && onDataReady) onDataReady();
+  }, [isLoading]);
 
   const { data: users } = useQuery({
     queryKey: ['users'],

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useOutletContext } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Wrench, Plus, CheckCircle2, ChevronDown } from 'lucide-react';
@@ -32,6 +33,7 @@ const SORT_OPTIONS = [
 const PRIORITY_ORDER = { 'גבוהה': 0, 'בינונית': 1, 'נמוכה': 2, 'לא מוגדר': 3 };
 
 export default function Faults() {
+  const { onDataReady } = useOutletContext() || {};
   const queryClient = useQueryClient();
   const [activeStatus, setActiveStatus] = useState('ממתין');
   const [sortBy, setSortBy] = useState('date_desc');
@@ -51,6 +53,10 @@ export default function Faults() {
     queryFn: () => base44.entities.Fault.list('-created_date'),
     initialData: [],
   });
+
+  useEffect(() => {
+    if (!isLoading && onDataReady) onDataReady();
+  }, [isLoading]);
 
   // Real-time subscription
   useEffect(() => {
