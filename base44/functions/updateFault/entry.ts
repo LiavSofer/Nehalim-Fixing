@@ -19,8 +19,8 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'חסרים פרמטרים' }, { status: 400 });
     }
 
-    const isManager = MANAGER_ROLES.includes(user.role);
-    const isWorker = user.role === WORKER_ROLE;
+    const isManager = MANAGER_ROLES.includes(user.userType) || MANAGER_ROLES.includes(user.role);
+    const isWorker = user.userType === WORKER_ROLE || user.role === WORKER_ROLE;
 
     // Validate permissions per action
     if (action === 'assign') {
