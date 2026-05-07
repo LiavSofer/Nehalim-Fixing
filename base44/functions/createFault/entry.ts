@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
     }
 
     const allowedRoles = ['צוות מדווח', 'מנהל אחזקה', 'מפתח', 'אב בית'];
-    if (!allowedRoles.includes(user.role)) {
+    if (!allowedRoles.includes(user.role) && !allowedRoles.includes(user.userType)) {
       return Response.json({ error: 'אין הרשאה ליצור תקלה' }, { status: 403 });
     }
 

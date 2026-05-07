@@ -126,6 +126,11 @@
           "user_condition": {
             "userType": "\u05de\u05e4\u05ea\u05d7"
           }
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
         }
       ]
     },

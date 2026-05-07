@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
     // Get the user's full record to check their app role
     const allUsers = await base44.asServiceRole.entities.User.list();
     const currentUser = allUsers.find(u => u.email === user.email);
-    const userRole = currentUser?.role;
+    const userRole = currentUser?.userType || currentUser?.role;
 
     // Only allow מנהל אחזקה and מפתח
     if (userRole !== 'מנהל אחזקה' && userRole !== 'מפתח') {
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'getWorkers') {
-      const workers = allUsers.filter(u => u.role === 'אב בית');
+      const workers = allUsers.filter(u => u.userType === 'אב בית' || u.role === 'אב בית');
       return Response.json({ users: workers });
     }
 
