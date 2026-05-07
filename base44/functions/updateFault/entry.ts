@@ -19,8 +19,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'חסרים פרמטרים' }, { status: 400 });
     }
 
+    console.log('[updateFault] user:', JSON.stringify({ id: user.id, email: user.email, role: user.role, userType: user.userType }));
     const isManager = MANAGER_ROLES.includes(user.userType) || MANAGER_ROLES.includes(user.role);
     const isWorker = user.userType === WORKER_ROLE || user.role === WORKER_ROLE;
+    console.log('[updateFault] isManager:', isManager, 'isWorker:', isWorker, 'action:', action);
 
     // Validate permissions per action
     if (action === 'assign') {
