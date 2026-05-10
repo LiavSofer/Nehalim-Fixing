@@ -1,56 +1,66 @@
-// Service Worker for Push Notifications
+// Service Worker - Push Notifications only, no app caching
 
-self.addEventListener('push', event => {
-  if (!event.data) {
-    console.log('Push notification received but no data');
-    return;
-  }
-
-  try {
-    const data = event.data.json();
-    const { title, body, data: notificationData = {} } = data;
-
-    const options = {
-      body,
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect fill="%232563eb" width="192" height="192" rx="45"/><text x="50%" y="50%" font-size="80" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central" font-family="Arial">ת</text></svg>',
-      badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect fill="%232563eb" width="192" height="192" rx="45"/><text x="50%" y="50%" font-size="80" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="central" font-family="Arial">ת</text></svg>',
-      tag: 'notification',
-      requireInteraction: false,
-      data: notificationData,
-      vibrate: [200, 100, 200]
-    };
-
-    event.waitUntil(
-      self.registration.showNotification(title, options)
-    );
-  } catch (error) {
-    console.error('Error handling push notification:', error);
-  }
+self.addEventListener('install', (event) => {
+  // Skip waiting so new SW activates immediately
+  self.skipWaiting();
 });
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(clientList => {
-      for (let i = 0; i < clientList.length; i++) {
-        const client = clientList[i];
-        if (client.url === '/' && 'focus' in client) {
+    // Clear all caches on activation
+    caches.keys().then(cacheNames =>
+      Promise.all(cacheNames.map(name => caches.delete(name)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Do NOT cache any fetch requests - always go to network
+self.addEventListener('fetch', (event) => {
+  // Let all requests pass through to the network
+  return;
+});
+
+// Push notification handling
+self.addEventListener('push', (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch (e) {
+    data = { title: 'התראה חדשה', body: event.data ? event.data.text() : '' };
+  }
+
+  const title = data.title || 'תחזוקה נחלים';
+  const options = {
+    body: data.body || '',
+    icon: data.icon || '/icons/icon-192x192.png',
+    badge: '/icons/icon-72x72.png',
+    data: data.data || {},
+    dir: 'rtl',
+    lang: 'he',
+    vibrate: [200, 100, 200],
+    tag: data.tag || 'default',
+    renotify: true,
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const urlToOpen = event.notification.data?.url || '/';
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+      for (const client of windowClients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(urlToOpen);
           return client.focus();
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/');
+        return clients.openWindow(urlToOpen);
       }
     })
   );
-});
-
-// Handle service worker activation
-self.addEventListener('activate', event => {
-  event.waitUntil(clients.claim());
-});
-
-// Handle service worker installation
-self.addEventListener('install', event => {
-  self.skipWaiting();
 });
