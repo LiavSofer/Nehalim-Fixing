@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
+import { APP_VERSION } from '@/lib/version.js'
 
 // Clear all SW caches on every load to always serve fresh content
 const clearCachesAndRegisterSW = async () => {
@@ -23,7 +24,7 @@ clearCachesAndRegisterSW().then(() => {
 
   // Register service worker for PWA functionality (push notifications)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
+    navigator.serviceWorker.register(`/sw.js?v=${APP_VERSION}`)
       .then(reg => {
         // Force check for updates immediately
         reg.update();
