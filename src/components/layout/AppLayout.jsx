@@ -5,13 +5,14 @@ import BottomNav from './BottomNav';
 import ProfileSetupModal from '@/components/ProfileSetupModal';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Sun, CloudSun, Sunset, Moon } from 'lucide-react';
 
 function getGreeting(firstName) {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return { text: `בוקר טוב, ${firstName}`, emoji: '☀️', sub: 'יום עבודה מוצלח!' };
-  if (hour >= 12 && hour < 17) return { text: `צהריים טובים, ${firstName}`, emoji: '🌤️', sub: 'המשך יום פורה' };
-  if (hour >= 17 && hour < 21) return { text: `ערב טוב, ${firstName}`, emoji: '🌆', sub: 'סיום יום מוצלח' };
-  return { text: `לילה טוב, ${firstName}`, emoji: '🌙', sub: 'מנוחה טובה' };
+  if (hour >= 5 && hour < 12) return { text: `בוקר טוב, ${firstName}`, Icon: Sun, iconColor: 'text-yellow-500', bg: 'bg-yellow-50', sub: 'יום עבודה מוצלח!' };
+  if (hour >= 12 && hour < 17) return { text: `צהריים טובים, ${firstName}`, Icon: CloudSun, iconColor: 'text-blue-400', bg: 'bg-blue-50', sub: 'המשך יום פורה' };
+  if (hour >= 17 && hour < 21) return { text: `ערב טוב, ${firstName}`, Icon: Sunset, iconColor: 'text-orange-500', bg: 'bg-orange-50', sub: 'סיום יום מוצלח' };
+  return { text: `לילה טוב, ${firstName}`, Icon: Moon, iconColor: 'text-indigo-400', bg: 'bg-indigo-50', sub: 'מנוחה טובה' };
 }
 
 export default function AppLayout({ user }) {
@@ -67,7 +68,9 @@ export default function AppLayout({ user }) {
               transition={{ duration: 0.4 }}
               className="flex flex-col items-center gap-4 text-center"
             >
-              <div className="text-6xl">{greeting.emoji}</div>
+              <div className={`w-20 h-20 rounded-3xl ${greeting.bg} flex items-center justify-center`}>
+                <greeting.Icon className={`w-10 h-10 ${greeting.iconColor}`} strokeWidth={1.5} />
+              </div>
               <h2 className="text-3xl font-bold text-foreground">{greeting.text}</h2>
               <p className="text-muted-foreground">{greeting.sub}</p>
               <div className="mt-2 flex gap-1">
