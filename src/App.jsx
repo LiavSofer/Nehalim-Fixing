@@ -57,6 +57,12 @@ const AuthenticatedApp = () => {
     }
   }
 
+  // If no user at all — not logged in → redirect to login
+  if (!user) {
+    navigateToLogin();
+    return null;
+  }
+
   const userRole = user?.userType || 'ללא הרשאה';
 
   // Update role to default if empty/null
