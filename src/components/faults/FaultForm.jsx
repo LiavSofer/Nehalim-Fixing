@@ -261,10 +261,11 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">משויך ל</Label>
-                <Select value={formData.assignedTo} onValueChange={(value) => {
-                  const newData = { ...formData, assignedTo: value };
-                  if (!formData.assignedTo && value && formData.status === 'ממתין') newData.status = 'בטיפול';
-                  setFormData(newData);
+                <Select value={formData.assignedTo || ""} onValueChange={(value) => {
+                 const assignedValue = value === "" ? "" : value;
+                 const newData = { ...formData, assignedTo: assignedValue };
+                 if (!formData.assignedTo && assignedValue && formData.status === 'ממתין') newData.status = 'בטיפול';
+                 setFormData(newData);
                 }}>
                   <SelectTrigger><SelectValue placeholder="בחר עובד" /></SelectTrigger>
                   <SelectContent>
