@@ -27,6 +27,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
   const fileInputRef = useRef(null);
   const uploadedUrlRef = useRef(editingFault?.image || '');
+  const focusedElementRef = useRef(null);
 
   const compressImage = (file) => new Promise((resolve, reject) => {
     const img = new Image();
@@ -81,6 +82,8 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
     const loc = locText !== undefined ? locText : locationText;
     const desc = descText !== undefined ? descText : formData.description;
     if (!loc && !desc) return;
+    // שמור את האלמנט הממוקד לפני הניתוח
+    focusedElementRef.current = document.activeElement;
     setAnalyzing(true);
     const response = await base44.functions.invoke('analyzeFaultInput', {
       locationText: loc,
@@ -95,6 +98,10 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
       title: result.faultTitle || prev.title || '',
     }));
     setAnalyzing(false);
+    // החזר פוקוס לאלמנט שהיה פעיל לפני הניתוח
+    if (focusedElementRef.current && document.body.contains(focusedElementRef.current)) {
+      focusedElementRef.current.focus();
+    }
   };
 
   const handleSubmit = async (e) => {
