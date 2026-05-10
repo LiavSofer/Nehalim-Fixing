@@ -1,4 +1,5 @@
 // Service Worker - Push Notifications only, no app caching
+// BUILD_TS: %%BUILD_TS%% — updated automatically on each deploy
 
 self.addEventListener('install', (event) => {
   // Skip waiting so new SW activates immediately
@@ -14,11 +15,8 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Do NOT cache any fetch requests - always go to network
-self.addEventListener('fetch', (event) => {
-  // Let all requests pass through to the network
-  return;
-});
+// NO fetch handler - let all requests pass through to the network natively
+// (removing the no-op fetch handler eliminates the browser warning)
 
 // Push notification handling
 self.addEventListener('push', (event) => {
