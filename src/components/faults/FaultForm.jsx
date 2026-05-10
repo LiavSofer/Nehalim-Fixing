@@ -243,7 +243,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 <Label className="text-sm font-medium">עדיפות</Label>
                 <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="text-right">
                     <SelectItem value="גבוהה">
                       <span className="flex items-center gap-1.5"><ArrowBigUp className="w-4 h-4 text-red-500" /> גבוהה</span>
                     </SelectItem>
@@ -261,15 +261,15 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
               </div>
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium">משויך ל</Label>
-                <Select value={formData.assignedTo || ""} onValueChange={(value) => {
-                 const assignedValue = value === "" ? "" : value;
-                 const newData = { ...formData, assignedTo: assignedValue };
-                 if (!formData.assignedTo && assignedValue && formData.status === 'ממתין') newData.status = 'בטיפול';
-                 setFormData(newData);
+                <Select value={formData.assignedTo || "__none__"} onValueChange={(value) => {
+                const assignedValue = value === "__none__" ? "" : value;
+                const newData = { ...formData, assignedTo: assignedValue };
+                if (!formData.assignedTo && assignedValue && formData.status === 'ממתין') newData.status = 'בטיפול';
+                setFormData(newData);
                 }}>
-                  <SelectTrigger><SelectValue placeholder="בחר עובד" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>ללא הקצאה</SelectItem>
+                 <SelectTrigger dir="rtl"><SelectValue placeholder="בחר עובד" /></SelectTrigger>
+                 <SelectContent className="text-right">
+                    <SelectItem value="__none__">ללא הקצאה</SelectItem>
                     {users.map(user => (
                       <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>
                     ))}
