@@ -1,22 +1,73 @@
-// Service Worker - Push Notifications only, no app caching
+// Service Worker - Push Notifications + App Caching for faster loads
 // BUILD_TS: %%BUILD_TS%% — updated automatically on each deploy
 
+const CACHE_NAME = 'nehalim-cache-v%%BUILD_TS%%';
+
+// Assets to pre-cache on install
+const PRECACHE_URLS = [
+  '/',
+  '/index.html',
+];
+
 self.addEventListener('install', (event) => {
-  // Skip waiting so new SW activates immediately
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE_URLS))
+  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    // Clear all caches on activation
     caches.keys().then(cacheNames =>
-      Promise.all(cacheNames.map(name => caches.delete(name)))
+      Promise.all(
+        cacheNames
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
     ).then(() => self.clients.claim())
   );
 });
 
-// NO fetch handler - let all requests pass through to the network natively
-// (removing the no-op fetch handler eliminates the browser warning)
+// Cache-first for static assets, network-first for API calls
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip non-GET and API/backend requests — always go to network
+  if (request.method !== 'GET' || url.pathname.startsWith('/api') || url.hostname !== self.location.hostname) {
+    return;
+  }
+
+  // For JS/CSS/image assets — cache first, then network
+  if (request.destination === 'script' || request.destination === 'style' || request.destination === 'image' || request.destination === 'font') {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // For HTML navigation — network first, fallback to cache
+  if (request.destination === 'document') {
+    event.respondWith(
+      fetch(request).then(response => {
+        if (response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+        }
+        return response;
+      }).catch(() => caches.match(request))
+    );
+  }
+});
 
 // Push notification handling
 self.addEventListener('push', (event) => {
