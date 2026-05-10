@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { X, Sparkles, MapPin, FileText, Camera, ArrowBigUp, ArrowBigDown, Minus, Circle } from 'lucide-react';
+import { X, Sparkles, MapPin, FileText, Camera, ImagePlus, ArrowBigUp, ArrowBigDown, Minus, Circle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
@@ -26,6 +26,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState(editingFault?.image || '');
   const fileInputRef = useRef(null);
+  const galleryInputRef = useRef(null);
   const uploadedUrlRef = useRef(editingFault?.image || '');
   const focusedElementRef = useRef(null);
 
@@ -232,14 +233,20 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 )}
               </div>
             ) : (
-             <label className="flex flex-col items-center justify-center w-full py-6 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors gap-2">
-               <>
-                 <Camera className="w-5 h-5 text-orange-500" />
-                 <span className="text-sm text-orange-600 font-medium">לחץ לצירוף תמונה</span>
-                 <span className="text-xs text-muted-foreground">חובה לצרף תמונה של התקלה</span>
-               </>
-               <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} className="hidden" />
-             </label>
+              <div className="flex flex-col gap-2 w-full">
+                {/* צילום תמונה - משקל 3 */}
+                <label className="flex items-center justify-center gap-2 py-4 border-2 border-dashed border-orange-300 bg-orange-50/50 rounded-xl cursor-pointer hover:bg-orange-50 transition-colors" style={{ flex: 3 }}>
+                  <Camera className="w-5 h-5 text-orange-500" />
+                  <span className="text-sm text-orange-600 font-semibold">צילום תמונה</span>
+                  <input ref={fileInputRef} type="file" accept="image/*" capture="environment" onChange={handleImageUpload} className="hidden" />
+                </label>
+                {/* העלאה מגלריה - משקל 1 */}
+                <label className="flex items-center justify-center gap-2 py-2.5 border border-dashed border-muted-foreground/40 bg-muted/30 rounded-xl cursor-pointer hover:bg-muted/50 transition-colors" style={{ flex: 1 }}>
+                  <ImagePlus className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">הוספה מגלריה</span>
+                  <input ref={galleryInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                </label>
+              </div>
             )}
           </div>
 
