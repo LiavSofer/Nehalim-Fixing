@@ -1,2 +1,2 @@
 // 🔧 עדכן את מספר הגרסה כאן לפני כל פרסום
-export const APP_VERSION = "1.2.7";
+export const APP_VERSION = "1.2.8";
