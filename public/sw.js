@@ -1,9 +1,7 @@
-// Service Worker - Push Notifications + App Caching for faster loads
-// BUILD_TS: %%BUILD_TS%% — updated automatically on each deploy
+// Service Worker - Push Notifications + App Caching
+const CACHE_VERSION = 'v5';
+const CACHE_NAME = `nehalim-cache-${CACHE_VERSION}`;
 
-const CACHE_NAME = 'nehalim-cache-v%%BUILD_TS%%';
-
-// Assets to pre-cache on install
 const PRECACHE_URLS = [
   '/',
   '/index.html',
@@ -28,17 +26,17 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Cache-first for static assets, network-first for API calls
+// Cache-first for static assets, network-first for HTML
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET and API/backend requests — always go to network
+  // Skip non-GET and API/backend requests
   if (request.method !== 'GET' || url.pathname.startsWith('/api') || url.hostname !== self.location.hostname) {
     return;
   }
 
-  // For JS/CSS/image assets — cache first, then network
+  // For JS/CSS/image/font assets — cache first, then network
   if (request.destination === 'script' || request.destination === 'style' || request.destination === 'image' || request.destination === 'font') {
     event.respondWith(
       caches.match(request).then(cached => {
