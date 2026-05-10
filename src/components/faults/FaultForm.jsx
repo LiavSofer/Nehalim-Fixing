@@ -270,8 +270,19 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                  <SelectTrigger dir="rtl"><SelectValue placeholder="בחר עובד" /></SelectTrigger>
                  <SelectContent className="text-right">
                     <SelectItem value="__none__">ללא הקצאה</SelectItem>
-                    {users.map(user => (
-                      <SelectItem key={user.id} value={user.id}>{user.full_name}</SelectItem>
+                    {users.filter(u => u.userType === 'אב בית').map(user => (
+                      <SelectItem key={user.id} value={user.id}>
+                        <span className="flex items-center gap-2">
+                          {user.profileImage ? (
+                            <img src={user.profileImage} alt={user.full_name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                          ) : (
+                            <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary shrink-0">
+                              {user.full_name?.[0] || '?'}
+                            </span>
+                          )}
+                          {user.full_name}
+                        </span>
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
