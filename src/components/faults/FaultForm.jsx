@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Upload, X, Sparkles, MapPin, FileText, Camera } from 'lucide-react';
+import { X, Sparkles, MapPin, FileText, Camera, ArrowBigUp, ArrowBigDown, Minus, Circle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
@@ -244,9 +244,18 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                 <Select value={formData.priority} onValueChange={(value) => setFormData(prev => ({ ...prev, priority: value }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="גבוהה">🔴 גבוהה</SelectItem>
-                    <SelectItem value="בינונית">🟡 בינונית</SelectItem>
-                    <SelectItem value="לא מוגדר">⚪ לא מוגדר</SelectItem>
+                    <SelectItem value="גבוהה">
+                      <span className="flex items-center gap-1.5"><ArrowBigUp className="w-4 h-4 text-red-500" /> גבוהה</span>
+                    </SelectItem>
+                    <SelectItem value="בינונית">
+                      <span className="flex items-center gap-1.5"><Minus className="w-4 h-4 text-orange-400" /> בינונית</span>
+                    </SelectItem>
+                    <SelectItem value="נמוכה">
+                      <span className="flex items-center gap-1.5"><ArrowBigDown className="w-4 h-4 text-green-500" /> נמוכה</span>
+                    </SelectItem>
+                    <SelectItem value="לא מוגדר">
+                      <span className="flex items-center gap-1.5"><Circle className="w-4 h-4 text-muted-foreground" /> לא מוגדר</span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
