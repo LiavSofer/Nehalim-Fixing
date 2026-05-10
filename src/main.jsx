@@ -2,7 +2,8 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
-import { APP_VERSION } from '@/lib/version.js'
+// Build timestamp injected at build time — changes on every deploy automatically
+const BUILD_TS = import.meta.env.VITE_BUILD_TS || Date.now();
 
 // Clear all SW caches on every load to always serve fresh content
 const clearCachesAndRegisterSW = async () => {
@@ -24,7 +25,7 @@ clearCachesAndRegisterSW().then(() => {
 
   // Register service worker for PWA functionality (push notifications)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register(`/sw.js?v=${APP_VERSION}`)
+    navigator.serviceWorker.register(`/sw.js?v=${BUILD_TS}`)
       .then(reg => {
         // Force check for updates immediately
         reg.update();
