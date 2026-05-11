@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Clock, Calendar, Wrench, Flag } from 'lucide-react';
+import { MapPin, Clock, Calendar, Wrench, Flag, XCircle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { format, differenceInHours, differenceInDays } from 'date-fns';
@@ -28,8 +28,32 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   const [hasComments, setHasComments] = useState(false);
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
+  const [closingFault, setClosingFault] = useState(false);
 
   const isMaintenanceManager = currentUser?.userType === 'מנהל אחזקה';
+
+  const handleCloseFault = async () => {
+    setClosingFault(true);
+    try {
+      await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
+      const me = await base44.auth.me();
+      await base44.entities.FaultComment.create({
+        faultId: fault.id,
+        comment: 'התקלה נסגרה ע"י מנהל האחזקה',
+        userId: me?.id || '',
+        userName: me?.full_name || '',
+        userProfileImage: me?.profileImage || '',
+        type: 'automatic',
+        automaticEventType: 'closed',
+      });
+      onAssignmentChange?.();
+      onOpenChange(false);
+    } catch (err) {
+      console.error('Failed to close fault:', err);
+    } finally {
+      setClosingFault(false);
+    }
+  };
 
   useEffect(() => {
     if (!fault?.id || !open) return;
@@ -212,23 +236,36 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
           {/* Manager actions */}
           {isMaintenanceManager && (
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                className="flex-1 gap-2"
-                onClick={() => setAssignDialogOpen(true)}
-              >
-                <Wrench className="w-4 h-4 text-primary" />
-                שיוך לעובד
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 gap-2"
-                onClick={() => setPriorityDialogOpen(true)}
-              >
-                <Flag className="w-4 h-4 text-amber-500" />
-                שינוי דחיפות
-              </Button>
+            <div className="space-y-2 pt-2">
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={() => setAssignDialogOpen(true)}
+                >
+                  <Wrench className="w-4 h-4 text-primary" />
+                  שיוך לעובד
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1 gap-2"
+                  onClick={() => setPriorityDialogOpen(true)}
+                >
+                  <Flag className="w-4 h-4 text-amber-500" />
+                  שינוי דחיפות
+                </Button>
+              </div>
+              {fault.status !== 'סגור' && (
+                <Button
+                  variant="outline"
+                  className="w-full gap-2 border-green-300 text-green-700 hover:bg-green-50"
+                  onClick={handleCloseFault}
+                  disabled={closingFault}
+                >
+                  <XCircle className="w-4 h-4" />
+                  {closingFault ? 'סוגר...' : 'סגירת תקלה'}
+                </Button>
+              )}
             </div>
           )}
 

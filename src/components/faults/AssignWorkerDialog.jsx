@@ -11,8 +11,8 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
   const [selectedWorker, setSelectedWorker] = useState(fault?.assignedTo || '');
   const [saving, setSaving] = useState(false);
 
-  // Filter maintenance workers only
-  const maintenanceWorkers = users.filter(user => user.userType === 'אב בית');
+  // Filter maintenance workers + managers (can assign to self)
+  const maintenanceWorkers = users.filter(user => user.userType === 'אב בית' || user.userType === 'מנהל אחזקה');
 
   const handleAssign = async () => {
     setSaving(true);
