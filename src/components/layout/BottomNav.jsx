@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, ClipboardList, Users, BarChart2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
