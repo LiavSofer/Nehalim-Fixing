@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
 import FaultCard from '@/components/faults/FaultCard';
 import PageHeader from '@/components/layout/PageHeader';
-import { motion } from 'framer-motion';
+
 import { Skeleton } from '@/components/ui/skeleton';
 
 const priorityOrder = {

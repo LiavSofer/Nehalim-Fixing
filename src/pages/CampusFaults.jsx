@@ -5,7 +5,7 @@ import { useOutletContext } from 'react-router-dom';
 import { Wrench, ChevronDown } from 'lucide-react';
 import FaultCard from '@/components/faults/FaultCard';
 import PageHeader from '@/components/layout/PageHeader';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { format } from 'date-fns';
@@ -147,11 +147,8 @@ export default function CampusFaults() {
           const count = stats[tab.value] ?? 0;
           const isActive = activeStatus === tab.value;
           return (
-            <motion.button
+            <button
               key={tab.value}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.06 }}
               onClick={() => setActiveStatus(tab.value)}
               className={`w-[calc(50%-0.25rem)] md:w-auto flex items-center gap-2 px-4 py-2 rounded-xl border-2 text-sm font-semibold transition-all whitespace-nowrap ${
                 isActive ? `${tab.bg} ${tab.activeBorder} ${tab.color}` : 'bg-card border-transparent text-muted-foreground hover:border-border'
@@ -160,7 +157,7 @@ export default function CampusFaults() {
               <span className={`w-2 h-2 rounded-full ${tab.dot}`} />
               {tab.label}
               <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/60' : 'bg-muted'}`}>{count}</span>
-            </motion.button>
+            </button>
           );
         })}
       </div>
@@ -174,24 +171,19 @@ export default function CampusFaults() {
           {currentSortLabel}
           <ChevronDown className="w-3.5 h-3.5" />
         </button>
-        <AnimatePresence>
-          {sortMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
-              className="absolute top-9 left-0 z-50 bg-card border rounded-xl shadow-lg py-1 min-w-[160px]"
-            >
-              {SORT_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  onClick={() => { setSortBy(opt.value); setSortMenuOpen(false); }}
-                  className={`w-full text-right px-4 py-2 text-sm hover:bg-muted transition-colors ${sortBy === opt.value ? 'font-semibold text-primary' : 'text-foreground'}`}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {sortMenuOpen && (
+          <div className="absolute top-9 left-0 z-50 bg-card border rounded-xl shadow-lg py-1 min-w-[160px]">
+            {SORT_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { setSortBy(opt.value); setSortMenuOpen(false); }}
+                className={`w-full text-right px-4 py-2 text-sm hover:bg-muted transition-colors ${sortBy === opt.value ? 'font-semibold text-primary' : 'text-foreground'}`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Fault List */}
@@ -204,7 +196,7 @@ export default function CampusFaults() {
         ) : (
           <div className="space-y-6">
             {groupedFaults.map((group) => (
-              <motion.div key={group.key} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <div key={group.key}>
                 {group.label && (
                   <div className="flex items-center gap-2 mb-2">
                     {sortBy === 'worker' && (
@@ -240,7 +232,7 @@ export default function CampusFaults() {
                     );
                   })}
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )

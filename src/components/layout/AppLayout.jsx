@@ -4,7 +4,7 @@ import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
 import ProfileSetupModal from '@/components/ProfileSetupModal';
 import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { Sun, CloudSun, Sunset, Moon } from 'lucide-react';
 
 function getGreeting(firstName) {
@@ -52,41 +52,22 @@ export default function AppLayout({ user }) {
       {needsProfile && <ProfileSetupModal onComplete={handleProfileComplete} />}
 
       {/* Greeting Splash */}
-      <AnimatePresence>
-        {greetingVisible && greeting && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              className="flex flex-col items-center gap-4 text-center"
-            >
-              <div className={`w-20 h-20 rounded-3xl ${greeting.bg} flex items-center justify-center`}>
-                <greeting.Icon className={`w-10 h-10 ${greeting.iconColor}`} strokeWidth={1.5} />
-              </div>
-              <h2 className="text-3xl font-bold text-foreground">{greeting.text}</h2>
-              <p className="text-muted-foreground">{greeting.sub}</p>
-              <div className="mt-2 flex gap-1">
-                {[0,1,2].map(i => (
-                  <motion.div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full bg-primary"
-                    animate={{ opacity: [0.3, 1, 0.3] }}
-                    transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                  />
-                ))}
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {greetingVisible && greeting && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="flex flex-col items-center gap-4 text-center animate-in zoom-in-95 duration-300">
+            <div className={`w-20 h-20 rounded-3xl ${greeting.bg} flex items-center justify-center`}>
+              <greeting.Icon className={`w-10 h-10 ${greeting.iconColor}`} strokeWidth={1.5} />
+            </div>
+            <h2 className="text-3xl font-bold text-foreground">{greeting.text}</h2>
+            <p className="text-muted-foreground">{greeting.sub}</p>
+            <div className="mt-2 flex gap-1">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Sidebar user={currentUser} open={sidebarOpen} onOpenChange={setSidebarOpen} />
       <main className="md:mr-64 min-h-screen pb-20 md:pb-0">

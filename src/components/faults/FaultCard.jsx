@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag, MessageCircle, Eye, RotateCcw } from 'lucide-react';
-import { motion } from 'framer-motion';
+
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { base44 } from '@/api/base44Client';
@@ -65,11 +65,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
   const assignedInitials = assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-card border-b border-sky-200/50 last:border-b-0"
-    >
+    <div className="bg-card border-b border-sky-200/50 last:border-b-0">
       <div 
         onClick={() => setDetailDialogOpen(true)}
         className="flex flex-row items-center gap-3 px-3 py-3 hover:bg-muted/40 transition-colors cursor-pointer group">
@@ -244,6 +240,6 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
         fault={fault}
         onSuccess={onAssignmentChange}
       />
-    </motion.div>
+    </div>
   );
 }
