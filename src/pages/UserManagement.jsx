@@ -13,13 +13,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
-const ROLES = ['ללא הרשאה', 'צוות מדווח', 'אב בית', 'מנהל אחזקה', 'מפתח'];
+const ROLES = ['ללא הרשאה', 'צוות מדווח', 'אב בית', 'מנהל אחזקה', 'מנהל מוסד', 'מפתח'];
 
 const ROLE_COLORS = {
   'ללא הרשאה': 'bg-orange-100 text-orange-700 border-orange-200',
   'צוות מדווח': 'bg-emerald-50 text-emerald-700 border-emerald-200',
   'אב בית': 'bg-amber-50 text-amber-700 border-amber-200',
   'מנהל אחזקה': 'bg-primary/10 text-primary border-primary/20',
+  'מנהל מוסד': 'bg-rose-50 text-rose-700 border-rose-200',
   'מפתח': 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
@@ -179,7 +180,7 @@ export default function UserManagement() {
     queryClient.invalidateQueries({ queryKey: ['users'] });
   };
 
-  const ROLE_ORDER = { 'מנהל אחזקה': 0, 'אב בית': 1, 'צוות מדווח': 2, 'מפתח': 3, 'ללא הרשאה': 4 };
+  const ROLE_ORDER = { 'מנהל אחזקה': 0, 'מנהל מוסד': 1, 'אב בית': 2, 'צוות מדווח': 3, 'מפתח': 4, 'ללא הרשאה': 5 };
 
   const pendingUsers = users.filter(u => (u.userType || 'ללא הרשאה') === 'ללא הרשאה');
 

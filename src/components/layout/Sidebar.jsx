@@ -10,7 +10,7 @@ const NAV_ITEMS = [
   { label: 'הביצועים שלי', path: '/performance', icon: Wrench, roles: ['אב בית'] },
   { label: 'דף הבית', path: '/', icon: Home, roles: ['צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
   { label: 'ביצועי עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
-  { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מנהל אחזקה', 'מפתח'] },
+  { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מנהל אחזקה', 'מפתח', 'מנהל מוסד'] },
   { label: 'הגדרות', path: '/settings', icon: Settings, roles: ['מנהל אחזקה'] },
   { label: 'התראות', path: '/notification-settings', icon: Bell, roles: ['אב בית', 'צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
 ];

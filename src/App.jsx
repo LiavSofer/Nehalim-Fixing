@@ -81,7 +81,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<AppLayout user={user} />}>
-        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : ['צוות מדווח', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
+        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : userRole === 'מנהל מוסד' ? <UserManagement /> : ['צוות מדווח', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
         {userRole === 'אב בית' && (
           <>
             <Route path="/my-tasks" element={<MyTasks />} />
@@ -95,7 +95,7 @@ const AuthenticatedApp = () => {
             <Route path="/settings" element={<Settings />} />
           </>
         )}
-        {userRole === 'מפתח' && (
+        {(userRole === 'מפתח' || userRole === 'מנהל מוסד') && (
           <Route path="/users" element={<UserManagement />} />
         )}
         <Route path="/notification-settings" element={<MyNotificationSettings user={user} />} />

@@ -41,7 +41,7 @@ export default function BottomNav({ user }) {
       path: '/users',
       label: 'משתמשים',
       icon: Users,
-      show: userRole === 'מפתח' || userRole === 'מנהל אחזקה'
+      show: userRole === 'מפתח' || userRole === 'מנהל אחזקה' || userRole === 'מנהל מוסד'
     }
   ];
 

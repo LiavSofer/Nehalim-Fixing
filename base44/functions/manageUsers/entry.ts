@@ -14,8 +14,8 @@ Deno.serve(async (req) => {
     const currentUser = allUsers.find(u => u.email === user.email);
     const userRole = currentUser?.userType || currentUser?.role;
 
-    // Only allow מנהל אחזקה and מפתח
-    if (userRole !== 'מנהל אחזקה' && userRole !== 'מפתח') {
+    // Only allow מנהל אחזקה, מנהל מוסד and מפתח
+    if (userRole !== 'מנהל אחזקה' && userRole !== 'מפתח' && userRole !== 'מנהל מוסד') {
       return Response.json({ error: 'Forbidden: insufficient role' }, { status: 403 });
     }
 
