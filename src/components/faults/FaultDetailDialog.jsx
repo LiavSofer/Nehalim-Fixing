@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Calendar, Wrench, Flag, XCircle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -29,6 +29,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [priorityDialogOpen, setPriorityDialogOpen] = useState(false);
   const [closingFault, setClosingFault] = useState(false);
+  const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
 
   const isMaintenanceManager = currentUser?.userType === 'מנהל אחזקה';
 
@@ -259,7 +260,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                 <Button
                   variant="outline"
                   className="w-full gap-2 border-green-300 text-green-700 hover:bg-green-50"
-                  onClick={handleCloseFault}
+                  onClick={() => setConfirmCloseOpen(true)}
                   disabled={closingFault}
                 >
                   <XCircle className="w-4 h-4" />
@@ -291,6 +292,31 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
           fault={fault}
           onSuccess={() => { onAssignmentChange?.(); }}
         />
+
+        {/* Confirm close dialog */}
+        <Dialog open={confirmCloseOpen} onOpenChange={setConfirmCloseOpen}>
+          <DialogContent dir="rtl" className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-right">סגירת תקלה</DialogTitle>
+              <DialogDescription className="text-right pt-2">
+                האם אתה בטוח שברצונך לסגור את התקלה?<br />
+                <span className="font-semibold text-destructive">פעולה זו אינה ניתנת לביטול.</span>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2 flex-row-reverse mt-2">
+              <Button
+                variant="destructive"
+                onClick={() => { setConfirmCloseOpen(false); handleCloseFault(); }}
+                disabled={closingFault}
+              >
+                כן, סגור תקלה
+              </Button>
+              <Button variant="outline" onClick={() => setConfirmCloseOpen(false)}>
+                ביטול
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </>
     );
 }
