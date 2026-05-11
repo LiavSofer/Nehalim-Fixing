@@ -38,7 +38,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
       .catch(() => {});
   }, [fault?.id, open]);
 
-  if (!fault) return null;
+  if (!fault) return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent /></Dialog>;
 
   const createdDate = new Date(fault.created_date);
   const updatedDate = new Date(fault.updated_date);
