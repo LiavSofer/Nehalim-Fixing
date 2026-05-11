@@ -50,5 +50,10 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler'],
     force: true,
+    esbuildOptions: {
+      define: {
+        global: 'globalThis',
+      },
+    },
   },
 });
