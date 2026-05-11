@@ -45,10 +45,12 @@ export default defineConfig({
       'react/jsx-runtime': resolve(__dirname, 'node_modules/react/jsx-runtime'),
       'react/jsx-dev-runtime': resolve(__dirname, 'node_modules/react/jsx-dev-runtime'),
       scheduler: resolve(__dirname, 'node_modules/scheduler'),
+      'react/index.js': resolve(__dirname, 'node_modules/react/index.js'),
+      'react-dom/client': resolve(__dirname, 'node_modules/react-dom/client'),
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler'],
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', '@base44/sdk'],
     force: true,
     esbuildOptions: {
       define: {
