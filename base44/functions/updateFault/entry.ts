@@ -38,7 +38,9 @@ Deno.serve(async (req) => {
       // Only workers can mark as repaired — and only their own assigned faults
       if (!isWorker) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
       // Verify this fault is assigned to the current worker
-      const fault = await base44.asServiceRole.entities.Fault.get(faultId);
+      const faults = await base44.asServiceRole.entities.Fault.filter({ id: faultId });
+      const fault = faults?.[0];
+      if (!fault) return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
       if (fault.assignedTo !== user.id) {
         return Response.json({ error: 'התקלה אינה משויכת אליך' }, { status: 403 });
       }
