@@ -21,6 +21,7 @@ import WorkerPerformance from '@/pages/WorkerPerformance';
 import LocationManagement from '@/pages/LocationManagement';
 import Settings from '@/pages/Settings';
 import MyNotificationSettings from '@/pages/MyNotificationSettings';
+import CampusFaults from '@/pages/CampusFaults';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -81,7 +82,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<AppLayout user={user} />}>
-        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : userRole === 'מנהל מוסד' ? <UserManagement /> : ['צוות מדווח', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
+        <Route path="/" element={userRole === 'אב בית' ? <MyTasks /> : userRole === 'מנהל מוסד' ? <CampusFaults /> : ['צוות מדווח', 'מנהל אחזקה', 'מפתח'].includes(userRole) ? <Faults /> : <Home />} />
         {userRole === 'אב בית' && (
           <>
             <Route path="/my-tasks" element={<MyTasks />} />
@@ -97,6 +98,9 @@ const AuthenticatedApp = () => {
         )}
         {(userRole === 'מפתח' || userRole === 'מנהל מוסד') && (
           <Route path="/users" element={<UserManagement />} />
+        )}
+        {userRole === 'מנהל מוסד' && (
+          <Route path="/campus-faults" element={<CampusFaults />} />
         )}
         <Route path="/notification-settings" element={<MyNotificationSettings user={user} />} />
       </Route>

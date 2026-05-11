@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell } from 'lucide-react';
+import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell, ClipboardList } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { APP_VERSION } from '@/lib/version';
@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { label: 'הביצועים שלי', path: '/performance', icon: Wrench, roles: ['אב בית'] },
   { label: 'דף הבית', path: '/', icon: Home, roles: ['צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
   { label: 'ביצועי עובדים', path: '/workers', icon: Users, roles: ['מנהל אחזקה'] },
+  { label: 'קריאות טכניות', path: '/campus-faults', icon: ClipboardList, roles: ['מנהל מוסד'] },
   { label: 'ניהול משתמשים', path: '/users', icon: Users, roles: ['מנהל אחזקה', 'מפתח', 'מנהל מוסד'] },
   { label: 'הגדרות', path: '/settings', icon: Settings, roles: ['מנהל אחזקה'] },
   { label: 'התראות', path: '/notification-settings', icon: Bell, roles: ['אב בית', 'צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
