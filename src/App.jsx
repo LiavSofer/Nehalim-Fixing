@@ -112,8 +112,8 @@ function App() {
         <Router>
           <PushNotificationManager />
           <AuthenticatedApp />
+          <Toaster />
         </Router>
-        <Toaster />
       </QueryClientProvider>
     </AuthProvider>
   )
