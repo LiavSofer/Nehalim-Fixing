@@ -41,18 +41,43 @@
     "comment"
   ],
   "rls": {
-    "create": {},
+    "create": {
+      "userId": "{{user.id}}"
+    },
     "read": {},
-    "update": {},
-    "delete": {
-      "user_condition": {
-        "role": {
-          "$in": [
-            "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
-            "\u05de\u05e4\u05ea\u05d7"
-          ]
+    "update": {
+      "$or": [
+        {
+          "userId": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.userType": {
+              "$in": [
+                "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
+                "\u05de\u05e4\u05ea\u05d7"
+              ]
+            }
+          }
         }
-      }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "userId": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "data.userType": {
+              "$in": [
+                "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4",
+                "\u05de\u05e4\u05ea\u05d7"
+              ]
+            }
+          }
+        }
+      ]
     }
   }
 }
