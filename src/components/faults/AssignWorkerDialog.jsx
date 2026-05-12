@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -8,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import { Check } from 'lucide-react';
 
 export default function AssignWorkerDialog({ open, onOpenChange, fault, users, onAssignmentChange }) {
+  useDialogBackHandler(open, () => onOpenChange(false));
   const [selectedWorker, setSelectedWorker] = useState(fault?.assignedTo || '');
   const [saving, setSaving] = useState(false);
 
@@ -52,6 +54,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       onOpenChange(false);
     } catch (err) {
       console.error('Failed to assign worker:', err);
+      alert('שגיאה בשיוך עובד');
     } finally {
       setSaving(false);
     }
@@ -62,6 +65,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle>שיוך עובד</DialogTitle>
+          <DialogDescription>בחר עובד אחזקה או אב בית להקצאת המשימה</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">

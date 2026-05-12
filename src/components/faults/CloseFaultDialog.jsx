@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess }) {
+  useDialogBackHandler(open, () => onOpenChange(false));
   const [loading, setLoading] = useState(false);
   const [closingComment, setClosingComment] = useState('');
   const queryClient = useQueryClient();
@@ -52,6 +54,7 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
       setClosingComment('');
     } catch (error) {
       console.error('Error closing fault:', error);
+      alert('שגיאה בסגירת תקלה');
     } finally {
       setLoading(false);
     }
@@ -62,6 +65,7 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>אישור סגירת תקלה</DialogTitle>
+          <DialogDescription>אנא אשר את סגירת התקלה הזו</DialogDescription>
         </DialogHeader>
 
         {/* Show original image + repair image side by side */}

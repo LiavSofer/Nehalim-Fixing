@@ -29,9 +29,7 @@
     "endpoint"
   ],
   "rls": {
-    "create": {
-      "userId": "{{user.id}}"
-    },
+    "create": {},
     "read": {
       "$or": [
         {
@@ -39,7 +37,7 @@
         },
         {
           "user_condition": {
-            "data.userType": "\u05de\u05e4\u05ea\u05d7"
+            "role": "\u05de\u05e4\u05ea\u05d7"
           }
         }
       ]
@@ -51,22 +49,11 @@
         },
         {
           "user_condition": {
-            "data.userType": "\u05de\u05e4\u05ea\u05d7"
+            "role": "\u05de\u05e4\u05ea\u05d7"
           }
         }
       ]
     },
-    "delete": {
-      "$or": [
-        {
-          "userId": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "data.userType": "\u05de\u05e4\u05ea\u05d7"
-          }
-        }
-      ]
-    }
+    "delete": null
   }
 }
