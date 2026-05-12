@@ -29,5 +29,5 @@ export function useDialogBackHandler(isOpen, onClose) {
         window.history.back();
       }
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 }
