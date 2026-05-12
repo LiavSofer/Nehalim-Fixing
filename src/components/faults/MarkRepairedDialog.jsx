@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
@@ -9,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function MarkRepairedDialog({ open, onOpenChange, fault, onSuccess }) {
+  useDialogBackHandler(open, () => onOpenChange(false));
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);

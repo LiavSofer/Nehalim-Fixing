@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, RotateCcw, MapPin } from 'lucide-react';
 
 export default function ManagerReviewDialog({ open, onOpenChange, fault, onSuccess }) {
+  useDialogBackHandler(open, () => onOpenChange(false));
   const [loading, setLoading] = useState(false);
   const [returnComment, setReturnComment] = useState('');
   const queryClient = useQueryClient();

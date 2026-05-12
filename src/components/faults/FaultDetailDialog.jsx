@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Calendar, Wrench, Flag, XCircle } from 'lucide-react';
@@ -32,6 +33,8 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   const [confirmCloseOpen, setConfirmCloseOpen] = useState(false);
 
   const isMaintenanceManager = currentUser?.userType === 'מנהל אחזקה';
+
+  useDialogBackHandler(open, () => onOpenChange(false));
 
   const handleCloseFault = async () => {
     setClosingFault(true);
