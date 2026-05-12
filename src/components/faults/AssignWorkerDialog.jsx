@@ -36,11 +36,12 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       if (selectedWorker) {
         const worker = users.find(u => u.id === selectedWorker);
         const me = await base44.auth.me();
+        const workerDisplayName = worker ? (worker.displayName || worker.full_name) : null;
         await base44.entities.FaultComment.create({
           faultId: fault.id,
-          comment: `התקלה הועברה לטיפול${worker ? ` - ${worker.full_name}` : ''}`,
+          comment: `התקלה הועברה לטיפול${workerDisplayName ? ` - ${workerDisplayName}` : ''}`,
           userId: me?.id || '',
-          userName: me?.full_name || '',
+          userName: me?.displayName || me?.full_name || '',
           userProfileImage: me?.profileImage || '',
           type: 'automatic',
           automaticEventType: 'assigned',
@@ -89,7 +90,8 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
 
                 {maintenanceWorkers.map(worker => {
                   const isSelected = selectedWorker === worker.id;
-                  const initials = worker.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
+                  const workerName = worker.displayName || worker.full_name;
+                  const initials = workerName?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
                   return (
                     <button
                       key={worker.id}
@@ -109,7 +111,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
                           {initials}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-xs text-center leading-tight line-clamp-2">{worker.full_name}</span>
+                      <span className="text-xs text-center leading-tight line-clamp-2">{workerName}</span>
                     </button>
                   );
                 })}
