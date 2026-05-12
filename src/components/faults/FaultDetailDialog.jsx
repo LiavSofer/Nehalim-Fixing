@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Calendar, Wrench, Flag, XCircle } from 'lucide-react';
@@ -34,14 +33,10 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
 
   const isMaintenanceManager = currentUser?.userType === 'מנהל אחזקה';
 
-  useDialogBackHandler(open, () => onOpenChange(false));
-
   const handleCloseFault = async () => {
     setClosingFault(true);
     try {
-      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
-      if (response.data?.error) throw new Error(response.data.error);
-      
+      await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
       const me = await base44.auth.me();
       await base44.entities.FaultComment.create({
         faultId: fault.id,
@@ -56,7 +51,6 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
       onOpenChange(false);
     } catch (err) {
       console.error('Failed to close fault:', err);
-      alert('שגיאה בסגירת תקלה');
     } finally {
       setClosingFault(false);
     }

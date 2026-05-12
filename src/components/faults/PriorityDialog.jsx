@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
@@ -12,22 +11,16 @@ const PRIORITIES = [
 ];
 
 export default function PriorityDialog({ open, onOpenChange, fault, onSuccess }) {
-  useDialogBackHandler(open, () => onOpenChange(false));
   const [priority, setPriority] = useState(fault?.priority || 'לא מוגדר');
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
-    try {
-      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { priority }, action: 'priority' });
-      if (response.data?.error) throw new Error(response.data.error);
-      onSuccess?.();
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Error saving priority:', error);
-    } finally {
-      setSaving(false);
-    }
+    const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { priority }, action: 'priority' });
+    if (response.data?.error) throw new Error(response.data.error);
+    onSuccess?.();
+    onOpenChange(false);
+    setSaving(false);
   };
 
   return (
@@ -35,7 +28,6 @@ export default function PriorityDialog({ open, onOpenChange, fault, onSuccess })
       <DialogContent className="max-w-xs" dir="rtl">
         <DialogHeader>
           <DialogTitle>קביעת דחיפות</DialogTitle>
-          <DialogDescription>בחר רמת דחיפות לתקלה זו</DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-2 py-2">
           {PRIORITIES.map(p => (

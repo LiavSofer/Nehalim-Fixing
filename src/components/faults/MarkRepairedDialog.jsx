@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
@@ -10,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function MarkRepairedDialog({ open, onOpenChange, fault, onSuccess }) {
-  useDialogBackHandler(open, () => onOpenChange(false));
   const [loading, setLoading] = useState(false);
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
@@ -111,7 +109,6 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       setManualComment('');
     } catch (error) {
       console.error('Error marking repaired:', error);
-      alert('שגיאה בסימון כתוקן');
     } finally {
       setLoading(false);
     }
@@ -122,7 +119,6 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       <DialogContent className="max-w-lg" dir="rtl">
         <DialogHeader>
           <DialogTitle>סיום טיפול בתקלה</DialogTitle>
-          <DialogDescription>העלה תמונה של התיקון שביצעת</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

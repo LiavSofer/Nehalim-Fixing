@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell, ClipboardList } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
