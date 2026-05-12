@@ -18,11 +18,16 @@ export default function PriorityDialog({ open, onOpenChange, fault, onSuccess })
 
   const handleSave = async () => {
     setSaving(true);
-    const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { priority }, action: 'priority' });
-    if (response.data?.error) throw new Error(response.data.error);
-    onSuccess?.();
-    onOpenChange(false);
-    setSaving(false);
+    try {
+      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { priority }, action: 'priority' });
+      if (response.data?.error) throw new Error(response.data.error);
+      onSuccess?.();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving priority:', error);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

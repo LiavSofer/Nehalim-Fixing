@@ -111,6 +111,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       setManualComment('');
     } catch (error) {
       console.error('Error marking repaired:', error);
+      alert('שגיאה בסימון כתוקן');
     } finally {
       setLoading(false);
     }

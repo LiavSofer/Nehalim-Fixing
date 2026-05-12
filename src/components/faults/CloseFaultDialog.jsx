@@ -54,6 +54,7 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
       setClosingComment('');
     } catch (error) {
       console.error('Error closing fault:', error);
+      alert('שגיאה בסגירת תקלה');
     } finally {
       setLoading(false);
     }

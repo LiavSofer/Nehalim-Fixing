@@ -54,6 +54,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       onOpenChange(false);
     } catch (err) {
       console.error('Failed to assign worker:', err);
+      alert('שגיאה בשיוך עובד');
     } finally {
       setSaving(false);
     }

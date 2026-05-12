@@ -39,7 +39,9 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
   const handleCloseFault = async () => {
     setClosingFault(true);
     try {
-      await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
+      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
+      if (response.data?.error) throw new Error(response.data.error);
+      
       const me = await base44.auth.me();
       await base44.entities.FaultComment.create({
         faultId: fault.id,
@@ -54,6 +56,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
       onOpenChange(false);
     } catch (err) {
       console.error('Failed to close fault:', err);
+      alert('שגיאה בסגירת תקלה');
     } finally {
       setClosingFault(false);
     }

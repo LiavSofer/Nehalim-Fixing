@@ -16,53 +16,67 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
 
   const handleApprove = async () => {
     setLoading(true);
-    const me = await base44.auth.me();
-    await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
-    await base44.entities.FaultComment.create({
-      faultId: fault.id,
-      comment: 'מאשר טיפול - התקלה נסגרה',
-      userId: me?.id || '',
-      userName: me?.full_name || '',
-      userProfileImage: me?.profileImage || '',
-      type: 'automatic',
-      automaticEventType: 'closed'
-    });
-    if (returnComment.trim()) {
+    try {
+      const me = await base44.auth.me();
+      const response = await base44.functions.invoke('updateFault', { faultId: fault.id, updates: { status: 'סגור' }, action: 'close' });
+      if (response.data?.error) throw new Error(response.data.error);
+      
+      await base44.entities.FaultComment.create({
+        faultId: fault.id,
+        comment: 'מאשר טיפול - התקלה נסגרה',
+        userId: me?.id || '',
+        userName: me?.full_name || '',
+        userProfileImage: me?.profileImage || '',
+        type: 'automatic',
+        automaticEventType: 'closed'
+      });
+      if (returnComment.trim()) {
+        await base44.entities.FaultComment.create({
+          faultId: fault.id,
+          comment: returnComment.trim(),
+          userId: me?.id || '',
+          userName: me?.full_name || '',
+          userProfileImage: me?.profileImage || '',
+          type: 'manual',
+        });
+      }
+      await queryClient.invalidateQueries({ queryKey: ['faults'] });
+      onSuccess?.();
+      onOpenChange(false);
+      setReturnComment('');
+    } catch (error) {
+      console.error('Error approving:', error);
+      alert('שגיאה באישור');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleReturn = async () => {
+    if (!returnComment.trim()) return;
+    setLoading(true);
+    try {
+      const me = await base44.auth.me();
+      await base44.entities.Fault.update(fault.id, { status: 'בטיפול' });
       await base44.entities.FaultComment.create({
         faultId: fault.id,
         comment: returnComment.trim(),
         userId: me?.id || '',
         userName: me?.full_name || '',
         userProfileImage: me?.profileImage || '',
-        type: 'manual',
+        type: 'automatic',
+        automaticEventType: 'returnedToWorker'
       });
+      await queryClient.invalidateQueries({ queryKey: ['faults'] });
+      onSuccess?.();
+      onOpenChange(false);
+      setReturnComment('');
+    } catch (error) {
+      console.error('Error returning:', error);
+      alert('שגיאה בהחזרה לעובד');
+    } finally {
+      setLoading(false);
     }
-    await queryClient.invalidateQueries({ queryKey: ['faults'] });
-    onSuccess?.();
-    onOpenChange(false);
-    setReturnComment('');
-    setLoading(false);
-  };
-
-  const handleReturn = async () => {
-    if (!returnComment.trim()) return;
-    setLoading(true);
-    const me = await base44.auth.me();
-    await base44.entities.Fault.update(fault.id, { status: 'בטיפול' });
-    await base44.entities.FaultComment.create({
-      faultId: fault.id,
-      comment: returnComment.trim(),
-      userId: me?.id || '',
-      userName: me?.full_name || '',
-      userProfileImage: me?.profileImage || '',
-      type: 'automatic',
-      automaticEventType: 'returnedToWorker'
-    });
-    await queryClient.invalidateQueries({ queryKey: ['faults'] });
-    onSuccess?.();
-    onOpenChange(false);
-    setReturnComment('');
-    setLoading(false);
   };
 
   return (

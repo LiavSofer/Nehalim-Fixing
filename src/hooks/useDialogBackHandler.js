@@ -24,10 +24,6 @@ export function useDialogBackHandler(isOpen, onClose) {
 
     return () => {
       window.removeEventListener('popstate', handlePopState);
-      // If dialog was closed via button (not via back), we need to remove the pushed state
-      if (!closedByBackRef.current && window.history.state?.dialogOpen) {
-        window.history.back();
-      }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose])
 }
