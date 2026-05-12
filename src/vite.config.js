@@ -14,26 +14,21 @@ export default defineConfig({
       visualEditAgent: true,
     }),
   ],
-  cacheDir: 'node_modules/.vite_cache_v2',
   resolve: {
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', 'react-router-dom', '@base44/sdk'],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler'],
     alias: {
       '@': resolve(__dirname, 'src'),
-      'react': resolve(__dirname, 'node_modules/react'),
-      'react-dom': resolve(__dirname, 'node_modules/react-dom'),
-      'react/jsx-runtime': resolve(__dirname, 'node_modules/react/jsx-runtime'),
-      'react/jsx-dev-runtime': resolve(__dirname, 'node_modules/react/jsx-dev-runtime'),
     },
   },
   optimizeDeps: {
     force: true,
+    exclude: ['@base44/sdk'],
     include: [
       'react',
       'react-dom',
       'react/jsx-runtime',
       'react/jsx-dev-runtime',
       'scheduler',
-      '@base44/sdk',
     ],
   },
 });
