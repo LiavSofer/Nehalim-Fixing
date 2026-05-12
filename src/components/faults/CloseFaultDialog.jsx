@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
@@ -64,6 +64,7 @@ export default function CloseFaultDialog({ open, onOpenChange, fault, onSuccess 
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>אישור סגירת תקלה</DialogTitle>
+          <DialogDescription>אנא אשר את סגירת התקלה הזו</DialogDescription>
         </DialogHeader>
 
         {/* Show original image + repair image side by side */}

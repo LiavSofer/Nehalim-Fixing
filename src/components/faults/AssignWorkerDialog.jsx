@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -64,6 +64,7 @@ export default function AssignWorkerDialog({ open, onOpenChange, fault, users, o
       <DialogContent className="max-w-md" dir="rtl">
         <DialogHeader>
           <DialogTitle>שיוך עובד</DialogTitle>
+          <DialogDescription>בחר עובד אחזקה או אב בית להקצאת המשימה</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5">

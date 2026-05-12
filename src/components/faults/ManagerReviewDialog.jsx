@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -70,6 +70,7 @@ export default function ManagerReviewDialog({ open, onOpenChange, fault, onSucce
       <DialogContent className="max-w-lg" dir="rtl">
         <DialogHeader>
           <DialogTitle>צפייה בתיקון</DialogTitle>
+          <DialogDescription>אשר או החזר את התיקון לעובד</DialogDescription>
         </DialogHeader>
 
         {/* Images */}

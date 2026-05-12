@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useDialogBackHandler } from '@/hooks/useDialogBackHandler';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
@@ -121,6 +121,7 @@ export default function MarkRepairedDialog({ open, onOpenChange, fault, onSucces
       <DialogContent className="max-w-lg" dir="rtl">
         <DialogHeader>
           <DialogTitle>סיום טיפול בתקלה</DialogTitle>
+          <DialogDescription>העלה תמונה של התיקון שביצעת</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
