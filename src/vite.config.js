@@ -18,10 +18,6 @@ export default defineConfig({
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', 'react-router-dom'],
     alias: {
       '@': resolve(__dirname, 'src'),
-      'react': resolve(__dirname, 'node_modules/react'),
-      'react-dom': resolve(__dirname, 'node_modules/react-dom'),
-      'react/jsx-runtime': resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
-      'react/jsx-dev-runtime': resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
     },
   },
   optimizeDeps: {
@@ -33,6 +29,5 @@ export default defineConfig({
       'scheduler',
       '@base44/sdk',
     ],
-    force: true,
   },
 });
