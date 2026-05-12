@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Wrench, PenLine, CheckCircle2, Share2, Flag, MessageCircle, Eye, RotateCcw } from 'lucide-react';
 

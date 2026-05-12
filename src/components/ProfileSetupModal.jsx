@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { uploadFile } from '@/lib/uploadFile';
 import { Button } from '@/components/ui/button';
