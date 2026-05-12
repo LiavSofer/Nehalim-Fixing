@@ -37,26 +37,23 @@ Deno.serve(async (req) => {
     } else if (action === 'markRepaired') {
       // Only workers (or managers) can mark as repaired
       if (!isWorker && !isManager) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
-      // Workers (non-managers) must be assigned to the fault
-      if (!isManager) {
-        let fault;
-        try {
-          fault = await base44.asServiceRole.entities.Fault.get(faultId);
-        } catch {
-          return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
-        }
-        if (!fault) return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
-        if (fault.assignedTo !== user.id) return Response.json({ error: 'התקלה אינה משויכת אליך' }, { status: 403 });
-      }
+      // RLS already ensures workers can only update their assigned faults
     } else {
       return Response.json({ error: 'פעולה לא מוכרת' }, { status: 400 });
     }
 
     let updated;
     try {
-      updated = await base44.asServiceRole.entities.Fault.update(faultId, updates);
-    } catch {
-      return Response.json({ error: 'התקלה לא נמצאה או לא ניתן לעדכן' }, { status: 404 });
+      // Use user-scoped update so RLS applies (worker can update their assigned faults)
+      // For manager actions, use asServiceRole to bypass RLS
+      if (isManager) {
+        updated = await base44.asServiceRole.entities.Fault.update(faultId, updates);
+      } else {
+        updated = await base44.entities.Fault.update(faultId, updates);
+      }
+    } catch (err) {
+      console.error('[updateFault] Update error:', err?.message);
+      return Response.json({ error: 'התקלה לא נמצאה או אין הרשאה לעדכון' }, { status: 404 });
     }
     return Response.json({ fault: updated });
   } catch (error) {
