@@ -116,21 +116,6 @@
         }
       ]
     },
-    "update": {
-      "$or": [
-        {
-          "created_by": "{{user.email}}"
-        },
-        {
-          "data.assignedTo": "{{user.id}}"
-        },
-        {
-          "user_condition": {
-            "data.userType": "\u05de\u05e0\u05d4\u05dc \u05d0\u05d7\u05d6\u05e7\u05d4"
-          }
-        }
-      ]
-    },
     "delete": {
       "user_condition": {
         "role": "admin"
