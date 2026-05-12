@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 import base44Plugin from '@base44/vite-plugin';
 import { fileURLToPath } from 'url';
 import { resolve, dirname } from 'path';
@@ -7,6 +8,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
+    react(),
     base44Plugin({
       legacySDKImports: false,
       hmrNotifier: true,
@@ -21,7 +23,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    force: true,
     exclude: ['@base44/sdk'],
     include: [
       'react',
