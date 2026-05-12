@@ -284,7 +284,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                  <SelectTrigger dir="rtl"><SelectValue placeholder="בחר עובד" /></SelectTrigger>
                  <SelectContent className="text-right">
                     <SelectItem value="__none__">ללא הקצאה</SelectItem>
-                    {users.filter(u => u.userType === 'אב בית').map(user => (
+                    {users.filter(u => u.userType === 'אב בית' || u.userType === 'מנהל אחזקה').map(user => (
                       <SelectItem key={user.id} value={user.id}>
                         <span className="flex items-center gap-2 w-full flex-row-reverse justify-end">
                           <span>{user.full_name}</span>
