@@ -14,6 +14,7 @@ export default defineConfig({
       visualEditAgent: true,
     }),
   ],
+  cacheDir: 'node_modules/.vite_cache_v2',
   resolve: {
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', 'react-router-dom', '@base44/sdk'],
     alias: {
@@ -21,7 +22,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    force: true,
     include: [
       'react',
       'react-dom',
