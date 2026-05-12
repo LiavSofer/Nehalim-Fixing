@@ -38,6 +38,7 @@ export default defineConfig({
       '@radix-ui/react-alert-dialog',
       '@radix-ui/react-scroll-area',
       '@radix-ui/react-separator',
+      '@tanstack/react-query',
     ],
     alias: {
       react: resolve(__dirname, 'node_modules/react'),
@@ -50,7 +51,7 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', '@base44/sdk'],
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', '@base44/sdk', '@tanstack/react-query'],
     force: true,
     esbuildOptions: {
       define: {
