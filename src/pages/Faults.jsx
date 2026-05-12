@@ -113,12 +113,14 @@ export default function Faults() {
       sorted.sort((a, b) => {
         const aUser = users.find(u => u.id === a.assignedTo);
         const bUser = users.find(u => u.id === b.assignedTo);
-        return (aUser?.full_name || 'תתת').localeCompare(bUser?.full_name || 'תתת', 'he');
+        const aName = aUser?.displayName || aUser?.full_name || 'תתת';
+        const bName = bUser?.displayName || bUser?.full_name || 'תתת';
+        return aName.localeCompare(bName, 'he');
       });
       sorted.forEach(f => {
         const worker = users.find(u => u.id === f.assignedTo);
         const key = f.assignedTo || '__unassigned__';
-        if (!groups[key]) groups[key] = { label: worker?.full_name || 'לא משויך', worker, items: [] };
+        if (!groups[key]) groups[key] = { label: (worker?.displayName || worker?.full_name) || 'לא משויך', worker, items: [] };
         groups[key].items.push(f);
       });
       return Object.values(groups).map(g => ({ key: g.label, label: g.label, worker: g.worker, items: g.items }));
