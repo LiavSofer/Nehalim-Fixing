@@ -62,8 +62,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
     return () => unsubscribe();
   }, [fault?.id]);
 
-  const assignedName = assignedUser ? (assignedUser.displayName || assignedUser.full_name) : null;
-  const assignedInitials = assignedName?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
+  const assignedInitials = assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '?';
 
   return (
     <div className="bg-card border-b border-sky-200/50 last:border-b-0">
@@ -120,7 +119,7 @@ export default function FaultCard({ fault, assignedUser, reportedUser, isMainten
                   {assignedUser.profileImage && <AvatarImage src={assignedUser.profileImage} />}
                   <AvatarFallback className="text-[9px] bg-primary/20 text-primary">{assignedInitials}</AvatarFallback>
                 </Avatar>
-                {assignedName?.split(' ')[0]}
+                {assignedUser.full_name?.split(' ')[0]}
               </span>
             )}
           </div>

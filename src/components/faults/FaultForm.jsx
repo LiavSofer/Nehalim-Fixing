@@ -287,12 +287,12 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
                     {users.filter(u => u.userType === 'אב בית' || u.userType === 'מנהל אחזקה').map(user => (
                       <SelectItem key={user.id} value={user.id}>
                         <span className="flex items-center gap-2 w-full flex-row-reverse justify-end">
-                          <span>{user.displayName || user.full_name}</span>
+                          <span>{user.full_name}</span>
                           {user.profileImage ? (
-                           <img src={user.profileImage} alt={user.displayName || user.full_name} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                            <img src={user.profileImage} alt={user.full_name} className="w-6 h-6 rounded-full object-cover shrink-0" />
                           ) : (
-                           <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary shrink-0">
-                             {(user.displayName || user.full_name)?.[0] || '?'}
+                            <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary shrink-0">
+                              {user.full_name?.[0] || '?'}
                             </span>
                           )}
                         </span>

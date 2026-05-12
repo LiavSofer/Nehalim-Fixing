@@ -42,7 +42,7 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
         faultId: fault.id,
         comment: 'התקלה נסגרה ע"י מנהל האחזקה',
         userId: me?.id || '',
-        userName: me?.displayName || me?.full_name || '',
+        userName: me?.full_name || '',
         userProfileImage: me?.profileImage || '',
         type: 'automatic',
         automaticEventType: 'closed',
@@ -177,10 +177,10 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                           <Avatar className="h-6 w-6">
                             {reportedUser?.profileImage && <AvatarImage src={reportedUser.profileImage} />}
                             <AvatarFallback className="text-[10px]">
-                              {(reportedUser?.displayName || reportedUser?.full_name)?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                              {reportedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
                             </AvatarFallback>
                           </Avatar>
-                          <span className="text-sm text-foreground">{reportedUser?.displayName || reportedUser?.full_name || fault.reportedBy?.split('@')[0] || 'משתמש בלתי ידוע'}</span>
+                          <span className="text-sm text-foreground">{reportedUser?.full_name || fault.reportedBy?.split('@')[0] || 'משתמש בלתי ידוע'}</span>
                         </>
                       );
                     })()}
@@ -196,10 +196,10 @@ export default function FaultDetailDialog({ open, onOpenChange, fault, users = [
                         <Avatar className="h-6 w-6">
                           {assignedUser?.profileImage && <AvatarImage src={assignedUser.profileImage} />}
                           <AvatarFallback className="text-[10px] bg-primary/15 text-primary">
-                            {(assignedUser?.displayName || assignedUser?.full_name)?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
-                             </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-foreground">{assignedUser?.displayName || assignedUser?.full_name || 'לא משויך'}</span>
+                            {assignedUser?.full_name?.split(' ').map(n => n[0]).join('').substring(0, 2) || '—'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="text-sm text-foreground">{assignedUser?.full_name || 'לא משויך'}</span>
                       </>
                     );
                   })()}
