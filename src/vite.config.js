@@ -8,7 +8,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      jsxRuntime: 'automatic',
+      babel: {
+        babelrc: false,
+        configFile: false,
+      },
+    }),
     base44Plugin({
       legacySDKImports: false,
       hmrNotifier: true,
@@ -17,27 +23,13 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', '@base44/sdk'],
+    dedupe: ['react', 'react-dom'],
     alias: {
       '@': resolve(__dirname, 'src'),
     },
   },
   optimizeDeps: {
     exclude: ['@base44/sdk'],
-    include: [
-      'react',
-      'react-dom',
-      'react/jsx-runtime',
-      'react/jsx-dev-runtime',
-      'scheduler',
-    ],
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      }
-    }
-  },
-  ssr: {
-    noExternal: ['@base44/sdk']
+    include: ['react', 'react-dom'],
   },
 });
