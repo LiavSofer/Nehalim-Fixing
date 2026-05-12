@@ -39,6 +39,7 @@ export default defineConfig({
       '@radix-ui/react-scroll-area',
       '@radix-ui/react-separator',
       '@tanstack/react-query',
+      'react-router-dom',
     ],
     alias: {
       react: resolve(__dirname, 'node_modules/react'),
@@ -48,10 +49,20 @@ export default defineConfig({
       scheduler: resolve(__dirname, 'node_modules/scheduler'),
       'react/index.js': resolve(__dirname, 'node_modules/react/index.js'),
       'react-dom/client': resolve(__dirname, 'node_modules/react-dom/client'),
+      'react-router-dom': resolve(__dirname, 'node_modules/react-router-dom'),
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', '@base44/sdk', '@tanstack/react-query'],
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'scheduler',
+      '@base44/sdk',
+      '@tanstack/react-query',
+      'react-router-dom',
+    ],
     force: true,
     esbuildOptions: {
       define: {
