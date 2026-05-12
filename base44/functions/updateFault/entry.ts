@@ -35,12 +35,14 @@ Deno.serve(async (req) => {
       // Only managers can close faults
       if (!isManager) return Response.json({ error: 'אין הרשאה לסגירת תקלה' }, { status: 403 });
     } else if (action === 'markRepaired') {
-      // Only workers can mark as repaired — and only their own assigned faults
-      if (!isWorker) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
-      // Verify this fault is assigned to the current worker
-      const fault = await base44.asServiceRole.entities.Fault.get(faultId);
-      if (!fault) return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
-      if (fault.assignedTo !== user.id) return Response.json({ error: 'התקלה אינה משויכת אליך' }, { status: 403 });
+      // Only workers (or managers) can mark as repaired
+      if (!isWorker && !isManager) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
+      // Workers (non-managers) must be assigned to the fault
+      if (!isManager) {
+        const fault = await base44.asServiceRole.entities.Fault.get(faultId);
+        if (!fault) return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
+        if (fault.assignedTo !== user.id) return Response.json({ error: 'התקלה אינה משויכת אליך' }, { status: 403 });
+      }
     } else {
       return Response.json({ error: 'פעולה לא מוכרת' }, { status: 400 });
     }
