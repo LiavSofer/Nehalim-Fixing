@@ -39,7 +39,12 @@ Deno.serve(async (req) => {
       if (!isWorker && !isManager) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
       // Workers (non-managers) must be assigned to the fault
       if (!isManager) {
-        const fault = await base44.asServiceRole.entities.Fault.get(faultId);
+        let fault;
+        try {
+          fault = await base44.asServiceRole.entities.Fault.get(faultId);
+        } catch {
+          return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
+        }
         if (!fault) return Response.json({ error: 'התקלה לא נמצאה' }, { status: 404 });
         if (fault.assignedTo !== user.id) return Response.json({ error: 'התקלה אינה משויכת אליך' }, { status: 403 });
       }
@@ -47,7 +52,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'פעולה לא מוכרת' }, { status: 400 });
     }
 
-    const updated = await base44.asServiceRole.entities.Fault.update(faultId, updates);
+    let updated;
+    try {
+      updated = await base44.asServiceRole.entities.Fault.update(faultId, updates);
+    } catch {
+      return Response.json({ error: 'התקלה לא נמצאה או לא ניתן לעדכן' }, { status: 404 });
+    }
     return Response.json({ fault: updated });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
