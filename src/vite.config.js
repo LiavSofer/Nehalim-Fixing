@@ -31,5 +31,13 @@ export default defineConfig({
       'react/jsx-dev-runtime',
       'scheduler',
     ],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
+  },
+  ssr: {
+    noExternal: ['@base44/sdk']
   },
 });
