@@ -53,12 +53,13 @@ export default function MyTasks() {
   // Filter tasks assigned to current user — exclude closed faults
   const myTasks = faults.filter(fault => fault.assignedTo === user?.id && fault.status !== 'סגור');
 
-  // Sort by priority (high to low) and then by date (old to new)
+  // Group: בטיפול first, then ממתין לאישור — each group sorted by priority then date
+  const statusOrder = { 'בטיפול': 0, 'ממתין לאישור': 1 };
   const sortedTasks = [...myTasks].sort((a, b) => {
+    const statusDiff = (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99);
+    if (statusDiff !== 0) return statusDiff;
     const priorityDiff = priorityOrder[a.priority] - priorityOrder[b.priority];
     if (priorityDiff !== 0) return priorityDiff;
-    
-    // If same priority, sort by created_date (ascending = old to new)
     return new Date(a.created_date) - new Date(b.created_date);
   });
 
