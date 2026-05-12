@@ -23,13 +23,21 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    dedupe: ['react', 'react-dom'],
+    dedupe: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-primitive', 'react-router-dom'],
     alias: {
       '@': resolve(__dirname, 'src'),
     },
   },
   optimizeDeps: {
     exclude: ['@base44/sdk'],
-    include: ['react', 'react-dom'],
+    include: ['react', 'react-dom', 'react-router-dom'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   },
+  ssr: {
+    noExternal: ['react', 'react-dom']
+  }
 });
