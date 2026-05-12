@@ -15,7 +15,7 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', 'react-router-dom'],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler', 'react-router-dom', '@base44/sdk'],
     alias: {
       '@': resolve(__dirname, 'src'),
     },

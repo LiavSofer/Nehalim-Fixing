@@ -1,5 +1,6 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
 import App from '@/App.jsx'
 import '@/index.css'
 // Build timestamp injected at build time — changes on every deploy automatically
