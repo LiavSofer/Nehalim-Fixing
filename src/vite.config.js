@@ -15,18 +15,31 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler'],
-    alias: {
-      '@': resolve(__dirname, 'src'),
-      react: resolve(__dirname, 'node_modules/react'),
-      'react-dom': resolve(__dirname, 'node_modules/react-dom'),
-      'react/jsx-runtime': resolve(__dirname, 'node_modules/react/jsx-runtime'),
-      'react/jsx-dev-runtime': resolve(__dirname, 'node_modules/react/jsx-dev-runtime'),
-      scheduler: resolve(__dirname, 'node_modules/scheduler'),
-    },
+    dedupe: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'scheduler',
+    ],
+    alias: [
+      { find: /^react$/, replacement: resolve(__dirname, 'node_modules/react/index.js') },
+      { find: /^react-dom$/, replacement: resolve(__dirname, 'node_modules/react-dom/index.js') },
+      { find: /^react\/jsx-runtime$/, replacement: resolve(__dirname, 'node_modules/react/jsx-runtime.js') },
+      { find: /^react\/jsx-dev-runtime$/, replacement: resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js') },
+      { find: /^scheduler$/, replacement: resolve(__dirname, 'node_modules/scheduler/index.js') },
+      { find: '@', replacement: resolve(__dirname, 'src') },
+    ],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'scheduler'],
+    include: [
+      'react',
+      'react-dom',
+      'react/jsx-runtime',
+      'react/jsx-dev-runtime',
+      'scheduler',
+    ],
+    exclude: ['@base44/sdk'],
     force: true,
   },
 });
