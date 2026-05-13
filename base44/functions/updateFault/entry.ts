@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'חסרים פרמטרים' }, { status: 400 });
     }
 
-    const userType = user.userType || user.role || '';
+    const userType = user?.data?.userType || user?.role || '';
     const isManager = MANAGER_ROLES.includes(userType);
     const isWorker = userType === WORKER_ROLE;
 
