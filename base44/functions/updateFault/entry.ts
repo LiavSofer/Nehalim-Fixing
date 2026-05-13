@@ -5,6 +5,8 @@ const WORKER_ROLE = 'אב בית';
 
 Deno.serve(async (req) => {
   try {
+    const body = await req.json();
+    
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
@@ -12,7 +14,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { faultId, updates, action } = await req.json();
+    const { faultId, updates, action } = body;
 
     if (!faultId || !updates || !action) {
       return Response.json({ error: 'חסרים פרמטרים' }, { status: 400 });
@@ -38,7 +40,7 @@ Deno.serve(async (req) => {
 
     return Response.json({ fault: updated });
   } catch (error) {
-    console.error('[updateFault] Error:', error.message);
+    console.error('[updateFault] Full error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
