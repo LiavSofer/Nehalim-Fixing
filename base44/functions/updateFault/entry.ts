@@ -20,15 +20,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'חסרים פרמטרים' }, { status: 400 });
     }
 
-    // 👇 לוג זמני - מחק אחרי הדיבוג
-    console.log('[updateFault] user object:', JSON.stringify(user, null, 2));
-    console.log('[updateFault] userType resolved:', user?.data?.userType, '|', user?.role);
-
-    const userType = user?.data?.userType || user?.role || '';
+    const userType = user?.userType || user?.data?.userType || user?.role || '';
     const isManager = MANAGER_ROLES.includes(userType);
     const isWorker = userType === WORKER_ROLE;
-
-    console.log('[updateFault] userType:', userType, '| isManager:', isManager, '| isWorker:', isWorker);
 
     if (action === 'assign') {
       if (!isManager) return Response.json({ error: 'אין הרשאה לשיוך עובד' }, { status: 403 });
