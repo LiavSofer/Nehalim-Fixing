@@ -60,10 +60,15 @@ export default function NotificationSettings({ user }) {
     setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
+  // התיקון לכפתור: שימוש בפונקציה המובנית לבקשת הרשאה (Native)
   const triggerOneSignalPrompt = () => {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(function(OneSignal) {
-      OneSignal.Slidedown.promptPush();
+    window.OneSignalDeferred.push(async function(OneSignal) {
+      try {
+        await OneSignal.Notifications.requestPermission();
+      } catch (err) {
+        console.error("Failed to request push permission", err);
+      }
     });
   };
 
@@ -104,7 +109,6 @@ export default function NotificationSettings({ user }) {
   return (
     <div className="space-y-6" dir="rtl">
 
-      {/* Push permission block (OneSignal Integration) */}
       <div className="bg-card border rounded-2xl p-5 space-y-3">
         <div className="flex items-center gap-2">
           <Bell className="w-5 h-5 text-primary" />
@@ -115,11 +119,10 @@ export default function NotificationSettings({ user }) {
         </p>
         <Button onClick={triggerOneSignalPrompt} variant="outline" className="gap-2 w-full sm:w-auto mt-2">
           <BellRing className="w-4 h-4" />
-          בקש הרשאת התראות (OneSignal)
+          בקש הרשאת התראות
         </Button>
       </div>
 
-      {/* Notification preferences */}
       {relevantOptions.length > 0 && (
         <div className="bg-card border rounded-2xl p-5 space-y-4">
           <h3 className="font-semibold text-base">אילו התראות תרצה לקבל?</h3>
