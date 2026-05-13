@@ -130,6 +130,11 @@
           }
         }
       ]
+    },
+    "create": {
+      "user_condition": {
+        "role": "user"
+      }
     }
   }
 }
