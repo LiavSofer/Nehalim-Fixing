@@ -1,97 +1,60 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
-import webpush from 'npm:web-push@3.6.7';
 
-// VAPID key pair - generated valid pair
-const vapidPublicKey = Deno.env.get('VAPID_PUBLIC_KEY') || 'BEp_b0JJG7-HbuFT_x79GWS26Ydr4Uc5XAiNWqN2WwP8bHGIbXzSNhNEhbVjjSZNFJr-yd7KhVEQjVtOCgFOLIk';
-const vapidPrivateKey = Deno.env.get('VAPID_PRIVATE_KEY') || 'Tpl5GdFNg4pTFZaQjYZHjvvkV9Wf4bGQkXaVmNY0Q8A';
-
-webpush.setVapidDetails(
-  'mailto:maintenance@nachalim.org',
-  vapidPublicKey,
-  vapidPrivateKey
-);
+// משיכת המפתחות מתוך משתני הסביבה בלבד
+const ONESIGNAL_APP_ID = Deno.env.get('ONESIGNAL_APP_ID');
+const ONESIGNAL_REST_API_KEY = Deno.env.get('ONESIGNAL_REST_API_KEY');
 
 Deno.serve(async (req) => {
-  try {
-    const base44 = createClientFromRequest(req);
-    const body = await req.json();
+  // נוודא שהמפתחות קיימים כדי שלא ננסה לשלוח בלעדיהם
+  if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
+    console.error('Missing OneSignal secrets!');
+    return Response.json({ error: 'Server configuration error' }, { status: 500 });
+  }
 
-    const { targetUserEmail, title, body: messageBody, data, notificationKey } = body;
-
-    if (!targetUserEmail || !title || !messageBody) {
-      return Response.json({ error: 'Missing required fields' }, { status: 400 });
-    }
-
-    // בדוק העדפות התראות של המשתמש אם יש notificationKey
+    // בדיקת העדפות התראות של המשתמש (נשאר ללא שינוי לוגי)
     if (notificationKey) {
       try {
-        const users = await base44.asServiceRole.entities.User.filter({ email: targetUserEmail });
-        if (users.length > 0) {
-          const userId = users[0].id;
-          const prefsList = await base44.asServiceRole.entities.NotificationPreferences.filter({ userId });
-          if (prefsList.length > 0) {
-            const prefs = prefsList[0];
-            if (prefs[notificationKey] === false) {
-              return Response.json({ success: true, skipped: true, reason: 'user_preference' });
-            }
+        const prefsList = await base44.asServiceRole.entities.NotificationPreferences.filter({ userId: targetUserId });
+        if (prefsList.length > 0) {
+          const prefs = prefsList[0];
+          if (prefs[notificationKey] === false) {
+            return Response.json({ success: true, skipped: true, reason: 'user_preference' });
           }
         }
       } catch (e) {
-        // אם לא ניתן לטעון העדפות - ממשיך לשלוח
+        // אם לא ניתן לטעון העדפות - ממשיכים לשלוח
       }
     }
 
-    // קבלת כל המנויים של המשתמש
-    const subscriptions = await base44.asServiceRole.entities.PushSubscription.filter({
-      userEmail: targetUserEmail
+    // שליחת ההתראה באמצעות OneSignal API (שליחה רק למשתמש הספציפי)
+    const payload = {
+      app_id: ONESIGNAL_APP_ID,
+      include_external_user_ids: [targetUserId], // זה יחפש את ה-ID שהגדרנו ב-OneSignal.login
+      headings: { en: title, he: title },
+      contents: { en: messageBody, he: messageBody },
+      data: data || {}
+    };
+
+    const response = await fetch('https://onesignal.com/api/v1/notifications', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        'Authorization': `Basic ${ONESIGNAL_REST_API_KEY}`
+      },
+      body: JSON.stringify(payload)
     });
 
-    if (subscriptions.length === 0) {
-      return Response.json({ success: true, sent: 0, message: 'No subscriptions found' });
-    }
+    const result = await response.json();
 
-    const payload = JSON.stringify({
-      title,
-      body: messageBody,
-      data: data || {},
-      timestamp: new Date().toISOString()
-    });
-
-    let sentCount = 0;
-    const errors = [];
-    const toDelete = [];
-
-    for (const sub of subscriptions) {
-      try {
-        await webpush.sendNotification({
-          endpoint: sub.endpoint,
-          keys: {
-            auth: sub.auth,
-            p256dh: sub.p256dh
-          }
-        }, payload);
-        sentCount++;
-      } catch (error) {
-        // 410 Gone = subscription expired, mark for deletion
-        if (error.statusCode === 410 || error.statusCode === 404) {
-          toDelete.push(sub.id);
-        }
-        errors.push({ subscriptionId: sub.id, error: error.message });
-      }
-    }
-
-    // מחק subscriptions שפג תוקפם
-    for (const id of toDelete) {
-      try {
-        await base44.asServiceRole.entities.PushSubscription.delete(id);
-      } catch {}
+    if (!response.ok) {
+      console.error('OneSignal Error:', result);
+      return Response.json({ error: 'OneSignal API error', details: result }, { status: response.status });
     }
 
     return Response.json({
       success: true,
-      sent: sentCount,
-      total: subscriptions.length,
-      errors: errors.length > 0 ? errors : undefined
+      sent: 1,
+      result: result
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

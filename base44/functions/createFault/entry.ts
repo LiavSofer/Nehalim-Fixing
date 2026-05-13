@@ -23,7 +23,6 @@ Deno.serve(async (req) => {
 
     const fault = await base44.entities.Fault.create(faultData);
 
-    // If assigned at creation, add the same automatic comment as the assign button
     if (faultData.assignedTo) {
       const worker = await base44.asServiceRole.entities.User.get(faultData.assignedTo).catch(() => null);
       await base44.asServiceRole.entities.FaultComment.create({
@@ -35,6 +34,23 @@ Deno.serve(async (req) => {
         type: 'automatic',
         automaticEventType: 'assigned',
       });
+    }
+
+    // --- התראת פוש למנהל על תקלה חדשה ---
+    try {
+      const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
+      for (const manager of managers) {
+        if (manager && manager.id) {
+          await base44.functions.invoke('sendPushNotification', {
+            targetUserId: manager.id,
+            title: 'תקלה חדשה דווחה',
+            body: `דווחה תקלה חדשה ב${fault.locationName || 'הקמפוס'}: ${fault.title}`,
+            notificationKey: 'newFault'
+          });
+        }
+      }
+    } catch (pushErr) {
+      console.error('Failed to send push for new fault:', pushErr);
     }
 
     return Response.json({ fault });

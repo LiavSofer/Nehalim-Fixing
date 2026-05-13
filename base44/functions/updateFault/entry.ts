@@ -46,19 +46,61 @@ Deno.serve(async (req) => {
     try {
       const updated = await base44.entities.Fault.update(faultId, updates);
       console.log('[6] update success:', JSON.stringify(updated));
+
+      // --- התראות פוש תלויות הקשר ---
+      try {
+        // 1. התראה לאב בית - שיוך משימה
+        if (action === 'assign' && updates.assignedTo) {
+          await base44.functions.invoke('sendPushNotification', {
+            targetUserId: updates.assignedTo,
+            title: 'משימה חדשה שוייכה אליך',
+            body: `קיבלת לטיפול את התקלה: ${updated.title || 'ללא כותרת'}`,
+            notificationKey: 'taskAssigned'
+          });
+        }
+
+        // 2. התראה למנהל - המשימה ממתינה לאישור
+        if (action === 'markRepaired') {
+          const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
+          for (const manager of managers) {
+            if (manager && manager.id) {
+              await base44.functions.invoke('sendPushNotification', {
+                targetUserId: manager.id,
+                title: 'משימה ממתינה לאישור',
+                body: `אב הבית סימן את התקלה "${updated.title}" כתוקנה. ממתין לאישורך.`,
+                notificationKey: 'awaitingApproval'
+              });
+            }
+          }
+        }
+
+        // 3. התראה לצוות המדווח על שינוי סטטוס
+        if (updates.status && updated.reportedBy) {
+          const reporters = await base44.asServiceRole.entities.User.filter({ email: updated.reportedBy });
+          if (reporters.length > 0 && reporters[0].id) {
+            // לא נשלח למדווח התראה אם הוא עצמו זה שביצע את העדכון כרגע
+            if (reporters[0].id !== user.id) {
+              await base44.functions.invoke('sendPushNotification', {
+                targetUserId: reporters[0].id,
+                title: 'עדכון בסטטוס התקלה שדיווחת',
+                body: `התקלה "${updated.title}" עודכנה לסטטוס: ${updated.status}`,
+                notificationKey: 'reportUpdate'
+              });
+            }
+          }
+        }
+      } catch (pushErr) {
+        console.error('[PUSH ERROR]', pushErr);
+      }
+
       return Response.json({ fault: updated });
     } catch (updateError) {
       console.error('[6] update FAILED:', updateError.message);
-      console.error('[6] update error status:', updateError?.status);
-      console.error('[6] update error data:', JSON.stringify(updateError?.data));
       throw updateError;
     }
 
   } catch (error) {
     console.error('[FINAL ERROR] message:', error.message);
-    console.error('[FINAL ERROR] status:', error?.status);
-    console.error('[FINAL ERROR] data:', JSON.stringify(error?.data));
-    console.error('[FINAL ERROR] stack:', error.stack);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
