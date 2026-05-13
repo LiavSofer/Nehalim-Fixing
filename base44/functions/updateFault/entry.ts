@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'פעולה לא מוכרת' }, { status: 400 });
     }
 
-    const updated = await base44.asServiceRole.entities.Fault.update(faultId, updates);
+    const updated = await base44.entities.Fault.update(faultId, updates);
 
     return Response.json({ fault: updated });
   } catch (error) {
