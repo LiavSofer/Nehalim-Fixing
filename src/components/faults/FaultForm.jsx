@@ -7,7 +7,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { X, Sparkles, MapPin, FileText, Camera, ImagePlus, ArrowBigUp, ArrowBigDown, Minus, Circle } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 export default function FaultForm({ users, onSuccess, editingFault = null, showAdvancedFields = false }) {
   const [formData, setFormData] = useState(editingFault || {
@@ -137,12 +136,7 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-6"
-      dir="rtl"
-    >
+    <div className="mb-6" dir="rtl">
       <div className="bg-card rounded-2xl border shadow-sm overflow-hidden">
 
         {/* Header */}
@@ -317,6 +311,6 @@ export default function FaultForm({ users, onSuccess, editingFault = null, showA
 
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 }
