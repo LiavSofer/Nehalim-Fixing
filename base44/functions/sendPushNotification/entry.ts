@@ -6,29 +6,24 @@ const ONESIGNAL_REST_API_KEY = Deno.env.get('ONESIGNAL_REST_API_KEY');
 Deno.serve(async (req) => {
   try {
     if (!ONESIGNAL_APP_ID || !ONESIGNAL_REST_API_KEY) {
-      console.error('[sendPushNotification] Missing OneSignal credentials in Environment Variables!');
       return Response.json({ error: 'Missing credentials' }, { status: 500 });
     }
 
     const base44 = createClientFromRequest(req);
     const body = await req.json();
 
-    const { targetUserId, title, body: messageBody, data, notificationKey } = body;
+    // הוספנו את imageUrl ו-data
+    const { targetUserId, title, body: messageBody, data, notificationKey, imageUrl } = body;
 
     if (!targetUserId || !title || !messageBody) {
-      console.error('[sendPushNotification] Missing required fields:', { targetUserId, title, messageBody });
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // בדיקת העדפות משתמש
     if (notificationKey) {
       try {
         const prefsList = await base44.asServiceRole.entities.NotificationPreferences.filter({ userId: targetUserId });
         if (prefsList.length > 0) {
-          const prefs = prefsList[0];
-          // אם המשתמש כיבה את ההתראה הספציפית הזו
-          if (prefs[notificationKey] === false) {
-            console.log(`[sendPushNotification] Skipped for user ${targetUserId} due to preference: ${notificationKey}`);
+          if (prefsList[0][notificationKey] === false) {
             return Response.json({ success: true, skipped: true, reason: 'user_preference' });
           }
         }
@@ -37,8 +32,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // בניית הבקשה ל-OneSignal (התקן המעודכן ביותר)
-    const payload = {
+    const payload: any = {
       app_id: ONESIGNAL_APP_ID,
       target_channel: "push",
       include_aliases: {
@@ -46,8 +40,15 @@ Deno.serve(async (req) => {
       },
       headings: { en: title, he: title },
       contents: { en: messageBody, he: messageBody },
-      data: data || {}
+      data: data || {} // מאפשר להעביר את ה-faultId לפרונטאנד
     };
+
+    // 🌟 הוספת התמונה להתראה עבור כל הפלטפורמות
+    if (imageUrl) {
+      payload.chrome_web_image = imageUrl; // עבור דפדפנים במחשב ובאנדרואיד
+      payload.big_picture = imageUrl;      // עבור מכשירי אנדרואיד
+      payload.ios_attachments = { "image": imageUrl }; // עבור מכשירי iOS (אייפון)
+    }
 
     const response = await fetch('https://onesignal.com/api/v1/notifications', {
       method: 'POST',
@@ -61,14 +62,11 @@ Deno.serve(async (req) => {
     const result = await response.json();
 
     if (!response.ok) {
-      console.error('[sendPushNotification] OneSignal API Error:', result);
       return Response.json({ error: 'OneSignal API error', details: result }, { status: response.status });
     }
 
-    console.log(`[sendPushNotification] Successfully sent push to user ${targetUserId}`);
     return Response.json({ success: true, sent: 1, result });
   } catch (error) {
-    console.error('[sendPushNotification] Internal Error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

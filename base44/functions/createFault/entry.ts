@@ -36,16 +36,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // --- התראת פוש למנהל על תקלה חדשה ---
+    // שולפים את התמונה (מבוסס על השדה המדויק שציינת)
+    const faultImage = fault.image;
+    
+    // בונים טקסט עשיר ויפה להתראה
+    const pushBody = `📍 ${fault.locationName || 'הקמפוס'} | 🔧 ${fault.title}\n📝 ${fault.description || 'ללא תיאור נוסף'}`;
+
     try {
       const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
       for (const manager of managers) {
         if (manager && manager.id) {
           await base44.functions.invoke('sendPushNotification', {
             targetUserId: manager.id,
-            title: 'תקלה חדשה דווחה',
-            body: `דווחה תקלה חדשה ב${fault.locationName || 'הקמפוס'}: ${fault.title}`,
-            notificationKey: 'notifyNewFault' // תוקן למפתח הנכון
+            title: '🚨 תקלה חדשה דווחה',
+            body: pushBody,
+            notificationKey: 'notifyNewFault',
+            imageUrl: faultImage, // מעבירים את התמונה
+            data: { faultId: fault.id } // מעבירים את מזהה התקלה ללחיצה
           });
         }
       }

@@ -23,60 +23,57 @@ Deno.serve(async (req) => {
     const isManager = MANAGER_ROLES.includes(userType);
     const isWorker = userType === WORKER_ROLE;
 
-    if (action === 'assign') {
-      if (!isManager) return Response.json({ error: 'אין הרשאה לשיוך עובד' }, { status: 403 });
-    } else if (action === 'priority') {
-      if (!isManager) return Response.json({ error: 'אין הרשאה לשינוי עדיפות' }, { status: 403 });
-    } else if (action === 'close') {
-      if (!isManager) return Response.json({ error: 'אין הרשאה לסגירת תקלה' }, { status: 403 });
-    } else if (action === 'markRepaired') {
-      if (!isWorker && !isManager) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
-    } else {
-      return Response.json({ error: 'פעולה לא מוכרת' }, { status: 400 });
-    }
+    if (action === 'assign' && !isManager) return Response.json({ error: 'אין הרשאה לשיוך עובד' }, { status: 403 });
+    else if (action === 'priority' && !isManager) return Response.json({ error: 'אין הרשאה לשינוי עדיפות' }, { status: 403 });
+    else if (action === 'close' && !isManager) return Response.json({ error: 'אין הרשאה לסגירת תקלה' }, { status: 403 });
+    else if (action === 'markRepaired' && (!isWorker && !isManager)) return Response.json({ error: 'אין הרשאה לסמן כתוקן' }, { status: 403 });
 
     try {
       const updated = await base44.entities.Fault.update(faultId, updates);
+      
+      // שליפת התמונה מהתקלה המעודכנת
+      const faultImage = updated.image;
+      const pushData = { faultId: updated.id };
 
-      // --- התראות פוש תלויות הקשר ---
       try {
-        // 1. התראה לאב בית - שיוך משימה
         if (action === 'assign' && updates.assignedTo) {
           await base44.functions.invoke('sendPushNotification', {
             targetUserId: updates.assignedTo,
-            title: 'משימה חדשה שוייכה אליך',
-            body: `קיבלת לטיפול את התקלה: ${updated.title || 'ללא כותרת'}`,
-            notificationKey: 'notifyTaskAssigned' // תוקן
+            title: '👷‍♂️ משימה חדשה שוייכה אליך',
+            body: `📍 ${updated.locationName || 'מיקום לא צוין'}\n🔧 ${updated.title}`,
+            notificationKey: 'notifyTaskAssigned',
+            imageUrl: faultImage,
+            data: pushData
           });
         }
 
-        // 2. התראה למנהל - המשימה ממתינה לאישור
         if (action === 'markRepaired') {
           const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
           for (const manager of managers) {
             if (manager && manager.id) {
               await base44.functions.invoke('sendPushNotification', {
                 targetUserId: manager.id,
-                title: 'משימה ממתינה לאישור',
-                body: `אב הבית סימן את התקלה "${updated.title}" כתוקנה. ממתין לאישורך.`,
-                notificationKey: 'notifyAwaitingApproval' // תוקן
+                title: '✅ משימה ממתינה לאישור',
+                body: `אב הבית סימן את התקלה "${updated.title}" ב-${updated.locationName} כתוקנה. ממתין לאישורך.`,
+                notificationKey: 'notifyAwaitingApproval',
+                imageUrl: faultImage,
+                data: pushData
               });
             }
           }
         }
 
-        // 3. התראה לצוות המדווח על שינוי סטטוס
         if (updates.status && updated.reportedBy) {
           const reporters = await base44.asServiceRole.entities.User.filter({ email: updated.reportedBy });
-          if (reporters.length > 0 && reporters[0].id) {
-            if (reporters[0].id !== user.id) { // לא לשלוח התראה למשתמש שביצע את השינוי בעצמו
-              await base44.functions.invoke('sendPushNotification', {
-                targetUserId: reporters[0].id,
-                title: 'עדכון בסטטוס התקלה שדיווחת',
-                body: `התקלה "${updated.title}" עודכנה לסטטוס: ${updated.status}`,
-                notificationKey: 'notifyFaultClosed' // תוקן למפתח שהוגדר במסך
-              });
-            }
+          if (reporters.length > 0 && reporters[0].id && reporters[0].id !== user.id) {
+            await base44.functions.invoke('sendPushNotification', {
+              targetUserId: reporters[0].id,
+              title: '🔔 עדכון בסטטוס התקלה שדיווחת',
+              body: `התקלה "${updated.title}" עודכנה לסטטוס: ${updated.status}`,
+              notificationKey: 'notifyFaultClosed',
+              imageUrl: faultImage,
+              data: pushData
+            });
           }
         }
       } catch (pushErr) {
@@ -85,12 +82,10 @@ Deno.serve(async (req) => {
 
       return Response.json({ fault: updated });
     } catch (updateError) {
-      console.error('[updateFault] Update FAILED:', updateError.message);
       throw updateError;
     }
 
   } catch (error) {
-    console.error('[updateFault] FINAL ERROR:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });

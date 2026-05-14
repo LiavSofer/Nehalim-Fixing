@@ -60,14 +60,14 @@ export default function NotificationSettings({ user }) {
     setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // התיקון לכפתור: שימוש בפונקציה המובנית לבקשת הרשאה (Native)
+  // זו הפונקציה שעודכנה כדי להקפיץ את ה-Slidedown
   const triggerOneSignalPrompt = () => {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
       try {
-        await OneSignal.Notifications.requestPermission();
+        await OneSignal.Slidedown.promptPush();
       } catch (err) {
-        console.error("Failed to request push permission", err);
+        console.error("Failed to trigger Slidedown", err);
       }
     });
   };
