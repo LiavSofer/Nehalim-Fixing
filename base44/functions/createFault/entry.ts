@@ -5,22 +5,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
+    // משיכת התפקיד האמיתי מתוך userType
+    const currentUserType = user.userType || (user.data && user.data.userType) || '';
+    
     const allowedRoles = ['צוות מדווח', 'מנהל אחזקה', 'מפתח', 'אב בית'];
-    if (!allowedRoles.includes(user.role) && !allowedRoles.includes(user.userType)) {
+    if (!allowedRoles.includes(currentUserType)) {
       return Response.json({ error: 'אין הרשאה ליצור תקלה' }, { status: 403 });
     }
 
     const body = await req.json();
-    const faultData = {
-      ...body,
-      status: body.assignedTo ? 'בטיפול' : 'ממתין',
-      reportedBy: user.email,
-    };
-
+    const faultData = { ...body, status: body.assignedTo ? 'בטיפול' : 'ממתין', reportedBy: user.email };
     const fault = await base44.entities.Fault.create(faultData);
 
     if (faultData.assignedTo) {
@@ -36,29 +32,27 @@ Deno.serve(async (req) => {
       });
     }
 
-    // שולפים את התמונה (מבוסס על השדה המדויק שציינת)
-    const faultImage = fault.image;
-    
-    // בונים טקסט עשיר ויפה להתראה
-    const pushBody = `📍 ${fault.locationName || 'הקמפוס'} | 🔧 ${fault.title}\n📝 ${fault.description || 'ללא תיאור נוסף'}`;
-
+    // --- שליחת התראות למנהלי אחזקה ---
     try {
-      const managers = await base44.asServiceRole.entities.User.filter({ role: 'מנהל אחזקה' });
+      const allUsers = await base44.asServiceRole.entities.User.filter({});
+      // בדיקה אך ורק לפי userType
+      const managers = allUsers.filter(u => u.userType === 'מנהל אחזקה' || (u.data && u.data.userType === 'מנהל אחזקה'));
+      
+      const pushBody = `📍 ${fault.locationName || 'מיקום לא צוין'}\n📝 ${fault.description || 'אין תיאור'}`;
+
       for (const manager of managers) {
-        if (manager && manager.id) {
+        if (manager.id) {
           await base44.functions.invoke('sendPushNotification', {
             targetUserId: manager.id,
             title: '🚨 תקלה חדשה דווחה',
             body: pushBody,
             notificationKey: 'notifyNewFault',
-            imageUrl: faultImage, // מעבירים את התמונה
-            data: { faultId: fault.id } // מעבירים את מזהה התקלה ללחיצה
+            imageUrl: fault.image,
+            data: { faultId: fault.id }
           });
         }
       }
-    } catch (pushErr) {
-      console.error('[createFault] Failed to send push for new fault:', pushErr);
-    }
+    } catch (err) { console.error('Manager push failed:', err); }
 
     return Response.json({ fault });
   } catch (error) {

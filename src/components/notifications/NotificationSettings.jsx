@@ -11,7 +11,8 @@ export default function NotificationSettings({ user }) {
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
 
-  const userRole = user?.role || user?.userType;
+  // התיקון: מבקשים קודם את ה-userType!
+  const userRole = user?.userType || user?.data?.userType || user?.role;
 
   const defaultPrefs = {
     notifyTaskAssigned: true,
@@ -60,7 +61,6 @@ export default function NotificationSettings({ user }) {
     setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // זו הפונקציה שעודכנה כדי להקפיץ את ה-Slidedown
   const triggerOneSignalPrompt = () => {
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
@@ -76,7 +76,6 @@ export default function NotificationSettings({ user }) {
     return <div className="flex items-center justify-center h-32"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>;
   }
 
-  // Build notification options per role
   const notifOptions = [
     {
       key: 'notifyTaskAssigned',
