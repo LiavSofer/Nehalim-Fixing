@@ -45,12 +45,12 @@ Deno.serve(async (req) => {
             targetUserId: manager.id,
             title: 'תקלה חדשה דווחה',
             body: `דווחה תקלה חדשה ב${fault.locationName || 'הקמפוס'}: ${fault.title}`,
-            notificationKey: 'newFault'
+            notificationKey: 'notifyNewFault' // תוקן למפתח הנכון
           });
         }
       }
     } catch (pushErr) {
-      console.error('Failed to send push for new fault:', pushErr);
+      console.error('[createFault] Failed to send push for new fault:', pushErr);
     }
 
     return Response.json({ fault });
