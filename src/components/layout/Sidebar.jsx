@@ -30,19 +30,10 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
     base44.auth.logout('/');
   };
 
-  const loadXLSX = () => new Promise((resolve, reject) => {
-    if (window.XLSX) { resolve(window.XLSX); return; }
-    const script = document.createElement('script');
-    script.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
-    script.onload = () => resolve(window.XLSX);
-    script.onerror = reject;
-    document.head.appendChild(script);
-  });
-
   const handleExportFaults = async () => {
     setExporting(true);
     try {
-      const XLSX = await loadXLSX();
+      const XLSX = await import('xlsx');
 
       const [faults, users] = await Promise.all([
         base44.entities.Fault.list('-created_date', 1000),
