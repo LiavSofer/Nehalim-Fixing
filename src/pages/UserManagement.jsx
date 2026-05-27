@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Users, Mail, Phone, Search, Clock, UserCheck, Pencil, Check, X, Loader2 } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
-import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -59,13 +58,7 @@ function UserRow({ user, onUpdate }) {
   const userRole = user.userType || 'ללא הרשאה';
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ layout: { duration: 0.3, ease: 'easeInOut' } }}
-      className="relative flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted/50 transition-colors group"
-    >
+    <div className="relative flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted/50 transition-colors group">
       {/* Avatar + Info in one row */}
       <div className="flex items-center gap-2.5 flex-1 min-w-0">
         {/* Avatar */}
@@ -159,7 +152,7 @@ function UserRow({ user, onUpdate }) {
           <p className="text-sm font-medium text-foreground">{displayName}</p>
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </div>
   );
 }
 
@@ -267,11 +260,11 @@ export default function UserManagement() {
               </p>
             </div>
           ) : (
-            <motion.div layout className="divide-y divide-border">
+            <div className="divide-y divide-border">
               {filtered.map(user => (
                 <UserRow key={user.id} user={user} onUpdate={handleUpdate} />
               ))}
-            </motion.div>
+            </div>
           )}
         </div>
     </div>

@@ -2,7 +2,6 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Wrench, ClipboardList, BarChart3, Home as HomeIcon } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
-import { motion } from 'framer-motion';
 
 const STATS = [
   { label: 'קריאות פתוחות', value: '—', icon: ClipboardList, color: 'bg-primary/10 text-primary' },
@@ -18,12 +17,7 @@ export default function Home() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         {STATS.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
+          <div key={stat.label}>
             <Card className="border border-border hover:shadow-md transition-shadow duration-300">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -37,23 +31,18 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         ))}
       </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-10"
-      >
+      <div className="mt-10">
         <Card className="border border-border">
           <CardContent className="p-12 text-center">
             <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
             <p className="text-muted-foreground">מערכת ניהול האחזקה מוכנה לשימוש</p>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }
