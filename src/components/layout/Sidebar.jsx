@@ -1,9 +1,10 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell, ClipboardList } from 'lucide-react';
+import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell, ClipboardList, Download } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { APP_VERSION } from '@/lib/version';
+import * as XLSX from 'xlsx';
 
 const NAV_ITEMS = [
   { label: 'המשימות שלי', path: '/', icon: CheckCircle2, roles: ['אב בית'] },
@@ -16,14 +17,68 @@ const NAV_ITEMS = [
   { label: 'התראות', path: '/notification-settings', icon: Bell, roles: ['אב בית', 'צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
 ];
 
+const EXPORT_ROLES = ['מנהל אחזקה', 'מנהל מוסד', 'מפתח'];
+
 export default function Sidebar({ user, open = false, onOpenChange }) {
   const location = useLocation();
   const userRole = user?.userType || 'ללא הרשאה';
+  const [exporting, setExporting] = useState(false);
 
   const filteredNav = NAV_ITEMS.filter(item => item.roles.includes(userRole));
 
   const handleLogout = () => {
     base44.auth.logout('/');
+  };
+
+  const handleExportFaults = async () => {
+    setExporting(true);
+    try {
+      // Fetch all faults
+      const [faults, users] = await Promise.all([
+        base44.entities.Fault.list('-created_date', 1000),
+        base44.entities.User.list(),
+      ]);
+
+      const userMap = {};
+      users.forEach(u => { userMap[u.id] = u.displayName || u.full_name || u.email; });
+
+      const statusLabels = { 'ממתין': 'ממתין', 'בטיפול': 'בטיפול', 'ממתין לאישור': 'ממתין לאישור', 'סגור': 'סגור' };
+
+      const rows = faults.map(f => ({
+        'כותרת': f.title || '',
+        'מיקום': f.location || '',
+        'חדר/כיתה': f.roomNumber || '',
+        'סוג תקלה': f.faultType || '',
+        'תיאור': f.description || '',
+        'סטטוס': f.status || '',
+        'עדיפות': f.priority || '',
+        'מדווח על ידי': f.reportedBy || '',
+        'משויך ל': f.assignedTo ? (userMap[f.assignedTo] || f.assignedTo) : '',
+        'תאריך דיווח': f.created_date ? new Date(f.created_date).toLocaleDateString('he-IL') : '',
+        'תאריך עדכון': f.updated_date ? new Date(f.updated_date).toLocaleDateString('he-IL') : '',
+        'קישור תמונה': f.image || '',
+        'קישור תמונת תיקון': f.repairImage || '',
+      }));
+
+      const ws = XLSX.utils.json_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'קריאות');
+
+      // RTL column widths
+      ws['!cols'] = [
+        { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 40 },
+        { wch: 14 }, { wch: 12 }, { wch: 25 }, { wch: 20 }, { wch: 14 },
+        { wch: 14 }, { wch: 40 }, { wch: 40 },
+      ];
+
+      const today = new Date().toLocaleDateString('he-IL').replace(/\//g, '-');
+      XLSX.writeFile(wb, `קריאות_תחזוקה_${today}.xlsx`);
+    } catch (err) {
+      console.error('שגיאה בייצוא:', err);
+      alert('שגיאה בייצוא הנתונים');
+    } finally {
+      setExporting(false);
+    }
   };
 
   return (
@@ -119,6 +174,16 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
             </div>
           </div>
         </div>
+        {EXPORT_ROLES.includes(userRole) && (
+          <button
+            onClick={handleExportFaults}
+            disabled={exporting}
+            className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-sm text-sidebar-foreground/60 hover:bg-green-500/10 hover:text-green-400 transition-all duration-200 mb-1 disabled:opacity-50"
+          >
+            <Download className="w-4 h-4" />
+            <span>{exporting ? 'מייצא...' : 'ייצוא קריאות לאקסל'}</span>
+          </button>
+        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-sm text-sidebar-foreground/50 hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
