@@ -17,7 +17,10 @@ const NAV_ITEMS = [
   { label: 'התראות', path: '/notification-settings', icon: Bell, roles: ['אב בית', 'צוות מדווח', 'מנהל אחזקה', 'מפתח'] },
 ];
 
+
+
 const EXPORT_ROLES = ['מנהל אחזקה', 'מנהל מוסד', 'מפתח'];
+
 
 export default function Sidebar({ user, open = false, onOpenChange }) {
   const location = useLocation();
@@ -133,25 +136,38 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
         {filteredNav.map(item => {
           const isActive = location.pathname === item.path;
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => onOpenChange?.(false)}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
-                isActive
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
-                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+            <React.Fragment key={item.path}>
+              {item.path === '/notification-settings' && EXPORT_ROLES.includes(userRole) && (
+                <button
+                  onClick={handleExportFaults}
+                  disabled={exporting}
+                  className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-sm font-medium transition-all duration-200 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground disabled:opacity-50"
+                >
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-sidebar-accent">
+                    <Download className="w-4 h-4 flex-shrink-0" />
+                  </div>
+                  <span>{exporting ? 'מייצא...' : 'ייצוא לאקסל'}</span>
+                </button>
               )}
-            >
-              <div className={cn(
-                "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-                isActive ? "bg-white/20" : "bg-sidebar-accent"
-              )}>
-                <item.icon className="w-4 h-4 flex-shrink-0" />
-              </div>
-              <span>{item.label}</span>
-            </Link>
+              <Link
+                to={item.path}
+                onClick={() => onOpenChange?.(false)}
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+                  isActive
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-md"
+                    : "text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                )}
+              >
+                <div className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center transition-all",
+                  isActive ? "bg-white/20" : "bg-sidebar-accent"
+                )}>
+                  <item.icon className="w-4 h-4 flex-shrink-0" />
+                </div>
+                <span>{item.label}</span>
+              </Link>
+            </React.Fragment>
           );
         })}
       </nav>
@@ -172,16 +188,6 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
             </div>
           </div>
         </div>
-        {EXPORT_ROLES.includes(userRole) && (
-          <button
-            onClick={handleExportFaults}
-            disabled={exporting}
-            className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-sm text-sidebar-foreground/60 hover:bg-green-500/10 hover:text-green-400 transition-all duration-200 mb-1 disabled:opacity-50"
-          >
-            <Download className="w-4 h-4" />
-            <span>{exporting ? 'מייצא...' : 'ייצוא קריאות לאקסל'}</span>
-          </button>
-        )}
         <button
           onClick={handleLogout}
           className="flex items-center gap-3 px-4 py-2.5 w-full rounded-xl text-sm text-sidebar-foreground/50 hover:bg-destructive/10 hover:text-destructive transition-all duration-200"
