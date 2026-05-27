@@ -4,7 +4,7 @@ import { Home, Users, LogOut, Shield, Wrench, CheckCircle2, Settings, Bell, Clip
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
 import { APP_VERSION } from '@/lib/version';
-import * as XLSX from 'xlsx';
+
 
 const NAV_ITEMS = [
   { label: 'המשימות שלי', path: '/', icon: CheckCircle2, roles: ['אב בית'] },
@@ -30,10 +30,20 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
     base44.auth.logout('/');
   };
 
+  const loadXLSX = () => new Promise((resolve, reject) => {
+    if (window.XLSX) { resolve(window.XLSX); return; }
+    const script = document.createElement('script');
+    script.src = 'https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js';
+    script.onload = () => resolve(window.XLSX);
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+
   const handleExportFaults = async () => {
     setExporting(true);
     try {
-      // Fetch all faults
+      const XLSX = await loadXLSX();
+
       const [faults, users] = await Promise.all([
         base44.entities.Fault.list('-created_date', 1000),
         base44.entities.User.list(),
@@ -41,8 +51,6 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
 
       const userMap = {};
       users.forEach(u => { userMap[u.id] = u.displayName || u.full_name || u.email; });
-
-      const statusLabels = { 'ממתין': 'ממתין', 'בטיפול': 'בטיפול', 'ממתין לאישור': 'ממתין לאישור', 'סגור': 'סגור' };
 
       const rows = faults.map(f => ({
         'כותרת': f.title || '',
@@ -64,7 +72,6 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, 'קריאות');
 
-      // RTL column widths
       ws['!cols'] = [
         { wch: 20 }, { wch: 20 }, { wch: 12 }, { wch: 18 }, { wch: 40 },
         { wch: 14 }, { wch: 12 }, { wch: 25 }, { wch: 20 }, { wch: 14 },
