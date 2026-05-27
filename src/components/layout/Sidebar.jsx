@@ -127,6 +127,7 @@ export default function Sidebar({ user, open = false, onOpenChange }) {
             <h1 className="font-bold text-base leading-tight tracking-tight">ישיבת נחלים</h1>
             <p className="text-xs text-sidebar-foreground/50 mt-0.5">מערכת ניהול אחזקה</p>
             <p className="text-xs text-sidebar-foreground/25 mt-1">v{APP_VERSION}</p>
+            <p className="text-xs text-sidebar-foreground/20 mt-0.5">Developed by Liav Sofer</p>
           </div>
         </div>
       </div>
