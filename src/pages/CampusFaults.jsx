@@ -66,8 +66,15 @@ export default function CampusFaults() {
     initialData: [],
   });
 
+  const now = new Date();
+  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
   const statusFaults = useMemo(() => {
-    return faults.filter(f => f.status === activeStatus);
+    const base = faults.filter(f => f.status === activeStatus);
+    if (activeStatus === 'סגור') {
+      return base.filter(f => new Date(f.updated_date) >= startOfCurrentMonth);
+    }
+    return base;
   }, [faults, activeStatus]);
 
   const groupedFaults = useMemo(() => {
@@ -191,7 +198,7 @@ export default function CampusFaults() {
         statusFaults.length === 0 ? (
           <div className="text-center py-16">
             <Wrench className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
-            <p className="text-muted-foreground">הרשימה ריקה</p>
+            <p className="text-muted-foreground">{activeStatus === 'סגור' ? 'אין תקלות סגורות החודש' : 'הרשימה ריקה'}</p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -234,6 +241,11 @@ export default function CampusFaults() {
                 </div>
               </div>
             ))}
+            {activeStatus === 'סגור' && faults.filter(f => f.status === 'סגור' && new Date(f.updated_date) < startOfCurrentMonth).length > 0 && (
+              <div className="text-center py-4 text-xs text-muted-foreground border border-dashed border-border rounded-xl bg-muted/30">
+                📦 {faults.filter(f => f.status === 'סגור' && new Date(f.updated_date) < startOfCurrentMonth).length} תקלות ישנות נמצאות בארכיון ואינן מוצגות
+              </div>
+            )}
           </div>
         )
       ) : (
