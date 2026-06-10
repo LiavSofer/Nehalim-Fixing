@@ -66,8 +66,10 @@ export default function CampusFaults() {
     initialData: [],
   });
 
-  const now = new Date();
-  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfCurrentMonth = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }, []);
 
   const statusFaults = useMemo(() => {
     const base = faults.filter(f => f.status === activeStatus);

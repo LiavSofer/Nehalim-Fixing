@@ -86,8 +86,10 @@ export default function Faults() {
 
   const visibleFaults = isMadrich ? faults.filter(f => f.reportedBy === user?.email) : faults;
 
-  const now = new Date();
-  const startOfCurrentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfCurrentMonth = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  }, []);
 
   const statusFaults = useMemo(() => {
     if (isMadrich && activeStatus === 'בטיפול') {
