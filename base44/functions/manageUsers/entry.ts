@@ -44,6 +44,24 @@ Deno.serve(async (req) => {
       return Response.json({ success: true });
     }
 
+    if (action === 'delete' && userId) {
+      try {
+        await base44.asServiceRole.entities.User.update(userId, { deleted: true });
+      } catch (deleteError) {
+        const msg = deleteError?.message || '';
+        if (msg.includes('owner')) {
+          return Response.json({ error: 'לא ניתן למחוק את בעל האפליקציה' }, { status: 400 });
+        }
+        throw deleteError;
+      }
+      return Response.json({ success: true });
+    }
+
+    if (action === 'restore' && userId) {
+      await base44.asServiceRole.entities.User.update(userId, { deleted: false });
+      return Response.json({ success: true });
+    }
+
     return Response.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });

@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Users, Mail, Phone, Search, Clock, UserCheck, Pencil, Check, X, Loader2 } from 'lucide-react';
+import { Users, Mail, Phone, Search, Clock, UserCheck, Pencil, Check, X, Loader2, Trash2, RotateCcw, UserX } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
@@ -23,12 +23,14 @@ const ROLE_COLORS = {
   'מפתח': 'bg-purple-50 text-purple-700 border-purple-200',
 };
 
-function UserRow({ user, onUpdate }) {
+function UserRow({ user, onUpdate, onDelete, onRestore }) {
   const [editing, setEditing] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [name, setName] = useState(user.displayName || user.full_name || '');
   const [phone, setPhone] = useState(user.phone || '');
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const handleSave = async () => {
     setSaving(true);
@@ -54,11 +56,35 @@ function UserRow({ user, onUpdate }) {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await base44.functions.invoke('manageUsers', { action: 'delete', userId: user.id });
+      setDeleteOpen(false);
+      onDelete();
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'שגיאה במחיקה';
+      toast.error(msg);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    try {
+      await base44.functions.invoke('manageUsers', { action: 'restore', userId: user.id });
+      onRestore();
+    } catch (err) {
+      const msg = err?.response?.data?.error || 'שגיאה בשחזור';
+      toast.error(msg);
+    }
+  };
+
   const displayName = user.displayName || user.full_name || 'ללא שם';
   const userRole = user.userType || 'ללא הרשאה';
 
   return (
-    <div className="relative flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted/50 transition-colors group">
+    <div className={`relative flex items-center gap-2.5 px-4 py-2.5 hover:bg-muted/50 transition-colors group ${user.deleted ? 'opacity-60' : ''}`}>
       {/* Avatar + Info in one row */}
       <div className="flex items-center gap-2.5 flex-1 min-w-0">
         {/* Avatar */}
@@ -93,7 +119,10 @@ function UserRow({ user, onUpdate }) {
             </div>
           ) : (
             <>
-              <p className="font-semibold text-foreground text-sm leading-none">{displayName}</p>
+              <p className="font-semibold text-foreground text-sm leading-none">
+                {displayName}
+                {user.deleted && <Badge variant="outline" className="mr-1.5 text-xs px-1.5 py-0 bg-red-50 text-red-600 border-red-200">נמחק</Badge>}
+              </p>
               <div className="flex flex-col gap-0 mt-0.5">
                 <span className="flex items-center gap-1 text-xs text-muted-foreground truncate">
                   <Mail className="w-3 h-3 flex-shrink-0" />
@@ -112,7 +141,7 @@ function UserRow({ user, onUpdate }) {
       </div>
 
       {/* Role selector */}
-      {!editing && (
+      {!editing && !user.deleted && (
         <Select defaultValue={userRole} key={`role-${user.id}-${userRole}`} onValueChange={handleRoleChange}>
           <SelectTrigger className="w-24 h-7 text-xs opacity-70 group-hover:opacity-100 transition-opacity flex-shrink-0">
             <SelectValue />
@@ -129,8 +158,12 @@ function UserRow({ user, onUpdate }) {
         </Select>
       )}
 
-      {/* Edit / Save / Cancel - positioned in corner */}
-      {editing ? (
+      {/* Edit / Save / Cancel / Delete / Restore - positioned in corner */}
+      {user.deleted ? (
+        <Button size="icon" variant="ghost" className="h-7 w-7 text-blue-600 hover:bg-blue-50 flex-shrink-0" onClick={handleRestore} title="שחזר משתמש">
+          <RotateCcw className="w-3.5 h-3.5" />
+        </Button>
+      ) : editing ? (
         <div className="flex items-center gap-0.5 flex-shrink-0">
           <Button size="icon" variant="ghost" className="h-7 w-7 text-green-600 hover:bg-green-50" onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
@@ -140,9 +173,14 @@ function UserRow({ user, onUpdate }) {
           </Button>
         </div>
       ) : (
-        <Button size="icon" variant="ghost" className="absolute top-1 left-1 h-6 w-6 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
-          <Pencil className="w-3 h-3" />
-        </Button>
+        <>
+          <Button size="icon" variant="ghost" className="absolute top-1 left-7 h-6 w-6 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50" onClick={() => setDeleteOpen(true)} title="מחק משתמש">
+            <Trash2 className="w-3 h-3" />
+          </Button>
+          <Button size="icon" variant="ghost" className="absolute top-1 left-1 h-6 w-6 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted" onClick={() => setEditing(true)}>
+            <Pencil className="w-3 h-3" />
+          </Button>
+        </>
       )}
 
       {/* Photo lightbox */}
@@ -152,6 +190,30 @@ function UserRow({ user, onUpdate }) {
           <p className="text-sm font-medium text-foreground">{displayName}</p>
         </DialogContent>
       </Dialog>
+
+      {/* Delete confirmation */}
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <DialogContent className="max-w-sm">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+              <Trash2 className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground">מחיקת משתמש</h3>
+            <p className="text-sm text-muted-foreground">
+              האם אתה בטוח שברצונך למחוק את <span className="font-semibold text-foreground">{displayName}</span>?<br />
+              ניתן יהיה לשחזר את המשתמש מאוחר יותר.
+            </p>
+            <div className="flex gap-2 w-full mt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setDeleteOpen(false)} disabled={deleting}>
+                ביטול
+              </Button>
+              <Button variant="destructive" className="flex-1" onClick={handleDelete} disabled={deleting}>
+                {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'מחק'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -159,7 +221,7 @@ function UserRow({ user, onUpdate }) {
 export default function UserManagement() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState('all'); // 'all' | 'pending'
+  const [tab, setTab] = useState('all'); // 'all' | 'pending' | 'deleted'
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
@@ -175,9 +237,13 @@ export default function UserManagement() {
 
   const ROLE_ORDER = { 'מנהל אחזקה': 0, 'מנהל מוסד': 1, 'אב בית': 2, 'צוות מדווח': 3, 'מפתח': 4, 'ללא הרשאה': 5 };
 
-  const pendingUsers = users.filter(u => (u.userType || 'ללא הרשאה') === 'ללא הרשאה');
+  const pendingUsers = users.filter(u => (u.userType || 'ללא הרשאה') === 'ללא הרשאה' && !u.deleted);
+  const deletedUsers = users.filter(u => u.deleted);
+  const activeUsers = users.filter(u => !u.deleted);
 
-  const filtered = (tab === 'pending' ? pendingUsers : users)
+  const baseList = tab === 'pending' ? pendingUsers : tab === 'deleted' ? deletedUsers : activeUsers;
+
+  const filtered = baseList
     .filter(u => {
       const name = (u.displayName || u.full_name || '').toLowerCase();
       const email = (u.email || '').toLowerCase();
@@ -193,7 +259,7 @@ export default function UserManagement() {
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto" dir="rtl">
       {/* Header */}
-      <PageHeader icon={Users} title="ניהול משתמשים" subtitle={`${users.length} משתמשים רשומים בסך הכל`} />
+      <PageHeader icon={Users} title="ניהול משתמשים" subtitle={`${users.filter(u => !u.deleted).length} משתמשים רשומים בסך הכל`} />
 
         {/* Tabs and Search */}
         <div className="space-y-4 mb-6">
@@ -220,6 +286,22 @@ export default function UserManagement() {
                   tab === 'pending' ? 'bg-white/20' : 'bg-orange-500 text-white'
                 }`}>
                   {pendingUsers.length}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => setTab('deleted')}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                tab === 'deleted' ? 'bg-red-500 text-white shadow-md' : 'bg-card text-red-600 border border-red-200 hover:border-red-400'
+              }`}
+            >
+              <UserX className="w-4 h-4" />
+              משתמשים שנמחקו
+              {deletedUsers.length > 0 && (
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  tab === 'deleted' ? 'bg-white/20' : 'bg-red-500 text-white'
+                }`}>
+                  {deletedUsers.length}
                 </span>
               )}
             </button>
@@ -256,13 +338,13 @@ export default function UserManagement() {
             <div className="py-16 text-center">
               <Users className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
               <p className="text-muted-foreground font-medium">
-                {tab === 'pending' ? 'אין משתמשים ממתינים לאישור' : 'לא נמצאו משתמשים'}
+                {tab === 'pending' ? 'אין משתמשים ממתינים לאישור' : tab === 'deleted' ? 'אין משתמשים שנמחקו' : 'לא נמצאו משתמשים'}
               </p>
             </div>
           ) : (
             <div className="divide-y divide-border">
               {filtered.map(user => (
-                <UserRow key={user.id} user={user} onUpdate={handleUpdate} />
+                <UserRow key={user.id} user={user} onUpdate={handleUpdate} onDelete={handleUpdate} onRestore={handleUpdate} />
               ))}
             </div>
           )}
