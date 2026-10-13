@@ -11,17 +11,9 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No assignment' });
     }
 
-    // קבל את פרטי העובד
-    const worker = await base44.entities.User.filter({ id: data.assignedTo });
-    if (!worker || worker.length === 0) {
-      return Response.json({ success: true, message: 'Worker not found' });
-    }
-
-    const workerEmail = worker[0].email;
-
-    // שלח הודעת פוש
+    // שלח הודעת פוש לעובד לפי מזהה המשתמש
     await base44.functions.invoke('sendPushNotification', {
-      targetUserEmail: workerEmail,
+      targetUserId: data.assignedTo,
       title: '📋 משימה חדשה שוייכה אליך',
       body: `${data.faultType} ב${data.location}`,
       notificationKey: 'notifyTaskAssigned',

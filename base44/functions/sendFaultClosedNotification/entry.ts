@@ -11,9 +11,15 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, message: 'No reporter' });
     }
 
+    // מצא את המשתמש לפי אימייל כדי לקבל את המזהה שלו
+    const reporter = await base44.asServiceRole.entities.User.filter({ email: data.reportedBy });
+    if (!reporter || reporter.length === 0) {
+      return Response.json({ success: true, message: 'Reporter user not found' });
+    }
+
     // שלח הודעת פוש למשתמש שדיווח על התקלה
     await base44.functions.invoke('sendPushNotification', {
-      targetUserEmail: data.reportedBy,
+      targetUserId: reporter[0].id,
       title: '✅ התקלה שלך נפתרה!',
       body: `${data.faultType} ב${data.location} סגורה`,
       notificationKey: 'notifyFaultClosed',

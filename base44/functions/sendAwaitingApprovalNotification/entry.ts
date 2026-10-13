@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     // שלח הודעה לכל מנהל אחזקה
     for (const manager of managers) {
       await base44.functions.invoke('sendPushNotification', {
-        targetUserEmail: manager.email,
+        targetUserId: manager.id,
         title: '⏳ משימה בממתין לאישור',
         body: `${data.faultType} ב${data.location} מחכה לאישורך`,
         notificationKey: 'notifyAwaitingApproval',
